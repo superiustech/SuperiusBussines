@@ -1,0 +1,209 @@
+﻿<div class="container d-flex justify-content-center">
+    <div class="p-4" style="max-width: 100%; width: 100%;">
+        <form id="formVariacao" class="row g-3 needs-validation" novalidate>
+
+            <div class="col-md-10">
+                <label for="tipoVariacao" class="form-label">Tipo de Variação</label>
+                <select class="form-select tipo-variacao" id="tipoVariacao" name="tipoVariacao">
+                    <option selected disabled value="">Escolha...</option>
+                </select>
+            </div>
+
+            <div class="col-md-2" style="align-content: end;">
+                <button type="button" id="btnAdicionarVariacao" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <div class="col-md-12 variacao" style="align-content: end;"></div>
+
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary">Finalizar cadastro</button>
+            </div>
+        </form>
+
+        <div id="loadingMessage" class="text-center m-auto" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p>Processando, por favor aguarde...</p>
+        </div>
+
+        <div id="successMessage" class="text-center mb-10" style="display: none;">
+            <i class="fas fa-check-circle text-success" style="font-size: 30px;"></i>
+            <p>Operação realizada com sucesso!</p>
+        </div> 
+
+        <div id="proximoPassoContainer" class="mt-4"></div>
+
+    </div>
+</div>
+
+<script language="javascript">
+    $(document).ready(function () {
+        $.ajax({
+        url: '/Administrador/GetTipoVariacao',
+            type: 'GET',
+            data: {},
+            success: function (response) {
+                response.forEach((item, index) => {
+                    var html = `<option value="${item.nCdVariacao}">${item.sNmVariacao}</option>`;
+                    $('.tipo-variacao').append(html);
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Erro ao buscar variações:', error);
+                alert('Erro ao carregar as variações.');
+            }
+        });
+
+        var contadorVariacoes = 0;
+        $('#btnAdicionarVariacao').on('click', function () {
+            var tipo = $('#tipoVariacao').val();
+
+            if (!tipo) {
+                //Tratar em tela para mostrar uma mensagem para o usuário. 
+            }
+            $.ajax({
+                url: '/Administrador/GetOpcoesVariacao',
+                type: 'GET',
+                data: { tipo: tipo },
+                success: function (response) {
+                    if (response && response.length > 0) {
+                        contadorVariacoes++;
+                        var collapseId = `collapse_${contadorVariacoes}`;
+                        var headerId = `heading_${contadorVariacoes}`;
+                        var cardId = `card_${contadorVariacoes}`; 
+                        var html = `
+                            <div class="card mt-2" id="${cardId}">
+                                <div class="card-header d-flex justify-content-between align-items-center" id="${headerId}">
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-link text-decoration-none text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="true" aria-controls="${collapseId}">
+                                            Variação: ${tipo}
+                                        </button>
+                                    </h5>
+                                    <button class="btn btn-danger btn-sm remove-variacao" data-target="${cardId}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div id="${collapseId}" class="collapse show" aria-labelledby="${headerId}">
+                            <div class="card-body">
+                        `;
+                        response[0].variacaoOpcoes.forEach((item, index) => {
+                            var checkboxId = `variacao_${contadorVariacoes}_${index}`;
+                            html += `
+                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="variacao_${contadorVariacoes}" value="${item.nCdVariacaoOpcao}|${response[0].nCdVariacao}" id="${checkboxId}">
+                                    <label class="form-check-label" for="${checkboxId}">
+                                        ${item.sNmVariacaoOpcao}
+                                    </label>
+                                </div>
+                            `;
+                        });
+
+                        html += `</div></div></div>`;
+                        $('.variacao').append(html);
+                    } else {
+                        alert('Nenhuma opção de variação encontrada.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Erro ao buscar variações:', error);
+                    alert('Erro ao carregar as variações.');
+                }
+            });
+        });
+        $(document).on('click', '.remove-variacao', function () {
+            var cardId = $(this).data('target');
+            $('#' + cardId).remove();
+        });
+
+        // Envio
+
+        $('#formVariacao').on('submit', function (e) {
+            e.preventDefault();
+            if (this.checkValidity() === false) {
+                e.stopPropagation();
+                $(this).addClass('was-validated');
+                return;
+            }
+
+            var variacoes = [];
+
+            for (let i = 1; i <= contadorVariacoes; i++) {
+                $(`input[name="variacao_${i}"]:checked`).each(function () {
+                    var [nCdVariacaoOpcao, nCdVariacao] = $(this).val().split('|'); 
+
+                    console.log('nCdVariacaoOpcao:', nCdVariacaoOpcao);
+                    console.log('nCdVariacao:', nCdVariacao);
+
+                    nCdVariacaoOpcao = parseInt(nCdVariacaoOpcao, 10); 
+                    nCdVariacao = parseInt(nCdVariacao, 10); 
+
+                    if (isNaN(nCdVariacaoOpcao) || isNaN(nCdVariacao)) {
+                        console.error('Valores inválidos para nCdVariacaoOpcao ou nCdVariacao');
+                        return;
+                    }
+
+                    var variacaoExistente = variacoes.find(v => v.nCdVariacao === nCdVariacao);
+
+                    if (!variacaoExistente) {
+                        variacaoExistente = {
+                            nCdVariacao: nCdVariacao,
+                            sNmVariacao: `Variação ${nCdVariacao}`,
+                            sDsVariacao: `Descrição da variação ${nCdVariacao}`,
+                            bFlAtiva: true,
+                            VariacaoOpcoes: []
+                        };
+                        variacoes.push(variacaoExistente);
+                    }
+
+                    variacaoExistente.VariacaoOpcoes.push({
+                        nCdVariacaoOpcao: nCdVariacaoOpcao,
+                        sNmVariacaoOpcao: `Opção ${nCdVariacaoOpcao}`,
+                        sDsVariacaoOpcao: `Descrição da opção ${nCdVariacaoOpcao}`,
+                        bFlAtiva: true
+                    });
+                });
+            }
+
+            // Envio
+
+            $('#formVariacao').hide();
+            $('#loadingMessage').show();
+
+            setTimeout(function () {
+                var formData = {
+                    variacoes: variacoes
+                };
+
+                $.ajax({
+                    url: '@Url.Action("CadastrarProduto", "Administrador")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(variacoes),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#loadingMessage').hide();
+                            setTimeout(function () {
+                                $('#successMessage').fadeIn();
+                            }, 1000);
+                            location.href = '@Url.Action("ProdutoImagem", "Administrador")/' + response.codigoProduto;
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.status === 400) {
+                            var errors = xhr.responseJSON.errors;
+                            alert("Erros de validação: " + errors.join(", "));
+                        } else {
+                            alert('Ocorreu um erro ao salvar os dados: ' + error);
+                        }
+                    }
+                });
+            }, 1000); 
+        });
+
+    });
+</script>

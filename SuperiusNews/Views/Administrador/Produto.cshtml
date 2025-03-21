@@ -1,0 +1,143 @@
+﻿<div class="container d-flex justify-content-center content" style="display: hidden;"></div>
+<div class="container">
+    
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="filterNome" class="form-label">Filtrar por Nome</label>
+            <input type="text" id="filterNome" class="form-control" placeholder="Digite o nome...">
+        </div>
+        <div class="col-md-4">
+            <label for="filterDescricao" class="form-label">Filtrar por Descrição</label>
+            <input type="text" id="filterDescricao" class="form-control" placeholder="Digite a descrição...">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button id="btnLimparFiltros" class="btn btn-secondary">Limpar Filtros</button>
+        </div>
+    </div>
+
+    <div id="gridContainer" class="mt-4" style="max-height: 800px;overflow: scroll;">
+        <label for="table-responsive" class="form-label">Produtos</label>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Imagem</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="gridBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="pagination-controls d-flex justify-content-center mt-3">
+        <button id="prev-page" class="btn btn-secondary" disabled>Anterior</button>
+        <div id="pagination-buttons" class="mx-3"></div>
+        <button id="next-page" class="btn btn-secondary" disabled>Próximo</button>
+    </div>
+</div>
+
+<div id="loadingMessage" class="text-center m-auto" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p>Processando, por favor aguarde...</p>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var currentPage = 1;
+            const pageSize = 10;
+
+            function loadProducts(page, limparGrid = false) {
+                $.ajax({
+                    url: '@Url.Action("PesquisarProdutosComPaginacao", "Administrador")',
+                    type: 'GET',
+                    data: { page: page, pageSize: pageSize },
+                    success: function (response) {
+                        const gridBody = document.getElementById("gridBody");
+                        if (limparGrid) { gridBody.innerHTML = ""; }
+                        response.produtos.forEach((item) => {
+                        const row = `
+                            <tr>
+                               <th scope="row">${item.nCdProduto}</th>
+                               <td><img src="https://i.postimg.cc/RZXH7Gwb/sem-imagem.png" alt="Imagem" style="width: 100px; height: auto;"></td>
+                               <td>${item.sNmProduto}</td>
+                               <td>${item.sDsProduto}</td>
+                               <td>
+                                <button data-id="${item.nCdProduto}" class="btn btn-sm btn-danger bntExcluir">Excluir</button>
+                                <button value="${item.nCdProduto}" name="abrirProduto" class="btn btn-primary btn-sm">Abrir Produto</button>
+                               </td>
+                            </tr>`;
+                            gridBody.insertAdjacentHTML("beforeend", row);
+                        });
+                        updatePagination(response.totalPaginas, page);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Erro ao buscar produtos', error);
+                        console.log(xhr.responseText);
+                    }
+                });
+            }
+
+            function updatePagination(totalPaginas, currentPage) {
+                $('#pagination-buttons').empty();
+
+                for (let i = 1; i <= totalPaginas; i++) {
+                    var pageButton = `<button value="${i}" class="btn btn-secondary page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
+                    $('#pagination-buttons').append(pageButton);
+                }
+
+                $('.page-btn').on('click', function () {
+                    currentPage = $(this).val();
+                    loadProducts(currentPage, true);
+                });
+            }
+
+            $('#prev-page').on('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadProducts(currentPage, true);
+                }
+            });
+
+            $('#next-page').on('click', function () {
+                if (currentPage < totalPaginas) {
+                    currentPage++;
+                    loadProducts(currentPage, true);
+                }
+            });
+
+            loadProducts(currentPage);
+
+            $(document).on('click', '.btn', function () {
+                var nCdProduto = $(this).val();
+                var nomeAcaoEscolhida = $(this).attr('name');
+
+                if (nomeAcaoEscolhida == "abrirProduto") {
+                    window.location.href = '@Url.Action("ProdutoEditar", "Administrador")/' + nCdProduto;
+                }
+            });
+        });
+    </script>
+}
+<style>
+    #pagination-buttons .btn {
+        margin: 0 5px;
+    }
+
+    .pagination-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .page-btn.active {
+        background-color: #007bff;
+        color: white;
+    }
+</style>

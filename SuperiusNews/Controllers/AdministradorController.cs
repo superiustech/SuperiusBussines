@@ -102,19 +102,20 @@ namespace WebApplication1.Controllers
         }      
 
         [HttpGet]
-        public async Task<IActionResult> PesquisarProdutosComPaginacao(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> PesquisarProdutosComPaginacao([FromQuery] PaginacaoRequest oPaginacaoRequest)
         {
             try
-            {
-                var produtos = await _produto.PesquisarProdutos(page, pageSize);
+           {
+                CWProduto oCWProdutoFiltro = new CWProduto() { sNmProduto = oPaginacaoRequest.oFiltroRequest.sNmProduto, sDsProduto = oPaginacaoRequest.oFiltroRequest.sDsProduto };
+                var produtos = await _produto.PesquisarProdutos(oPaginacaoRequest.page, oPaginacaoRequest.pageSize, oCWProdutoFiltro);
                 var totalItens = await _produto.PesquisarQuantidadePaginas();
-                var totalPaginas = (int)Math.Ceiling(totalItens / (double)pageSize);
+                var totalPaginas = (int)Math.Ceiling(totalItens / (double)oPaginacaoRequest.pageSize);
 
                 var resposta = new
                 {
                     Produtos = produtos,
                     TotalPaginas = totalPaginas,
-                    PaginaAtual = page
+                    PaginaAtual = oPaginacaoRequest.page
                 };
 
                 return Ok(resposta);

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infra.Repositories
 {
@@ -17,9 +18,17 @@ namespace Infra.Repositories
             _context = dbContext;
             _produtoRepositorySQL = produtoRepositorySQL;
         }
-        public async Task<List<CWProduto>> PesquisarTodos(int page = 1, int pageSize = 10)
+        public async Task<List<CWProduto>> PesquisarTodos(int page = 1, int pageSize = 10, CWProduto? oCWProdutoFiltro = null)
         {
-            return await _context.Produto.OrderBy(p => p.nCdProduto).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var query = _context.Produto.AsNoTracking().AsQueryable();
+            query = oCWProdutoFiltro == null ? query : AplicarFiltros(query, oCWProdutoFiltro);
+            return await query.OrderBy(p => p.nCdProduto).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        }
+        private IQueryable<CWProduto> AplicarFiltros(IQueryable<CWProduto> query, CWProduto filtro)
+        {
+            query = !string.IsNullOrEmpty(filtro.sNmProduto) ? query.Where(p => EF.Functions.Like(p.sNmProduto, $"%{filtro.sNmProduto}%")) : query;
+            query = !string.IsNullOrEmpty(filtro.sDsProduto) ? query.Where(p => EF.Functions.Like(p.sDsProduto, $"%{filtro.sDsProduto}%")) : query;
+            return query;
         }
 
         public async Task<int> PesquisarQuantidadePaginas()

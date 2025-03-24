@@ -19,4 +19,14 @@ namespace Domain.Requests
         public IFormFile Imagem { get; set; }
         public string Descricao { get; set; }
     }
+    public class FiltroRequest
+    {
+        public string sNmProduto { get; set; }
+        public string sDsProduto { get; set; }
+    }
+     public class PaginacaoRequest {
+         public int page { get; set; } = 1;
+         public int pageSize { get; set; } = 10;
+         public FiltroRequest oFiltroRequest { get; set; }
+     }
 }

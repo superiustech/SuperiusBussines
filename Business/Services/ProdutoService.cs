@@ -16,9 +16,9 @@ namespace Business.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<List<CWProduto>> PesquisarProdutos(int page, int pageSize)
+        public async Task<List<CWProduto>> PesquisarProdutos(int page, int pageSize, CWProduto? oCWProdutoFiltro = null)
         {
-            return await _produtoRepository.PesquisarTodos(page, pageSize);
+            return await _produtoRepository.PesquisarTodos(page, pageSize, oCWProdutoFiltro);
         }
         public async Task<int> PesquisarQuantidadePaginas()
         {

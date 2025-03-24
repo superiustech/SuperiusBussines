@@ -59,6 +59,9 @@
                 </table>
             </div>
         </div>
+        <div class="col-md-12">
+            <button type="button" id="btnFinalizar" class="btn btn-primary">Finalizar</button>
+        </div>
     </div>
 </div>
 <script language="javascript">
@@ -126,6 +129,11 @@
                 }
             });
         });
+
+        $(document).on('click', '#btnFinalizar', function () {
+            location.href = '@Url.Action("Produto", "Administrador")';
+        });
+
 
         $('#formImagem').on('submit', function (event) {
             event.preventDefault();

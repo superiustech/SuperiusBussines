@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Requests;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Data;
@@ -7,7 +8,7 @@ namespace Domain.Interfaces
 {
     public interface IProduto
     {
-        public Task<List<CWProduto>> PesquisarProdutos(int page, int pageSize);
+        public Task<List<CWProduto>> PesquisarProdutos(int page, int pageSize, CWProduto? cwProdutoFiltro = null);
         public CWProduto ConsultarProduto(int nCdProduto);
         public Task<int> PesquisarQuantidadePaginas();
         public Task<List<CWVariacao>> ObterVariacoesAtivas();

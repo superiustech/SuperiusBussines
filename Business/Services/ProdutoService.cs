@@ -16,9 +16,9 @@ namespace Business.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<List<CWProduto>> PesquisarProdutos(int page, int pageSize, CWProduto? oCWProdutoFiltro = null)
+        public async Task<List<CWProduto>> PesquisarProdutos(int page, int pageSize)
         {
-            return await _produtoRepository.PesquisarTodos(page, pageSize, oCWProdutoFiltro);
+            return await _produtoRepository.PesquisarTodos(page, pageSize);
         }
         public async Task<int> PesquisarQuantidadePaginas()
         {
@@ -56,26 +56,36 @@ namespace Business.Services
                 throw new Exception("Ocorreu um erro ao excluir a imagem.", ex);
             }
         }
-        public async Task<int> CadastrarProduto(CWProduto cwProduto, List<CWVariacao> variacoes)
+        public async Task CadastrarProduto(CWProduto cwProduto, List<CWVariacao> variacoes)
         {
-            try
-            {
-                var lstProdutoOpcaoVariacao = variacoes
-                    .SelectMany(v => v.VariacaoOpcoes
-                        .Select(opcao => new CWProdutoOpcaoVariacaoBase
+            try 
+            { 
+                if (variacoes.Any())
+                {
+                    List<CWProdutoOpcaoVariacaoBase> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacaoBase>();
+                    foreach (var cwVaricacao in variacoes)
+                    {
+                        foreach(var cwVariacaoOpcao in cwVaricacao.VariacaoOpcoes)
                         {
-                            nCdProduto = cwProduto.nCdProduto,
-                            nCdVariacao = v.nCdVariacao,
-                            nCdVariacaoOpcao = opcao?.nCdVariacaoOpcao ?? 0
-                        }))
-                    .ToList();
-
-                int nCdProduto = await _produtoRepository.CadastrarProduto(cwProduto, lstProdutoOpcaoVariacao);
-                return nCdProduto;
+                            lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacaoBase()
+                            {
+                                nCdProduto = cwProduto.nCdProduto,
+                                nCdVariacao = cwVaricacao.nCdVariacao,
+                                nCdVariacaoOpcao = cwVariacaoOpcao?.nCdVariacaoOpcao ?? 0
+                            });
+                        }
+                    }
+                    await _produtoRepository.CadastrarProduto(cwProduto, lstProdutoOpcaoVariacao);
+                }
+                if (_httpContextAccessor.HttpContext.Session.Keys.Contains("DadosProduto"))
+                {
+                    _httpContextAccessor.HttpContext.Session.Remove("DadosProduto");
+                }
             }
             catch (Exception ex)
             {
                 throw new Exception("Ocorreu um erro ao cadastrar o produto.", ex);
+
             }
         }
         public async Task EditarVariacaoProduto(int nCdProduto, List<CWVariacao> variacoes)

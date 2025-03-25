@@ -3,12 +3,12 @@
     
     <div class="row mb-3">
         <div class="col-md-4">
-            <label for="sNmProduto" class="form-label">Filtrar por Nome</label>
-            <input type="text" id="sNmProduto" class="form-control" placeholder="Digite o nome...">
+            <label for="filterNome" class="form-label">Filtrar por Nome</label>
+            <input type="text" id="filterNome" class="form-control" placeholder="Digite o nome...">
         </div>
         <div class="col-md-4">
-            <label for="sDsProduto" class="form-label">Filtrar por Descrição</label>
-            <input type="text" id="sDsProduto" class="form-control" placeholder="Digite a descrição...">
+            <label for="filterDescricao" class="form-label">Filtrar por Descrição</label>
+            <input type="text" id="filterDescricao" class="form-control" placeholder="Digite a descrição...">
         </div>
         <div class="col-md-4 d-flex align-items-end">
             <button id="btnLimparFiltros" class="btn btn-secondary">Limpar Filtros</button>
@@ -34,9 +34,9 @@
     </div>
 
     <div class="pagination-controls d-flex justify-content-center mt-3">
-        <button id="prev-page" class="btn btn-secondary">Anterior</button>
+        <button id="prev-page" class="btn btn-secondary" disabled>Anterior</button>
         <div id="pagination-buttons" class="mx-3"></div>
-        <button id="next-page" class="btn btn-secondary">Próximo</button>
+        <button id="next-page" class="btn btn-secondary" disabled>Próximo</button>
     </div>
 </div>
 
@@ -50,51 +50,19 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            const pageSize = 10;
             var currentPage = 1;
-            var totalPaginas = 0;
-            let debounceTimer;
-
-            function debouncedLoadProducts() {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    loadProducts(currentPage, true);
-                }, 500);
-            }
-
-            $('#sNmProduto, #sDsProduto').on('input', debouncedLoadProducts);
+            const pageSize = 10;
 
             function loadProducts(page, limparGrid = false) {
-                const filtroRequest = {
-                    sNmProduto: $('#sNmProduto').val(),
-                    sDsProduto: $('#sDsProduto').val()
-                };
-
-                const paginacaoRequest = {
-                    page: page,
-                    pageSize: pageSize,
-                    oFiltroRequest: filtroRequest
-                };
-
-                const params = {
-                    page: paginacaoRequest.page,
-                    pageSize: paginacaoRequest.pageSize,
-                    'oFiltroRequest.sNmProduto': paginacaoRequest.oFiltroRequest.sNmProduto,
-                    'oFiltroRequest.sDsProduto': paginacaoRequest.oFiltroRequest.sDsProduto
-                };
                 $.ajax({
                     url: '@Url.Action("PesquisarProdutosComPaginacao", "Administrador")',
                     type: 'GET',
-                    data: params,
-                    beforeSend: function () { $('#gridBody').html('<tr><td colspan="5" class="text-center">Carregando...</td></tr>'); },
+                    data: { page: page, pageSize: pageSize },
                     success: function (response) {
                         const gridBody = document.getElementById("gridBody");
-                        if (limparGrid || !response.produtos.length) {
-                            gridBody.innerHTML = response.produtos.length ? "" : "<tr><td colspan='5'>Nenhum produto encontrado</td></tr>";
-                        }
-
+                        if (limparGrid) { gridBody.innerHTML = ""; }
                         response.produtos.forEach((item) => {
-                            const row = `
+                        const row = `
                             <tr>
                                <th scope="row">${item.nCdProduto}</th>
                                <td><img src="https://i.postimg.cc/RZXH7Gwb/sem-imagem.png" alt="Imagem" style="width: 100px; height: auto;"></td>
@@ -107,13 +75,11 @@
                             </tr>`;
                             gridBody.insertAdjacentHTML("beforeend", row);
                         });
-
                         updatePagination(response.totalPaginas, page);
-                        totalPaginas = response.totalPaginas;
                     },
                     error: function (xhr, status, error) {
                         console.error('Erro ao buscar produtos', error);
-                        $('#gridBody').html('<tr><td colspan="5" class="text-center text-danger">Erro ao carregar produtos</td></tr>');
+                        console.log(xhr.responseText);
                     }
                 });
             }

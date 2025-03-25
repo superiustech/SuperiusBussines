@@ -59,10 +59,6 @@
                 </table>
             </div>
         </div>
-        <div class="col-md-12">
-            <button id="btnVoltar" class="btn btn-secondary">Voltar</button>
-            <button type="button" id="btnFinalizar" class="btn btn-primary">Finalizar</button>
-        </div>
     </div>
 </div>
 <script language="javascript">
@@ -130,15 +126,6 @@
                 }
             });
         });
-
-        $(document).on('click', '#btnFinalizar', function () {
-            location.href = '@Url.Action("Produto", "Administrador")';
-        });
-
-        $(document).on('click', '#btnVoltar', function () {
-            location.href = '@Url.Action("ProdutoVariacoesEditar", "Administrador")/' + @Model;
-        });
-
 
         $('#formImagem').on('submit', function (event) {
             event.preventDefault();

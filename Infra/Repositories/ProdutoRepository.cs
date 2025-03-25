@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Data;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infra.Repositories
 {
@@ -18,17 +17,9 @@ namespace Infra.Repositories
             _context = dbContext;
             _produtoRepositorySQL = produtoRepositorySQL;
         }
-        public async Task<List<CWProduto>> PesquisarTodos(int page = 1, int pageSize = 10, CWProduto? oCWProdutoFiltro = null)
+        public async Task<List<CWProduto>> PesquisarTodos(int page = 1, int pageSize = 10)
         {
-            var query = _context.Produto.AsNoTracking().AsQueryable();
-            query = oCWProdutoFiltro == null ? query : AplicarFiltros(query, oCWProdutoFiltro);
-            return await query.OrderBy(p => p.nCdProduto).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-        }
-        private IQueryable<CWProduto> AplicarFiltros(IQueryable<CWProduto> query, CWProduto filtro)
-        {
-            query = !string.IsNullOrEmpty(filtro.sNmProduto) ? query.Where(p => EF.Functions.Like(p.sNmProduto, $"%{filtro.sNmProduto}%")) : query;
-            query = !string.IsNullOrEmpty(filtro.sDsProduto) ? query.Where(p => EF.Functions.Like(p.sDsProduto, $"%{filtro.sDsProduto}%")) : query;
-            return query;
+            return await _context.Produto.OrderBy(p => p.nCdProduto).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<int> PesquisarQuantidadePaginas()
@@ -70,36 +61,25 @@ namespace Infra.Repositories
 
             return variacoes;
         }
-        public async Task<int> CadastrarProduto(CWProduto cwProduto, List<CWProdutoOpcaoVariacaoBase> variacoes)
+        public async Task CadastrarProduto(CWProduto cwProduto, List<CWProdutoOpcaoVariacaoBase> variacoes)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                await _context.Produto.AddAsync(cwProduto);
-                await _context.SaveChangesAsync();
+            await _context.Produto.AddAsync(cwProduto);
+            await _context.SaveChangesAsync();
 
-                int nCdProduto = cwProduto.nCdProduto;
-                List<CWProdutoOpcaoVariacaoBase> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacaoBase>();
-                foreach (var variacao in variacoes)
+            int nCdProduto = cwProduto.nCdProduto;
+            List<CWProdutoOpcaoVariacaoBase> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacaoBase>();
+            foreach (var variacao in variacoes)
+            {
+                lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacaoBase
                 {
-                    lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacaoBase
-                    {
-                        nCdProduto = nCdProduto,
-                        nCdVariacao = variacao.nCdVariacao,
-                        nCdVariacaoOpcao = variacao.nCdVariacaoOpcao
-                    });
-                }
+                    nCdProduto = nCdProduto, 
+                    nCdVariacao = variacao.nCdVariacao,
+                    nCdVariacaoOpcao = variacao.nCdVariacaoOpcao
+                });
+            }
 
-                await _context.ProdutoOpcaoVariacao.AddRangeAsync(lstProdutoOpcaoVariacao);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return nCdProduto;
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            await _context.ProdutoOpcaoVariacao.AddRangeAsync(lstProdutoOpcaoVariacao);
+            await _context.SaveChangesAsync();
         }
         public async Task AdicionarImagem(CWProdutoImagem oCWProdutoImagem)
         {

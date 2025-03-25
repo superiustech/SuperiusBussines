@@ -70,25 +70,36 @@ namespace Infra.Repositories
 
             return variacoes;
         }
-        public async Task CadastrarProduto(CWProduto cwProduto, List<CWProdutoOpcaoVariacaoBase> variacoes)
+        public async Task<int> CadastrarProduto(CWProduto cwProduto, List<CWProdutoOpcaoVariacaoBase> variacoes)
         {
-            await _context.Produto.AddAsync(cwProduto);
-            await _context.SaveChangesAsync();
-
-            int nCdProduto = cwProduto.nCdProduto;
-            List<CWProdutoOpcaoVariacaoBase> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacaoBase>();
-            foreach (var variacao in variacoes)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacaoBase
-                {
-                    nCdProduto = nCdProduto, 
-                    nCdVariacao = variacao.nCdVariacao,
-                    nCdVariacaoOpcao = variacao.nCdVariacaoOpcao
-                });
-            }
+                await _context.Produto.AddAsync(cwProduto);
+                await _context.SaveChangesAsync();
 
-            await _context.ProdutoOpcaoVariacao.AddRangeAsync(lstProdutoOpcaoVariacao);
-            await _context.SaveChangesAsync();
+                int nCdProduto = cwProduto.nCdProduto;
+                List<CWProdutoOpcaoVariacaoBase> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacaoBase>();
+                foreach (var variacao in variacoes)
+                {
+                    lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacaoBase
+                    {
+                        nCdProduto = nCdProduto,
+                        nCdVariacao = variacao.nCdVariacao,
+                        nCdVariacaoOpcao = variacao.nCdVariacaoOpcao
+                    });
+                }
+
+                await _context.ProdutoOpcaoVariacao.AddRangeAsync(lstProdutoOpcaoVariacao);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return nCdProduto;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         public async Task AdicionarImagem(CWProdutoImagem oCWProdutoImagem)
         {

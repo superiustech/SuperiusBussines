@@ -12,7 +12,7 @@ namespace Domain.Interfaces
         Task<List<CWVariacao>> PesquisarVariacoes();
         Task<List<CWUnidadeMedida>> PesquisarUnidadeMedidas();
         Task<List<CWProdutoImagem>> PesquisarProdutoImagens(int nCdProduto);
-        Task<int> CadastrarProduto(CWProduto cwProduto, List<CWProdutoOpcaoVariacaoBase> variacoes);
+        Task CadastrarProduto(CWProduto cwProduto, List<CWProdutoOpcaoVariacaoBase> variacoes);
         Task EditarVariacaoProduto(int nCdProduto, List<CWProdutoOpcaoVariacaoBase> variacoes);
         Task AtualizarProduto(CWProduto cwProduto);
         Task<List<dynamic>> ConsultarProdutoVariacao(int nCdProduto);

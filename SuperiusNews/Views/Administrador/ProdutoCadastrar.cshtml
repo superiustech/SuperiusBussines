@@ -178,7 +178,12 @@
                         data: JSON.stringify(formData),
                         success: function (response) {
                             if (response.success) {
-                                location.href = '@Url.Action("ProdutoVariacoesEditar", "Administrador")/' + response.codigoProduto;
+                                $('#loadingMessage').hide();
+                                $('#proximoPassoContainer').load('@Url.Action("ProximoPasso", "Administrador")', function (response, status, xhr) {
+                                    if (xhr.status === 302) {
+                                        window.location.href = '@Url.Action("ProximoPasso", "Administrador")';
+                                    }
+                                });
                             } else {
                                 alert(response.message);
                             }

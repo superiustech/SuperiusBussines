@@ -14,7 +14,7 @@ namespace Domain.Interfaces
         public Task<List<CWVariacao>> ObterVariacoesAtivas();
         public Task<List<CWUnidadeMedida>> ObterUnidadesAtivas();
         public Task<List<CWProdutoImagem>> ObterImagensProduto(int nCdProduto);
-        public Task CadastrarProduto(CWProduto cwProduto, List<CWVariacao> variacoes);
+        public Task<int> CadastrarProduto(CWProduto cwProduto, List<CWVariacao> variacoes);
         public Task EditarVariacaoProduto(int nCdProduto, List<CWVariacao> variacoes);
         public Task AtualizarProduto(CWProduto cwProduto);
         public Task ExcluirImagem(int nCdImagem);

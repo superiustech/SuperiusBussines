@@ -203,16 +203,8 @@
                     $('#formProduto').hide();
                     $('#loadingMessage').show();
 
-                    $('#proximoPassoContainer').load('@Url.Action("ProximoPassoEdicao", "Administrador")', { nCdProduto: nCdProduto }, function (response, status, xhr) {
-                        if (xhr.status === 302) {
-                            window.location.href = xhr.getResponseHeader('Location');
-                        } else if (status === "error") {
-                            alert('Ocorreu um erro ao carregar o próximo passo.');
-                        } else {
-                            $('#loadingMessage').hide();
-                            $('#proximoPassoContainer').show();
-                        }
-                    });
+                    location.href = '@Url.Action("ProdutoVariacoesEditar", "Administrador")/' + nCdProduto;
+
                 } catch (error) {
                     alert('Ocorreu um erro ao avançar para o próximo passo: ' + error.statusText);
                 }

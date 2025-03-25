@@ -1,6 +1,6 @@
 ﻿@model int
 <div class="container d-flex justify-content-center">
-    <div class="p-4" style="max-width: 100%; width: 100%;">
+    <div class="p-4" style="max-width: 70%; width: 100%;">
         <form id="formVariacao" class="row g-3 needs-validation" novalidate>
             <div class="col-md-10">
                 <label for="tipoVariacao" class="form-label">Tipo de Variação</label>
@@ -15,6 +15,7 @@
             </div>
             <div class="col-md-12 variacao" style="align-content: end;"></div>
             <div class="col-md-6">
+                <button id="btnVoltar" class="btn btn-secondary">Voltar</button>
                 <button type="submit" class="btn btn-primary">Salvar e avançar</button>
             </div>
         </form>
@@ -241,6 +242,7 @@
         $('#btnAdicionarVariacao').on('click', adicionarVariacao);
         $(document).on('click', '.remove-variacao', removerVariacao);
         $('#formVariacao').on('submit', enviarFormulario);
+        $(document).on('click', '#btnVoltar', function () { location.href = '@Url.Action("ProdutoEditar", "Administrador")/' + @Model; });
 
         // Inicialização
         carregarTiposVariacao();

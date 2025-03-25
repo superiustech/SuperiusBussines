@@ -56,36 +56,26 @@ namespace Business.Services
                 throw new Exception("Ocorreu um erro ao excluir a imagem.", ex);
             }
         }
-        public async Task CadastrarProduto(CWProduto cwProduto, List<CWVariacao> variacoes)
+        public async Task<int> CadastrarProduto(CWProduto cwProduto, List<CWVariacao> variacoes)
         {
-            try 
-            { 
-                if (variacoes.Any())
-                {
-                    List<CWProdutoOpcaoVariacaoBase> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacaoBase>();
-                    foreach (var cwVaricacao in variacoes)
-                    {
-                        foreach(var cwVariacaoOpcao in cwVaricacao.VariacaoOpcoes)
+            try
+            {
+                var lstProdutoOpcaoVariacao = variacoes
+                    .SelectMany(v => v.VariacaoOpcoes
+                        .Select(opcao => new CWProdutoOpcaoVariacaoBase
                         {
-                            lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacaoBase()
-                            {
-                                nCdProduto = cwProduto.nCdProduto,
-                                nCdVariacao = cwVaricacao.nCdVariacao,
-                                nCdVariacaoOpcao = cwVariacaoOpcao?.nCdVariacaoOpcao ?? 0
-                            });
-                        }
-                    }
-                    await _produtoRepository.CadastrarProduto(cwProduto, lstProdutoOpcaoVariacao);
-                }
-                if (_httpContextAccessor.HttpContext.Session.Keys.Contains("DadosProduto"))
-                {
-                    _httpContextAccessor.HttpContext.Session.Remove("DadosProduto");
-                }
+                            nCdProduto = cwProduto.nCdProduto,
+                            nCdVariacao = v.nCdVariacao,
+                            nCdVariacaoOpcao = opcao?.nCdVariacaoOpcao ?? 0
+                        }))
+                    .ToList();
+
+                int nCdProduto = await _produtoRepository.CadastrarProduto(cwProduto, lstProdutoOpcaoVariacao);
+                return nCdProduto;
             }
             catch (Exception ex)
             {
                 throw new Exception("Ocorreu um erro ao cadastrar o produto.", ex);
-
             }
         }
         public async Task EditarVariacaoProduto(int nCdProduto, List<CWVariacao> variacoes)

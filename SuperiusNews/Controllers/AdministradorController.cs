@@ -102,19 +102,20 @@ namespace WebApplication1.Controllers
         }      
 
         [HttpGet]
-        public async Task<IActionResult> PesquisarProdutosComPaginacao(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> PesquisarProdutosComPaginacao([FromQuery] PaginacaoRequest oPaginacaoRequest)
         {
             try
-            {
-                var produtos = await _produto.PesquisarProdutos(page, pageSize);
+           {
+                CWProduto oCWProdutoFiltro = new CWProduto() { sNmProduto = oPaginacaoRequest.oFiltroRequest.sNmProduto, sDsProduto = oPaginacaoRequest.oFiltroRequest.sDsProduto };
+                var produtos = await _produto.PesquisarProdutos(oPaginacaoRequest.page, oPaginacaoRequest.pageSize, oCWProdutoFiltro);
                 var totalItens = await _produto.PesquisarQuantidadePaginas();
-                var totalPaginas = (int)Math.Ceiling(totalItens / (double)pageSize);
+                var totalPaginas = (int)Math.Ceiling(totalItens / (double)oPaginacaoRequest.pageSize);
 
                 var resposta = new
                 {
                     Produtos = produtos,
                     TotalPaginas = totalPaginas,
-                    PaginaAtual = page
+                    PaginaAtual = oPaginacaoRequest.page
                 };
 
                 return Ok(resposta);
@@ -141,17 +142,23 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpPost]
-        public IActionResult SalvarDados([FromBody] CWProduto dados)
+        public async Task<IActionResult> SalvarDados([FromBody] CWProduto dados)
         {
-            if (dados == null)
+            try
             {
-                return BadRequest("Dados inválidos.");
+                if (dados == null) return BadRequest("Dados inválidos."); 
+
+                int nCdProduto = await _produto.CadastrarProduto(dados, new List<CWVariacao>());
+                return Json(new { success = true, message = "Dados salvos com sucesso.", codigoProduto = nCdProduto });
             }
-            HttpContext.Session.SetString("DadosProduto", JsonConvert.SerializeObject(dados));
-            return Json(new { success = true, message = "Dados salvos com sucesso." });
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar produto");
+                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
+            }
         }
         [HttpPost]
-        public async Task<IActionResult> CadastrarProduto([FromBody] List<CWVariacao> variacoes)
+        public async Task<IActionResult> CadastrarProduto([FromBody] CWProduto dados)
         {
             var dadosSalvos = HttpContext.Session.GetString("DadosProduto");
             if (string.IsNullOrEmpty(dadosSalvos))
@@ -159,14 +166,7 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("ProdutoCadastrar");
             }
 
-            var dados = JsonConvert.DeserializeObject<CWProduto>(dadosSalvos);
-
-            if (variacoes == null || variacoes.Any(v => v.nCdVariacao == 0 || string.IsNullOrEmpty(v.sNmVariacao)))
-            {
-                return BadRequest("Dados inválidos ou ausentes.");
-            }
-
-            await _produto.CadastrarProduto(dados, variacoes);
+             _produto.CadastrarProduto(dados, new List<CWVariacao>());
 
             return Json(new { success = true, message = "Produto cadastrado com sucesso." , codigoProduto = dados.nCdProduto});
         }
@@ -183,6 +183,7 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, $"Erro ao atualizar variações: {ex.Message}");
             }
         }
+        [HttpGet("Administrador/ProdutoVariacoes")]
         public IActionResult ProximoPasso()
         {
             var dadosSalvos = HttpContext.Session.GetString("DadosProduto");
@@ -192,7 +193,7 @@ namespace WebApplication1.Controllers
             }
 
             var dados = JsonConvert.DeserializeObject<CWProduto>(dadosSalvos);
-            return PartialView("ProdutoVariacoes", dados);
+            return View("ProdutoVariacoes", dados);
         }
         [HttpPut]
         public async Task<IActionResult> AtualizarProduto([FromBody] CWProduto oCWProduto)
@@ -207,11 +208,12 @@ namespace WebApplication1.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
-        public IActionResult ProximoPassoEdicao(int nCdProduto)
+        [HttpGet("Administrador/ProdutoVariacoesEditar/{nCdProduto}")]
+        public IActionResult ProdutoVariacoesEditar(int nCdProduto)
         {
             try
             {
-                return PartialView("ProdutoVariacoesEditar", nCdProduto);
+                return View(nCdProduto);
             }
             catch (Exception ex)
             {

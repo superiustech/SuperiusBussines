@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "Estoque";
+}
+
+<div class="container d-flex justify-content-center">
+    <div class="p-4" style="max-width: 70%; width: 100%;">
+        <form id="formEstoque" class="row g-3 needs-validation" novalidate>
+            <!-- Campos do formulário -->
+            <div class="col-md-10">
+                <label for="nomeEstoque" class="form-label">Nome do Estoque</label>
+                <input type="text" class="form-control" id="nomeEstoque" name="nomeEstoque" required>
+                <div class="valid-feedback">
+                    Nome válido!
+                </div>
+                <div class="invalid-feedback">
+                    Por favor, insira o nome do Estoque.
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label for="codigoEstoque" class="form-label">Código</label>
+                <div class="input-group has-validation">
+                    <span class="input-group-text" id="inputGroupPrepend">#</span>
+                    <input type="text" class="form-control" id="codigoEstoque" name="codigoEstoque" aria-describedby="inputGroupPrepend" required>
+                    <div class="invalid-feedback">
+                        Por favor, insira o código do Estoque.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label for="descricaoEstoque" class="form-label">Descrição do Estoque</label>
+                <textarea class="form-control" style="max-height: 150px;" id="descricaoEstoque" name="descricaoEstoque" required></textarea>
+                <div class="invalid-feedback">
+                    Por favor, insira a descrição do Estoque.
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label for="tagsBusca" class="form-label">Tags para busca</label>
+                <input type="text" class="form-control" id="tagsBusca" name="tagsBusca" required>
+                <div class="invalid-feedback">
+                    Por favor, insira as tags para busca.
+                </div>
+            </div>
+            <br />
+            <h6 class="mt-12">Localicade <span class="badge bg-secondary"><i class="fas fa-gear"></i></span></h6>
+
+            <div class="col-md-6">
+                <label for="rua" class="form-label">Rua</label>
+                <input type="text" class="form-control" id="rua" name="rua" required>
+                <div class="invalid-feedback">
+                    Por favor, insira a rua.
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="comprimento" class="form-label">Número</label>
+                <input type="text" class="form-control" id="numero" name="numero" required>
+                <div class="invalid-feedback">
+                    Por favor, insira o número.
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="complemento" class="form-label">Complemento</label>
+                <input type="text" class="form-control" id="complemento" name="complemento" required>
+                <div class="invalid-feedback">
+                    Por favor, insira o complemento.
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="cep" class="form-label">CEP</label>
+                <input type="text" class="form-control" id="cep" name="cep" required>
+                <div class="invalid-feedback">
+                    Por favor, insira o CEP.
+                </div>
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary">Salvar e avançar</button>
+            </div>
+        </form>
+
+        <!-- Mensagem de processamento -->
+        <div id="loadingMessage" class="text-center m-auto" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p>Processando, por favor aguarde...</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $('#formEstoque').on('submit', function (e) {
+                e.preventDefault();
+                if (this.checkValidity() === false) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+
+                $('#formEstoque').hide();
+                $('#loadingMessage').show();
+
+                setTimeout(function () {
+                    var formData = {
+                        sNmEstoque: $('#nomeEstoque').val(),
+                        sCdEstoque: $('#codigoEstoque').val(),
+                        sDsEstoque: $('#descricaoEstoque').val(),
+                        sDsRua: $('#rua').val(),
+                        sDsComplemento: $('#complemento').val(),
+                        sNrNumero: $('#numero').val(),
+                        sCdCep: $('#cep').val()
+                    };
+
+                    $.ajax({
+                        url: '@Url.Action("CadastrarEstoque", "Administrador")',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function (response) {
+                            if (response.success) {
+                                location.href = '@Url.Action("EstoqueProduto", "Administrador")/' + response.codigoEstoque;
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            if (xhr.status === 400) {
+                                var errors = xhr.responseJSON.errors;
+                                alert("Erros de validação: " + errors.join(", "));
+                            } else {
+                                alert('Ocorreu um erro ao salvar os dados: ' + error);
+                            }
+                        }
+                    });
+                }, 1000); 
+            });
+        });
+    </script>
+}

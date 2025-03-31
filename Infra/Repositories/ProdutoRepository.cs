@@ -18,11 +18,18 @@ namespace Infra.Repositories
             _context = dbContext;
             _produtoRepositorySQL = produtoRepositorySQL;
         }
-        public async Task<List<CWProduto>> PesquisarTodos(int page = 1, int pageSize = 10, CWProduto? oCWProdutoFiltro = null)
+        public async Task<List<CWProduto>> PesquisarTodos(int page = 0, int pageSize = 0, CWProduto? oCWProdutoFiltro = null)
         {
-            var query = _context.Produto.AsNoTracking().AsQueryable();
-            query = oCWProdutoFiltro == null ? query : AplicarFiltros(query, oCWProdutoFiltro);
-            return await query.OrderBy(p => p.nCdProduto).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            if (page == 0 || pageSize == 0)
+            {
+                return await _context.Produto.AsNoTracking().OrderBy(p => p.nCdProduto).ToListAsync();
+            }
+            else
+            {
+                var query = _context.Produto.AsNoTracking().AsQueryable();
+                query = oCWProdutoFiltro == null ? query : AplicarFiltros(query, oCWProdutoFiltro);
+                return await query.OrderBy(p => p.nCdProduto).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            }
         }
         private IQueryable<CWProduto> AplicarFiltros(IQueryable<CWProduto> query, CWProduto filtro)
         {
@@ -34,6 +41,11 @@ namespace Infra.Repositories
         public async Task<int> PesquisarQuantidadePaginas()
         {
             return await _context.Produto.CountAsync();
+        }
+        public async Task<List<CWProduto>> PesquisarPorEstoque(int nCdEstoque)
+        {
+            var produtosIds = await _context.EstoqueProduto.Where(ep => ep.nCdEstoque == nCdEstoque).Select(ep => ep.nCdProduto).Distinct().ToListAsync();
+            return await _context.Produto.Where(p => produtosIds.Contains(p.nCdProduto)).ToListAsync();
         }
         public CWProduto ConsultarProduto(int nCdProduto)
         {

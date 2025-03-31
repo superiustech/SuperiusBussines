@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -10,6 +10,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 </head>
 <body>
     <div class="d-flex">
@@ -31,6 +32,10 @@
                 <a href="#" class="sidebar-link text-decoration-none text-light p-3">
                     <i class="fas fa-chart-bar me-3"></i>
                     <span class="hide-on-collapse">Estoque</span>
+                </a>
+                <a asp-controller="Administrador" asp-action="CadastrarEstoque" class="sidebar-link text-decoration-none text-light p-3">
+                    <i class="fas fa-chart-bar me-3"></i>
+                    <span class="hide-on-collapse">Cadastrar Estoque</span>
                 </a>
                 <a asp-controller="Administrador" asp-action="Produto" class="sidebar-link text-decoration-none text-light p-3">
                     <i class="fas fa-box me-3"></i>
@@ -59,11 +64,12 @@
 
         <div class="main-content">
             <main role="main" class="pb-3">
+                @await Html.PartialAsync("_ModalProdutoEstoque")
                 @RenderBody()
             </main>
         </div>
     </div>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
@@ -75,6 +81,109 @@
                 $(this).addClass('active');
             });
         });
+
+        $(document).ready(function () {
+            $('.date').mask('00/00/0000');
+            $('.time').mask('00:00:00');
+            $('.date_time').mask('00/00/0000 00:00:00');
+            $('.cep').mask('00000-000');
+            $('.phone').mask('0000-0000');
+            $('.phone_with_ddd').mask('(00) 0000-0000');
+            $('.phone_us').mask('(000) 000-0000');
+            $('.mixed').mask('AAA 000-S0S');
+            $('.cpf').mask('000.000.000-00', { reverse: true });
+            $('.cnpj').mask('00.000.000/0000-00', { reverse: true });
+            $('.money').mask('000.000.000.000.000,00', { reverse: true });
+            $('.money2').mask("#.##0,00", { reverse: true });
+            $('.ip_address').mask('0ZZ.0ZZ.0ZZ.0ZZ', {
+                translation: {
+                    'Z': {
+                        pattern: /[0-9]/, optional: true
+                    }
+                }
+            });
+            $('.ip_address').mask('099.099.099.099');
+            $('.percent').mask('##0,00%', { reverse: true });
+            $('.clear-if-not-match').mask("00/00/0000", { clearIfNotMatch: true });
+            $('.placeholder').mask("00/00/0000", { placeholder: "__/__/____" });
+            $('.fallback').mask("00r00r0000", {
+                translation: {
+                    'r': {
+                        pattern: /[\/]/,
+                        fallback: '/'
+                    },
+                    placeholder: "__/__/____"
+                }
+            });
+            $('.numero-inteiro').mask('#00000000', { reverse: true,
+                translation: {
+                    '#': { pattern: /[1-9]/ },
+                    '0': { pattern: /[0-9]/ }
+                }
+            });
+            $('.selectonfocus').mask("00/00/0000", { selectOnFocus: true });
+        });
+
+        const FormatadorValores = {
+            converterParaInteiro: function (valor) {
+                if (!valor) return 0;
+                const apenasNumeros = valor.toString().replace(/\D/g, '');
+                return parseInt(apenasNumeros) || 0;
+            },
+            converterParaDecimal: function (valor) {
+                if (!valor) return 0.0;
+                const valorDecimal = valor.toString().replace(/\./g, '').replace(/,/g, '.'); 
+                return parseFloat(valorDecimal) || 0.0;
+            }
+        };
+
+        function showFlashMessage(options) {
+            const settings = {
+                message: '',
+                details: '',
+                type: 'error',
+                duration: 3000,
+                ...options
+            };
+
+            const colors = {
+                error: { bg: '#ffebee', border: '#f44336' },
+                success: { bg: '#e8f5e9', border: '#4caf50' },
+                warning: { bg: '#fff8e1', border: '#ffc107' },
+                info: { bg: '#e3f2fd', border: '#2196f3' }
+            };
+
+            const messageHtml = `
+                <div class="flash-message" style="
+                    padding: 10px;
+                    background: ${colors[settings.type].bg};
+                    border-left: 4px solid ${colors[settings.type].border};
+                    margin-bottom: 10px;
+                    ">
+                    <strong>${settings.message}</strong>
+                    ${settings.details ? `<div style="margin-top: 5px;">${settings.details}</div>` : ''}
+                    <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #666;">
+                        Esta mensagem desaparecerá em ${settings.duration / 1000} segundos...
+                    </p>
+                </div>
+            `;
+
+            $('#divMessage').show();
+
+            // Adiciona a mensagem e aplica os efeitos
+            $('#divMessage')
+                .append(messageHtml)
+                .find('.flash-message:last')
+                .fadeIn()
+                .delay(settings.duration)
+                .fadeOut(function () {
+                    $(this).remove();
+                    // Esconde a div container se não houver mais mensagens
+                    if ($('#divMessage').children().length === 0) {
+                        $('#divMessage').hide();
+                    }
+                });
+        }
 
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');

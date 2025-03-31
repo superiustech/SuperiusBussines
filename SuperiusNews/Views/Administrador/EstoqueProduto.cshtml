@@ -1,0 +1,382 @@
+﻿@model Domain.Requests.EstoqueProdutoViewModel
+<div class="container d-flex justify-content-center">
+    <div class="p-4" style="max-width: 100%; width: 100%;">
+
+        <!-- Mensagens de carregamento, sucesso e erro -->
+        <div id="divMessage" class="text-center m-auto"></div>
+
+
+        <div id="loadingMessage" class="text-center m-auto" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p>Processando, por favor aguarde...</p>
+        </div>
+
+        <div id="successMessage" class="text-center mb-10" style="display: none;">
+            <i class="fas fa-check-circle text-success" style="font-size: 30px;"></i>
+            <p>Imagem adicionada com sucesso!</p>
+        </div>
+
+        <div id="errorMessage" class="text-center mb-10" style="display: none;">
+            <i class="fas fa-times-circle text-danger" style="font-size: 30px;"></i>
+            <p>Ocorreu um erro ao adicionar o produto ao estoque.</p>
+        </div>
+
+        <!-- Formulário de upload de imagem -->
+        <form id="formProduto" class="row g-3 needs-validation" novalidate enctype="multipart/form-data">
+            <div class="col-md-12">
+                <label for="produtoSelect" class="form-label">Selecione um produto</label>
+                <select class="form-control" id="produtoSelect" name="produtoId" required style="max-height: 300px;">
+                    <option value="" disabled selected></option>
+                    @foreach (var produto in Model.TodosProdutos)
+                    {
+                        <option value="@produto.nCdProduto"
+                                data-nome="@produto.sNmProduto"
+                                data-descricao="@produto.sDsProduto">
+                            @produto.sCdProduto - @produto.sDsProduto
+                        </option>
+                    }
+                </select>
+                <div class="invalid-feedback">Por favor, selecione um produto.</div>
+            </div>
+            <input type="hidden" id="nomeProduto" name="nomeProduto" />
+            <input type="hidden" id="descricaoProduto" name="descricaoProduto" />
+
+            <div class="col-md-12">
+                <label for="quantidadeMinima" class="form-label">Quantidade mínima</label>
+                <input type="text" class="form-control numero-inteiro quantidade-input" id="quantidadeMinima" name="quantidadeMinima" required />
+                <div class="invalid-feedback">Por favor, insira uma quantidade válida (ex: 10).</div>
+            </div>
+
+            <div class="col-md-12">
+                <label for="quantidadeEstoque" class="form-label">Quantidade estoque (inicial)</label>
+                <input type="text" class="form-control numero-inteiro quantidade-input" id="quantidadeEstoque" name="quantidadeEstoque" required />
+                <div class="invalid-feedback">Por favor, insira uma quantidade válida (ex: 100).</div>
+            </div>
+
+            <div class="col-md-12">
+                <label for="valorCusto" class="form-label">Valor de custo</label>
+                <input type="text" class="form-control money money-input" id="valorCusto" name="valorCusto" required />
+                <div class="invalid-feedback">Por favor, insira um valor válido (ex: R$ 12,75).</div>
+            </div>
+
+            <div class="col-md-12">
+                <label for="valorVenda" class="form-label">Valor de venda</label>
+                <input type="text" class="form-control money money-input" id="valorVenda" name="valorVenda" required />
+                <div class="invalid-feedback">Por favor, insira um valor válido (ex: R$ 15,99).</div>
+            </div>
+
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Adicionar Produto</button>
+            </div>
+        </form>
+
+        <hr />
+
+        <div id="gridContainer" class="mt-4" style="max-height: 350px;overflow: scroll;">
+            <label for="table-responsive" class="form-label">Lista de Produtos nesse Estoque</label>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nome Produto</th>
+                            <th scope="col">Descrição</th>
+                            <th scope="col">Qt. Mínima</th>
+                            <th scope="col">Qt. Estoque</th>
+                            <th scope="col">Vl. Venda</th>
+                            <th scope="col">Vl. Custo</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gridBody">
+                            @foreach (var item in Model.Produtos)
+                            {
+                            <tr data-id="@item.Produto.nCdProduto">
+                                <td>@item.Produto.nCdProduto</td>
+                                <td>@item.Produto.sNmProduto</td>
+                                <td>@item.Produto.sDsProduto</td>
+                                <td>@item.EstoqueProduto.dQtMinima</td>
+                                <td>@item.EstoqueProduto.dQtEstoque</td>
+                                <td>@item.EstoqueProduto.dVlVenda</td>
+                                <td>@item.EstoqueProduto.dVlCusto</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary editar"
+                                            data-id="@item.Produto.nCdProduto"
+                                            data-estoque="@Model.Estoque.nCdEstoque">
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-danger remover"
+                                            data-id="@item.Produto.nCdProduto"
+                                            data-estoque="@Model.Estoque.nCdEstoque">
+                                        Remover
+                                    </button>
+                                </td>
+                            </tr>
+                            }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <button id="btnVoltar" class="btn btn-secondary">Voltar</button>
+            <button type="button" id="btnFinalizar" class="btn btn-primary">Finalizar</button>
+        </div>
+    </div>
+</div>
+@section Scripts {
+<script language="javascript">
+    $(document).ready(function () {
+
+        // FUNÇÕES  --
+
+        function adicionarNovoProduto(formData) {
+            var novoProduto = [{
+                nCdEstoque: @Model.Estoque.nCdEstoque,
+                nCdProduto: formData.nCdProduto,
+                sNmProduto: formData.sNmProduto || '', 
+                sDsProduto: formData.sDsProduto || '',
+                dQtMinima: formData.dQtMinima,
+                dQtEstoque: formData.dQtEstoque,
+                dVlVenda: formData.dVlVenda,
+                dVlCusto: formData.dVlCusto
+            }];
+            popularGrid(novoProduto);
+        }
+
+        function popularGrid(dados, limparGrid = false) {
+            const gridBody = document.getElementById("gridBody");
+            if (limparGrid) {
+                gridBody.innerHTML = "";
+            }
+            dados.forEach((item, index) => {
+                const row = `
+                        <tr data-id="${item.nCdProduto}">
+                            <td>${item.nCdProduto}</td>
+                            <td>${item.sNmProduto || ''}</td>
+                            <td>${item.sDsProduto || ''}</td>
+                            <td>${item.dQtMinima}</td>
+                            <td>${item.dQtEstoque}</td>
+                            <td>${item.dVlVenda}</td>
+                            <td>${item.dVlCusto}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary editar data-id="${item.nCdProduto}" editar"data-id" "data-estoque="">Editar</button>
+                                <button data-id="${item.nCdProduto}" class="btn btn-sm btn-danger remover">Remover</button>
+                            </td>
+                        </tr>
+                    `;
+                gridBody.insertAdjacentHTML("beforeend", row);
+            });
+        }
+
+        function excluirProduto(nCdProduto, callback) {
+            const formData = {
+                nCdEstoque: @Model.Estoque.nCdEstoque,
+                nCdProduto: nCdProduto
+            };
+
+            $.ajax({
+                url: '@Url.Action("RemoverEstoqueProduto", "Administrador")',
+                type: 'DELETE',
+                contentType: 'application/json', 
+                dataType: 'json',
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if (response.success) {
+                        callback(true);
+                    } else {
+                        callback(false, response.message || 'Erro ao remover produto do estoque.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    callback(false, 'Erro na requisição: ' + error);
+                }
+            });
+        }
+
+        // EVENTOS --
+
+        $(document).on('click', '.remover', function () {
+            const nCdProduto = $(this).data('id');
+            const botao = $(this);
+
+            excluirProduto(nCdProduto, function (sucesso, mensagemErro) {
+                if (sucesso) {
+                    botao.closest('tr').fadeOut();
+                } else {
+                    console.error('Erro ao excluir imagem:', mensagemErro);
+                    alert(mensagemErro);
+                }
+            });
+        });
+
+        $(document).on('click', '.editar', function () {
+            const linhaProduto = $(this).closest('tr');
+            const nCdProduto = linhaProduto.find('td:eq(0)').text().trim();
+            const dQtMinimaBruto = linhaProduto.find('td:eq(3)').text().trim();
+            const dQtEstoqueBruto = linhaProduto.find('td:eq(4)').text().trim();
+            const dVlVendaBruto = linhaProduto.find('td:eq(5)').text().trim();
+            const dVlCustoBruto = linhaProduto.find('td:eq(6)').text().trim();
+
+            $('#editarProdutoModal').data('produtoId', nCdProduto);
+            $('#editarProdutoModal').data('nCdEstoque', @Model.Estoque.nCdEstoque);
+            $('#quantidadeMinimaModal').val(dQtMinimaBruto);
+            $('#quantidadeEstoqueModal').val(dQtEstoqueBruto);
+            $('#valorVendaModal').val(dVlVendaBruto);
+            $('#valorCustoModal').val(dVlCustoBruto);
+            var modal = new bootstrap.Modal(document.getElementById('editarProdutoModal'));
+            modal.show();
+        });
+
+        $('#formProduto').on('submit', function (event) {
+            event.preventDefault();
+            const $form = $(this);
+
+            if (this.checkValidity() === false) {
+                event.stopPropagation();
+                $form.addClass('was-validated');
+                return;
+            }
+
+            $('#loadingMessage').show();
+
+            const adicionarProduto = {
+                nCdEstoque: @Model.Estoque.nCdEstoque,
+                nCdProduto: $('#produtoSelect').val(),
+                sNmProduto: $('#nomeProduto').val(),
+                sDsProduto: $('#descricaoProduto').val(),
+                dQtEstoque: $('#quantidadeEstoque').val(),
+                dQtMinima:  $('#quantidadeMinima').val(),
+                dVlVenda:   $('#valorVenda').val(),
+                dVlCusto:   $('#valorCusto').val()
+            };
+                    
+            const formData = {
+                nCdEstoque: @Model.Estoque.nCdEstoque,
+                nCdProduto: $('#produtoSelect').val(),
+                sNmProduto: $('#nomeProduto').val(),
+                sDsProduto: $('#descricaoProduto').val(),
+                dQtEstoque: FormatadorValores.converterParaInteiro($('#quantidadeEstoque').val()),
+                dQtMinima: FormatadorValores.converterParaInteiro($('#quantidadeMinima').val()),
+                dVlVenda: FormatadorValores.converterParaDecimal($('#valorVenda').val()),
+                dVlCusto: FormatadorValores.converterParaDecimal($('#valorCusto').val())
+            };
+
+            $.ajax({
+                url: '@Url.Action("AdicionarEstoqueProduto", "Administrador")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if(response.produtoAtrelado) {
+                        showFlashMessage({
+                            message: 'Produto já vinculado ao estoque.',
+                            details: '',
+                            type: 'error',
+                            duration: 3000
+                        });
+                    }
+                    else if (response.success) {
+                        showFlashMessage({
+                            message: 'O produto foi vinculado ao estoque com sucesso.',
+                            details: '',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        $form.removeClass('was-validated')[0].reset();
+                        adicionarNovoProduto(adicionarProduto);
+                    }
+                    else {
+                        showFlashMessage({
+                            message: 'Erro no processamento',
+                            details: response.message || '',
+                            type: 'error',
+                            duration: 5000
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Erro na comunicação com o servidor';
+                    $('#errorMessage').html(errorMsg).fadeIn();
+                },
+                complete: function () {
+                    $('#loadingMessage').hide();
+                }
+            });
+        });
+
+        $('#produtoSelect').change(function () {
+            var selectedOption = $(this).find('option:selected');
+            $('#nomeProduto').val(selectedOption.data('nome'));
+            $('#descricaoProduto').val(selectedOption.data('descricao'));
+        });
+
+
+        // SALVAR EDIÇÃO 
+
+        $('#salvarEdicao').click(function () {
+             const form = $('#formEditarProduto')[0];
+
+             if (form.checkValidity()) {
+                 const produtoId = $('#editarProdutoModal').data('produtoId');
+                 const nCdEstoque = $('#editarProdutoModal').data('nCdEstoque');
+                 const dadosAtualizados = {
+                     quantidadeMinima: $('#quantidadeMinimaModal').val(),
+                     quantidadeEstoque: $('#quantidadeEstoqueModal').val(),
+                     valorVenda: $('#valorVendaModal').val(),
+                     valorCusto: $('#valorCustoModal').val()
+                 };
+
+                 const adicionarProdutoGrid = {
+                     nCdEstoque: nCdEstoque,
+                     nCdProduto: produtoId,
+                     dQtEstoque: $('#quantidadeEstoqueModal').val(),
+                     dQtMinima: $('#quantidadeMinimaModal').val(),
+                     dVlVenda: $('#valorVendaModal').val(),
+                     dVlCusto: $('#valorCustoModal').val()
+                 };
+
+                 const adicionarProduto = {
+                     nCdEstoque: nCdEstoque,
+                     nCdProduto: FormatadorValores.converterParaInteiro(produtoId),
+                     dQtEstoque: FormatadorValores.converterParaInteiro($('#quantidadeEstoqueModal').val()),
+                     dQtMinima: FormatadorValores.converterParaInteiro($('#quantidadeMinimaModal').val()),
+                     dVlVenda: FormatadorValores.converterParaDecimal($('#valorVendaModal').val()),
+                     dVlCusto: FormatadorValores.converterParaDecimal($('#valorCustoModal').val())
+                 };
+
+                 const formData = { nCdEstoque: nCdEstoque, nCdProduto: produtoId };
+
+                 $.ajax({
+                     url: '@Url.Action("EditarProdutoEstoque", "Administrador")',
+                     method: 'PUT',
+                     contentType: 'application/json',
+                     data: JSON.stringify(adicionarProduto),
+                     success: function (response) {
+                         if (response.success) {
+                             atualizarLinhaProduto(produtoId, adicionarProdutoGrid);
+                             var modal = bootstrap.Modal.getInstance(document.getElementById('editarProdutoModal'));
+                             modal.hide();
+                         }
+                     },
+                     error: function (error) { console.log('Erro ao atualizar produto: ' + error.responseText); }
+                 });
+
+                 function atualizarLinhaProduto(id, dados) {
+                     const nCdProduto = FormatadorValores.converterParaInteiro(id);
+                     const linha = $(`tr[data-id="${nCdProduto}"]`);
+                     linha.find('td:eq(3)').text(dados.dQtMinima);
+                     linha.find('td:eq(4)').text(dados.dQtEstoque);
+                     linha.find('td:eq(5)').text(dados.dVlVenda);
+                     linha.find('td:eq(6)').text(dados.dVlCusto);
+                 }
+
+                 var modal = bootstrap.Modal.getInstance(document.getElementById('editarProdutoModal'));
+                 modal.hide();
+
+             } else { form.classList.add('was-validated'); }
+         });
+    });
+</script>
+}

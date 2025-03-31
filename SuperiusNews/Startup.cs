@@ -35,7 +35,10 @@ public class Startup
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
         services.AddScoped<IProdutoRepositorySQL, ProdutoRepositorySQL>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IEstoqueRepository, EstoqueRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IProduto, ProdutoService>();
+        services.AddScoped<IEstoque, EstoqueService>();
         services.AddScoped<IUsuario, UsuarioService>();
 
         services.AddControllersWithViews();

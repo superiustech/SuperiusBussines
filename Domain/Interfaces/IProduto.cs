@@ -8,7 +8,7 @@ namespace Domain.Interfaces
 {
     public interface IProduto
     {
-        public Task<List<CWProduto>> PesquisarProdutos(int page, int pageSize, CWProduto? cwProdutoFiltro = null);
+        public Task<List<CWProduto>> PesquisarProdutos(int page = 0, int pageSize = 0, CWProduto? cwProdutoFiltro = null);
         public CWProduto ConsultarProduto(int nCdProduto);
         public Task<int> PesquisarQuantidadePaginas();
         public Task<List<CWVariacao>> ObterVariacoesAtivas();
@@ -20,6 +20,6 @@ namespace Domain.Interfaces
         public Task ExcluirImagem(int nCdImagem);
         public Task<List<dynamic>> ConsultarProdutoVariacao(int nCdProduto);
         public Task<CWProdutoImagem> AdicionarImagem(int nCdProduto, IFormFile Imagem, string Descricao);
-
+        Task<List<CWProduto>> PesquisarPorEstoque(int nCdEstoque);
     }
 }

@@ -140,6 +140,24 @@ namespace Business.Services
 
             return produtoImagem;
         }
+        public async Task<List<CWProduto>> PesquisarPorEstoque(int nCdEstoque)
+        {
+            try
+            {
+                if (nCdEstoque > 0)
+                {
+                    return await _produtoRepository.PesquisarPorEstoque(nCdEstoque);
+                }
+                else
+                {
+                    throw new Exception("Ocorreu um erro ao pesquisar produtos por estoque. Código inválido.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocorreu um erro ao pesquisar produtos por estoque.", ex);
 
+            }
+        }
     }
 }

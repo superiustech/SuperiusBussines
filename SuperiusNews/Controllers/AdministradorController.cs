@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using System.Data;
 using static System.Net.Mime.MediaTypeNames;
 using Domain.Requests;
+using Infra;
+using Azure.Core;
 namespace WebApplication1.Controllers
 {
     enum enumAcaoProduto
@@ -20,11 +22,16 @@ namespace WebApplication1.Controllers
         private readonly ILogger<AdministradorController> _logger;
         private readonly IUsuario _usuariorepository;
         private readonly IProduto _produto;
-        public AdministradorController(ILogger<AdministradorController> logger , IUsuario usuario, IProduto produto)
+        private readonly IEstoque _estoque;
+        private readonly ApplicationDbContext _context;
+
+        public AdministradorController(ILogger<AdministradorController> logger , IUsuario usuario, IProduto produto, IEstoque estoque, ApplicationDbContext context)
         {
             _logger = logger;
             _usuariorepository = usuario;
-            _produto = produto; 
+            _produto = produto;
+            _estoque = estoque;
+            _context = context;
         }
 
         #region Adminsitrador
@@ -157,19 +164,6 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
             }
         }
-        [HttpPost]
-        public async Task<IActionResult> CadastrarProduto([FromBody] CWProduto dados)
-        {
-            var dadosSalvos = HttpContext.Session.GetString("DadosProduto");
-            if (string.IsNullOrEmpty(dadosSalvos))
-            {
-                return RedirectToAction("ProdutoCadastrar");
-            }
-
-             _produto.CadastrarProduto(dados, new List<CWVariacao>());
-
-            return Json(new { success = true, message = "Produto cadastrado com sucesso." , codigoProduto = dados.nCdProduto});
-        }
         [HttpPut("EditarVariacaoProduto")]
         public async Task<IActionResult> EditarVariacaoProduto([FromBody] EditarVariacaoProdutoRequest request)
         {
@@ -182,18 +176,6 @@ namespace WebApplication1.Controllers
             {
                 return StatusCode(500, $"Erro ao atualizar variações: {ex.Message}");
             }
-        }
-        [HttpGet("Administrador/ProdutoVariacoes")]
-        public IActionResult ProximoPasso()
-        {
-            var dadosSalvos = HttpContext.Session.GetString("DadosProduto");
-            if (string.IsNullOrEmpty(dadosSalvos))
-            {
-                return RedirectToAction("ProdutoCadastrar");
-            }
-
-            var dados = JsonConvert.DeserializeObject<CWProduto>(dadosSalvos);
-            return View("ProdutoVariacoes", dados);
         }
         [HttpPut]
         public async Task<IActionResult> AtualizarProduto([FromBody] CWProduto oCWProduto)
@@ -331,6 +313,133 @@ namespace WebApplication1.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        #endregion
+
+        #endregion
+
+        #region Estoque 
+
+        #region Tela inicial 
+        public IActionResult CadastrarEstoque()
+        {
+            var token = HttpContext.Request.Cookies["token"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+        #endregion
+
+        #region Operações
+        [HttpPost]
+        public async Task<IActionResult> CadastrarEstoque([FromBody] CWEstoque estoque)
+        {
+            try
+            {
+                if (estoque == null) return BadRequest("Dados inválidos.");
+
+                int nCdEstoque = await _estoque.CadastrarEstoque(estoque, new List<CWProduto>());
+                return Json(new { success = true, message = "Dados salvos com sucesso.", codigoEstoque = nCdEstoque });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar produto");
+                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
+            }
+        }
+        [HttpGet("Administrador/EstoqueProduto/{codigoEstoque}")]
+        public async Task<IActionResult> EstoqueProduto(int codigoEstoque)
+        {
+            var token = HttpContext.Request.Cookies["token"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                CWEstoque estoque = await _estoque.Consultar(codigoEstoque);
+                List<CWProduto> produtos = await _produto.PesquisarPorEstoque(codigoEstoque);
+                List<CWEstoqueProduto> estoqueProdutos = await _estoque.PesquisarPorEstoqueProduto(codigoEstoque);
+                List<CWProduto> todosProdutos = await _produto.PesquisarProdutos();
+
+                var resultado = ( from ep in estoqueProdutos join p in produtos on ep.nCdProduto equals p.nCdProduto where ep.nCdEstoque == codigoEstoque
+                select new ProdutoEstoqueDTO {
+                    Produto = p,
+                    EstoqueProduto = ep
+                }).ToList();
+
+                var model = new EstoqueProdutoViewModel
+                {
+                    Estoque = estoque,
+                    Produtos = resultado,
+                    TodosProdutos = todosProdutos
+                };
+                return View(model);
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AdicionarEstoqueProduto([FromBody] CWEstoqueProduto oCWEstoqueProduto)
+        {
+            try
+            {
+                if (oCWEstoqueProduto.nCdEstoque == 0 || oCWEstoqueProduto.nCdProduto == 0)
+                {
+                    return Json(new { success = false, message = "Nenhum estoque/produto foi enviado." });
+                }
+
+                CWEstoqueProduto oEstoqueProduto = new CWEstoqueProduto()
+                {
+                    nCdEstoque = oCWEstoqueProduto.nCdEstoque,
+                    nCdProduto = oCWEstoqueProduto.nCdProduto,
+                    dQtEstoque = oCWEstoqueProduto?.dQtEstoque ?? 0,
+                    dQtMinima  = oCWEstoqueProduto?.dQtMinima  ?? 0,
+                    dVlCusto   = oCWEstoqueProduto?.dVlCusto   ?? 0,
+                    dVlVenda   = oCWEstoqueProduto?.dVlVenda   ?? 0
+
+                };
+
+                bool bFLProdutoAtrelado = await _estoque.AdicionarEstoqueProduto(oEstoqueProduto);
+                return Json(new { success = true, produtoAtrelado = bFLProdutoAtrelado });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        [HttpDelete]
+        public async Task<IActionResult> RemoverEstoqueProduto([FromBody] EstoqueRequest request)
+        {
+            try
+            {
+                if (request.nCdEstoque == 0 || request.nCdProduto == 0) return Json(new { success = false, message = "Nenhum estoque/produto foi enviado." });
+                await _estoque.RemoverEstoqueProduto(request.nCdEstoque, request.nCdProduto);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        [HttpPut]
+        public async Task<IActionResult> EditarProdutoEstoque([FromBody] CWEstoqueProduto request)
+        {
+            try
+            {
+                if (request.nCdEstoque == 0 || request.nCdProduto == 0) return Json(new { success = false, message = "Nenhum estoque/produto foi enviado." });
+                await _estoque.AdicionarEditarProdutoEstoque(request);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         #endregion
 
         #endregion

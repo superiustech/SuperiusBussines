@@ -1,13 +1,13 @@
 ﻿using Business.Services;
 using Infra.Repositories;
 using Domain.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore; // Importando o namespace do Entity Framework Core
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Infra;
-using Infra.Repositories.Persistencia; // Substitua pelo namespace onde está o ApplicationDbContext
+using Infra.Repositories.Persistencia;
+using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 public class Startup
 {
@@ -20,10 +20,16 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+        services.AddControllersWithViews();
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+            c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+        });
 
+        services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         services.AddHttpContextAccessor();
+        services.AddDistributedMemoryCache();
 
         services.AddSession(options =>
         {
@@ -32,13 +38,19 @@ public class Startup
             options.Cookie.IsEssential = true;
         });
 
+        services.AddControllers();
+        services.AddSwaggerGen();
+        services.AddSpaStaticFiles(configuration =>
+        {
+            configuration.RootPath = "ClientApp/build";
+        });
+
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
         services.AddScoped<IProdutoRepositorySQL, ProdutoRepositorySQL>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IEstoqueRepository, EstoqueRepository>();
         services.AddScoped<IProduto, ProdutoService>();
         services.AddScoped<IUsuario, UsuarioService>();
-
-        services.AddControllersWithViews();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -46,6 +58,12 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+                c.RoutePrefix = "swagger";
+            });
         }
         else
         {
@@ -53,16 +71,28 @@ public class Startup
             app.UseHsts();
         }
 
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-        app.UseSession();
         app.UseRouting();
+
+        app.UseAuthentication();
         app.UseAuthorization();
-        app.UseEndpoints(endpoints =>
+
+        app.UseSession();
+
+        app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+        app.UseSpa(spa =>
         {
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+            spa.Options.SourcePath = "ClientApp";
+            if (env.IsDevelopment()) { spa.UseReactDevelopmentServer(npmScript: "start"); }
         });
     }
-}
+} 

@@ -14,7 +14,7 @@ namespace Infra
         public DbSet<CWProdutoImagem> ProdutoImagem { get; set; }
         public DbSet<CWVariacao> Variacao { get; set; }
         public DbSet<CWVariacaoOpcao> VariacaoOpcao { get; set; }
-        public DbSet<CWProdutoOpcaoVariacaoBase> ProdutoOpcaoVariacao { get; set; }
+        public DbSet<CWProdutoOpcaoVariacao> ProdutoOpcaoVariacao { get; set; }
         public DbSet<CWUnidadeMedida> UnidadeMedida { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,7 +31,10 @@ namespace Infra
             modelBuilder.Entity<CWProduto>().ToTable("PRODUTO");  
             modelBuilder.Entity<CWProdutoImagem>().ToTable("PRODUTO_IMAGEM");  
             modelBuilder.Entity<CWProdutoOpcaoVariacaoBase>().ToTable("PRODUTO_OPCAO_VARIACAO");  
-            modelBuilder.Entity<CWUnidadeMedida>().ToTable("UNIDADE_MEDIDA");  
+            modelBuilder.Entity<CWUnidadeMedida>().ToTable("UNIDADE_MEDIDA");
+
+            modelBuilder.Entity<CWProdutoOpcaoVariacao>().ToTable("PRODUTO_OPCAO_VARIACAO").HasKey(p => new { p.nCdProduto, p.nCdVariacaoOpcao, p.nCdVariacao });
+            modelBuilder.Entity<CWEstoqueProduto>().ToTable("ESTOQUE_PRODUTO").HasKey(p => new { p.nCdEstoque, p.nCdProduto});
 
             modelBuilder.Entity<CWVariacao>().HasMany(v => v.VariacaoOpcoes)
                 .WithMany(vo => vo.Variacoes)

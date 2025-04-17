@@ -1,4 +1,7 @@
-﻿namespace Domain.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
+namespace Domain.Entities
 {
     public class CWVariacaoOpcao
     {
@@ -6,6 +9,10 @@
         public string sNmVariacaoOpcao { get; set; }
         public string sDsVariacaoOpcao { get; set; }
         public bool bFlAtiva { get; set; }
-        public ICollection<CWVariacao> Variacoes { get; set; }
+        [NotMapped]
+        public bool bFlAtrelado { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ICollection<CWVariacao>? Variacoes { get; set; } = null;
     }
 }

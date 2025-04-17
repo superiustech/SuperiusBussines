@@ -283,27 +283,8 @@ namespace WebApplication1.Controllers
         }
         #endregion
 
-        #endregion
-
-        #region Estoque 
-
-        #region Tela inicial 
-        public IActionResult CadastrarEstoque()
-        {
-            var token = HttpContext.Request.Cookies["token"];
-            if (!string.IsNullOrEmpty(token))
-            {
-                return View();
-            }
-            else
-            {
-                return RedirectToAction("Login");
-            }
-        }
-        #endregion
-
-        #region Operações
-        [HttpPost]
+        #region Estoque
+        [HttpPost("CadastrarEstoque")]
         public async Task<IActionResult> CadastrarEstoque([FromBody] CWEstoque estoque)
                 if (estoque == null) return BadRequest("Dados inválidos.");
             try
@@ -311,7 +292,7 @@ namespace WebApplication1.Controllers
                 return Ok(new { success = true, message = "Dados salvos com sucesso.", codigoEstoque = nCdEstoque });
 
                 int nCdEstoque = await _estoque.CadastrarEstoque(estoque, new List<CWProduto>());
-                return Json(new { success = true, message = "Dados salvos com sucesso.", codigoEstoque = nCdEstoque });
+                return Ok(new { success = true, message = "Dados salvos com sucesso.", codigoEstoque = nCdEstoque });
             }
             catch (Exception ex)
             {
@@ -320,7 +301,8 @@ namespace WebApplication1.Controllers
         [HttpGet("EstoqueProduto/{codigoEstoque}")]
             }
         }
-        [HttpGet("Administrador/EstoqueProduto/{codigoEstoque}")]
+
+        [HttpGet("EstoqueProduto/{codigoEstoque}")]
         public async Task<IActionResult> EstoqueProduto(int codigoEstoque)
         {
             try

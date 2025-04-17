@@ -27,7 +27,6 @@ namespace Infra
             modelBuilder.Entity<CWEstoque>().HasKey(vo => vo.nCdEstoque);
             modelBuilder.Entity<CWProdutoImagem>().HasKey(vo => vo.nCdImagem);
             modelBuilder.Entity<CWUnidadeMedida>().HasKey(vo => vo.nCdUnidadeMedida);
-            modelBuilder.Entity<CWProdutoOpcaoVariacaoBase>().HasKey(vo => new { vo.nCdProduto, vo.nCdVariacaoOpcao, vo.nCdVariacao });
 
             modelBuilder.Entity<CWVariacao>().ToTable("VARIACAO");  
             modelBuilder.Entity<CWVariacaoOpcao>().ToTable("VARIACAO_OPCAO");  

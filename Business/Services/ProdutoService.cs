@@ -20,9 +20,9 @@ namespace Business.Services
         {
             return await _produtoRepository.PesquisarTodos(page, pageSize, oCWProdutoFiltro);
         }
-        public async Task<int> PesquisarQuantidadePaginas()
+        public async Task<int> PesquisarQuantidadePaginas(CWProduto? cwProdutoFiltro = null)
         {
-            return await _produtoRepository.PesquisarQuantidadePaginas();
+            return await _produtoRepository.PesquisarQuantidadePaginas(cwProdutoFiltro);
         }
         public CWProduto ConsultarProduto(int nCdProduto)
         {
@@ -56,21 +56,11 @@ namespace Business.Services
                 throw new Exception("Ocorreu um erro ao excluir a imagem.", ex);
             }
         }
-        public async Task<int> CadastrarProduto(CWProduto cwProduto, List<CWVariacao> variacoes)
+        public async Task<int> CadastrarProduto(CWProduto cwProduto)
         {
             try
             {
-                var lstProdutoOpcaoVariacao = variacoes
-                    .SelectMany(v => v.VariacaoOpcoes
-                        .Select(opcao => new CWProdutoOpcaoVariacaoBase
-                        {
-                            nCdProduto = cwProduto.nCdProduto,
-                            nCdVariacao = v.nCdVariacao,
-                            nCdVariacaoOpcao = opcao?.nCdVariacaoOpcao ?? 0
-                        }))
-                    .ToList();
-
-                int nCdProduto = await _produtoRepository.CadastrarProduto(cwProduto, lstProdutoOpcaoVariacao);
+                int nCdProduto = await _produtoRepository.CadastrarProduto(cwProduto);
                 return nCdProduto;
             }
             catch (Exception ex)
@@ -82,12 +72,12 @@ namespace Business.Services
         {
             try
             {   
-                List<CWProdutoOpcaoVariacaoBase> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacaoBase>();
+                List<CWProdutoOpcaoVariacao> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacao>();
                 foreach (var cwVaricacao in variacoes)
                 {
                     foreach (var cwVariacaoOpcao in cwVaricacao.VariacaoOpcoes)
                     {
-                        lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacaoBase()
+                        lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacao()
                         {
                             nCdProduto = nCdProduto,
                             nCdVariacao = cwVaricacao.nCdVariacao,
@@ -115,7 +105,7 @@ namespace Business.Services
             lstProdutoImagem = await _produtoRepository.PesquisarProdutoImagens(nCdProduto);
             return lstProdutoImagem;
         }
-        public async Task<List<dynamic>> ConsultarProdutoVariacao(int nCdProduto)
+        public async Task<List<CWVariacao>> ConsultarProdutoVariacao(int nCdProduto)
         {
             var lstProdutoOpcaoVariacao = await _produtoRepository.ConsultarProdutoVariacao(nCdProduto);
             return lstProdutoOpcaoVariacao;

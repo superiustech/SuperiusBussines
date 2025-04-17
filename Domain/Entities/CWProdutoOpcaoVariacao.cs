@@ -1,24 +1,14 @@
-﻿namespace Domain.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+public class CWProdutoOpcaoVariacao
 {
-    public class CWProdutoOpcaoVariacaoBase
-    {
-        public int? nCdProduto { get; set; } = 0; 
-        public int nCdVariacaoOpcao { get; set; } = 0; 
-        public int nCdVariacao { get; set; } = 0;
-    }
+    public int? nCdProduto { get; set; } = 0;
+    public int nCdVariacaoOpcao { get; set; } = 0;
+    public int nCdVariacao { get; set; } = 0;
 
-    public class CWProdutoOpcaoVariacao : CWProdutoOpcaoVariacaoBase
-    {
-        public string sNmVariacaoOpcao { get; set; }
-        public int bFlAtrelado { get; set; }
+    [NotMapped]
+    public string sNmVariacaoOpcao { get; set; } = string.Empty;
 
-        public CWProdutoOpcaoVariacao()
-        {
-            this.nCdVariacaoOpcao = 0;
-            this.nCdProduto = 0;
-            this.nCdVariacao = 0;
-            this.sNmVariacaoOpcao = string.Empty; ;
-            this.bFlAtrelado = 0;
-        }
-    }
+    [NotMapped]
+    public int bFlAtrelado { get; set; } = 0;
 }

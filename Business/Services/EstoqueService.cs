@@ -16,7 +16,14 @@ namespace Business.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        
+        public async Task<List<CWEstoque>> PesquisarEstoques(int page, int pageSize, CWEstoque? oCWEstoquueFiltro = null)
+        {
+            return await _estoqueRepository.PesquisarTodos(page, pageSize, oCWEstoquueFiltro);
+        }
+        public async Task<int> PesquisarQuantidadePaginas(CWEstoque? cwEstoqueFIltro = null)
+        {
+            return await _estoqueRepository.PesquisarQuantidadePaginas(cwEstoqueFIltro);
+        }
         public async Task<int> CadastrarEstoque(CWEstoque oCWEstoque, List<CWProduto> lstProduto)
         {
             try

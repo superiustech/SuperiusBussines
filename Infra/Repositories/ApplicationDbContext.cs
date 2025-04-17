@@ -14,7 +14,7 @@ namespace Infra
         public DbSet<CWProdutoImagem> ProdutoImagem { get; set; }
         public DbSet<CWVariacao> Variacao { get; set; }
         public DbSet<CWVariacaoOpcao> VariacaoOpcao { get; set; }
-        public DbSet<CWProdutoOpcaoVariacaoBase> ProdutoOpcaoVariacao { get; set; }
+        public DbSet<CWProdutoOpcaoVariacao> ProdutoOpcaoVariacao { get; set; }
         public DbSet<CWUnidadeMedida> UnidadeMedida { get; set; }
         public DbSet<CWEstoque> Estoque { get; set; }
         public DbSet<CWEstoqueProduto> EstoqueProduto { get; set; }
@@ -27,20 +27,16 @@ namespace Infra
             modelBuilder.Entity<CWEstoque>().HasKey(vo => vo.nCdEstoque);
             modelBuilder.Entity<CWProdutoImagem>().HasKey(vo => vo.nCdImagem);
             modelBuilder.Entity<CWUnidadeMedida>().HasKey(vo => vo.nCdUnidadeMedida);
-            modelBuilder.Entity<CWProdutoOpcaoVariacaoBase>().HasKey(vo => new { vo.nCdProduto, vo.nCdVariacaoOpcao, vo.nCdVariacao });
 
             modelBuilder.Entity<CWVariacao>().ToTable("VARIACAO");  
             modelBuilder.Entity<CWVariacaoOpcao>().ToTable("VARIACAO_OPCAO");  
             modelBuilder.Entity<CWEstoque>().ToTable("ESTOQUE");  
             modelBuilder.Entity<CWProduto>().ToTable("PRODUTO");  
-            modelBuilder.Entity<CWProdutoImagem>().ToTable("PRODUTO_IMAGEM");  
-            modelBuilder.Entity<CWProdutoOpcaoVariacaoBase>().ToTable("PRODUTO_OPCAO_VARIACAO");  
+            modelBuilder.Entity<CWProdutoImagem>().ToTable("PRODUTO_IMAGEM");
             modelBuilder.Entity<CWUnidadeMedida>().ToTable("UNIDADE_MEDIDA");
 
-            modelBuilder.Entity<CWEstoqueProduto>(entity => {
-                entity.ToTable("ESTOQUE_PRODUTO");
-                entity.HasKey(e => new { e.nCdEstoque, e.nCdProduto });
-            });
+            modelBuilder.Entity<CWProdutoOpcaoVariacao>().ToTable("PRODUTO_OPCAO_VARIACAO").HasKey(p => new { p.nCdProduto, p.nCdVariacaoOpcao, p.nCdVariacao });
+            modelBuilder.Entity<CWEstoqueProduto>().ToTable("ESTOQUE_PRODUTO").HasKey(p => new { p.nCdEstoque, p.nCdProduto});
 
             modelBuilder.Entity<CWVariacao>().HasMany(v => v.VariacaoOpcoes)
                 .WithMany(vo => vo.Variacoes)

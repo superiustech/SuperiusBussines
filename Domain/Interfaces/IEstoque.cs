@@ -8,12 +8,13 @@ namespace Domain.Interfaces
 {
     public interface IEstoque
     {
-        public Task<int> CadastrarEstoque(CWEstoque oCWEstoque, List<CWProduto> lstProdutos);
-        public Task<CWEstoque> Consultar(int nCdEstoque);
-        public Task<List<CWEstoqueProduto>> PesquisarPorEstoqueProduto(int nCdEstoque);
-        public Task<bool> AdicionarEstoqueProduto(CWEstoqueProduto oCWEstoqueProduto);
-        public Task AdicionarEditarProdutoEstoque(CWEstoqueProduto oCWEstoqueProduto);
-        public Task RemoverEstoqueProduto(int nCdEstoque, int nCdProduto);
-
+        Task<int> CadastrarEstoque(CWEstoque oCWEstoque, List<CWProduto> lstProdutos);
+        Task<int> PesquisarQuantidadePaginas(CWEstoque? cwEstoqueFiltro = null);
+        Task<CWEstoque> Consultar(int nCdEstoque);
+        Task<List<CWEstoqueProduto>> PesquisarPorEstoqueProduto(int nCdEstoque);
+        Task<bool> AdicionarEstoqueProduto(CWEstoqueProduto oCWEstoqueProduto);
+        Task AdicionarEditarProdutoEstoque(CWEstoqueProduto oCWEstoqueProduto);
+        Task RemoverEstoqueProduto(int nCdEstoque, int nCdProduto);
+        Task<List<CWEstoque>> PesquisarEstoques(int page = 0, int pageSize = 0, CWEstoque? cwEstoqueFiltro = null);
     }
 }

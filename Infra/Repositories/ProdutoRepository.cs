@@ -38,9 +38,11 @@ namespace Infra.Repositories
             return query;
         }
 
-        public async Task<int> PesquisarQuantidadePaginas()
+        public async Task<int> PesquisarQuantidadePaginas(CWProduto? cwProdutoFiltro = null)
         {
-            return await _context.Produto.CountAsync();
+            var query = _context.Produto.AsNoTracking().AsQueryable();
+            query = cwProdutoFiltro == null ? query : AplicarFiltros(query, cwProdutoFiltro);
+            return await query.CountAsync();
         }
         public async Task<List<CWProduto>> PesquisarPorEstoque(int nCdEstoque)
         {
@@ -82,29 +84,40 @@ namespace Infra.Repositories
 
             return variacoes;
         }
-        public async Task<int> CadastrarProduto(CWProduto cwProduto, List<CWProdutoOpcaoVariacaoBase> variacoes)
+        public async Task<int> CadastrarProduto(CWProduto cwProduto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                await _context.Produto.AddAsync(cwProduto);
-                await _context.SaveChangesAsync();
-
-                int nCdProduto = cwProduto.nCdProduto;
-                List<CWProdutoOpcaoVariacaoBase> lstProdutoOpcaoVariacao = new List<CWProdutoOpcaoVariacaoBase>();
-                foreach (var variacao in variacoes)
+                var produtoExistente = await _context.Produto.FirstOrDefaultAsync(p => p.nCdProduto == cwProduto.nCdProduto);
+                int nCdProduto;
+                if (produtoExistente == null)
                 {
-                    lstProdutoOpcaoVariacao.Add(new CWProdutoOpcaoVariacaoBase
-                    {
-                        nCdProduto = nCdProduto,
-                        nCdVariacao = variacao.nCdVariacao,
-                        nCdVariacaoOpcao = variacao.nCdVariacaoOpcao
-                    });
+                    await _context.Produto.AddAsync(cwProduto);
+                    await _context.SaveChangesAsync();
+                    nCdProduto = cwProduto.nCdProduto;
+                }
+                else
+                {
+                    produtoExistente.sNmProduto = cwProduto.sNmProduto;
+                    produtoExistente.sDsProduto = cwProduto.sDsProduto;
+                    produtoExistente.sCdProduto = cwProduto.sCdProduto;
+                    produtoExistente.sPeso = cwProduto.sPeso;
+                    produtoExistente.sAltura = cwProduto.sAltura;
+                    produtoExistente.sComprimento = cwProduto.sComprimento;
+                    produtoExistente.sUrlVideo = cwProduto.sUrlVideo;
+                    produtoExistente.dVlVenda = cwProduto.dVlVenda;
+                    produtoExistente.dVlUnitario = cwProduto.dVlUnitario;
+                    produtoExistente.nCdUnidadeMedida = cwProduto.nCdUnidadeMedida;
+
+                    _context.Entry(produtoExistente).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    nCdProduto = produtoExistente.nCdProduto;
                 }
 
-                await _context.ProdutoOpcaoVariacao.AddRangeAsync(lstProdutoOpcaoVariacao);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
                 return nCdProduto;
             }
             catch
@@ -118,18 +131,18 @@ namespace Infra.Repositories
             _context.ProdutoImagem.Add(oCWProdutoImagem);
             await _context.SaveChangesAsync();
         }
-        public async Task EditarVariacaoProduto(int nCdProduto, List<CWProdutoOpcaoVariacaoBase> variacoes)
+        public async Task EditarVariacaoProduto(int nCdProduto, List<CWProdutoOpcaoVariacao> variacoes)
         {
             var variacoesAtuais = await _context.ProdutoOpcaoVariacao.Where(pov => pov.nCdProduto == nCdProduto).ToListAsync();
-            var variacoesParaAdicionar = new List<CWProdutoOpcaoVariacaoBase>();
-            var variacoesParaRemover = new List<CWProdutoOpcaoVariacaoBase>();
+            var variacoesParaAdicionar = new List<CWProdutoOpcaoVariacao>();
+            var variacoesParaRemover = new List<CWProdutoOpcaoVariacao>();
             foreach (var variacao in variacoes)
             {
                 var variacaoExistente = variacoesAtuais.FirstOrDefault(pov => pov.nCdVariacaoOpcao == variacao.nCdVariacaoOpcao && pov.nCdVariacao == variacao.nCdVariacao);
 
                 if (variacaoExistente == null)
                 {
-                    variacoesParaAdicionar.Add(new CWProdutoOpcaoVariacaoBase
+                    variacoesParaAdicionar.Add(new CWProdutoOpcaoVariacao
                     {
                         nCdProduto = nCdProduto,
                         nCdVariacao = variacao.nCdVariacao,
@@ -181,39 +194,26 @@ namespace Infra.Repositories
             );
             await _context.SaveChangesAsync();
         }
-        public async Task<List<dynamic>> ConsultarProdutoVariacao(int nCdProduto)
+        public async Task<List<CWVariacao>> ConsultarProdutoVariacao(int nCdProduto)
         {
-            var result = new List<dynamic>();
-            using (var connection = _context.Database.GetDbConnection())
-            {
-                await connection.OpenAsync();
-
-                using (var command = connection.CreateCommand())
+            return await _context.Set<CWVariacao>()
+                .Where(v => v.bFlAtiva)
+                .Select(v => new CWVariacao
                 {
-                    command.CommandText = _produtoRepositorySQL.ConsultarProdutoVariacaoSQL();
-                    command.CommandType = CommandType.Text;
-
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = "@nCdProduto";
-                    parameter.Value = nCdProduto;
-                    command.Parameters.Add(parameter);
-
-                    using (var reader = await command.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
+                    nCdVariacao = v.nCdVariacao,
+                    sNmVariacao = v.sNmVariacao,
+                    sDsVariacao = v.sDsVariacao,
+                    VariacaoOpcoes = v.VariacaoOpcoes
+                        .Where(vo => vo.bFlAtiva)
+                        .Select(vo => new CWVariacaoOpcao
                         {
-                            result.Add(new
-                            {
-                                nCdVariacaoOpcao = reader["nCdVariacaoOpcao"],
-                                sNmVariacaoOpcao = reader["sNmVariacaoOpcao"],
-                                nCdVariacao = reader["nCdVariacao"],
-                                bFlAtrelado = reader["bFlAtrelado"]
-                            });
-                        }
-                    }
-                }
-            }
-            return result;
+                            nCdVariacaoOpcao = vo.nCdVariacaoOpcao,
+                            sNmVariacaoOpcao = vo.sNmVariacaoOpcao,
+                            sDsVariacaoOpcao = vo.sDsVariacaoOpcao,
+                            bFlAtrelado = _context.ProdutoOpcaoVariacao.Any(pov => pov.nCdProduto == nCdProduto && pov.nCdVariacaoOpcao == vo.nCdVariacaoOpcao)
+                        }).ToList()
+                }).Where(v => v.VariacaoOpcoes.Any(vo => vo.bFlAtrelado)).ToListAsync();
+
         }
     }
 }

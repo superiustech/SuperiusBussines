@@ -21,14 +21,14 @@ namespace Domain.Requests
     }
     public class FiltroRequest
     {
-        public string sNmProduto { get; set; }
-        public string sDsProduto { get; set; }
+        public string? sNmFiltro { get; set; }
+        public string? sDsFiltro { get; set; }
     }
 
      public class PaginacaoRequest {
          public int page { get; set; } = 1;
          public int pageSize { get; set; } = 10;
-         public FiltroRequest oFiltroRequest { get; set; }
+         public FiltroRequest? oFiltroRequest { get; set; }
      }
     public class EstoqueProdutoViewModel
     {

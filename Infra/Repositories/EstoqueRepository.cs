@@ -20,27 +20,71 @@ namespace Infra.Repositories
         {
             return await _context.Estoque.AsNoTracking().FirstOrDefaultAsync(x => x.nCdEstoque == nCdEstoque);
         }
+        public async Task<List<CWEstoque>> PesquisarTodos(int page = 0, int pageSize = 0, CWEstoque? oCWEstoqueFiltro = null)
+        {
+            if (page == 0 || pageSize == 0)
+            {
+                return await _context.Estoque.AsNoTracking().OrderBy(p => p.nCdEstoque).ToListAsync();
+            }
+            else
+            {
+                var query = _context.Estoque.AsNoTracking().AsQueryable();
+                query = oCWEstoqueFiltro == null ? query : AplicarFiltros(query, oCWEstoqueFiltro);
+                return await query.OrderBy(p => p.nCdEstoque).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            }
+        }
+        private IQueryable<CWEstoque> AplicarFiltros(IQueryable<CWEstoque> query, CWEstoque filtro)
+        {
+            query = !string.IsNullOrEmpty(filtro.sNmEstoque) ? query.Where(p => EF.Functions.Like(p.sNmEstoque, $"%{filtro.sNmEstoque}%")) : query;
+            query = !string.IsNullOrEmpty(filtro.sDsEstoque) ? query.Where(p => EF.Functions.Like(p.sDsEstoque, $"%{filtro.sDsEstoque}%")) : query;
+            return query;
+        }
+        public async Task<int> PesquisarQuantidadePaginas(CWEstoque? cwEstoqueFiltro = null)
+        {
+            var query = _context.Estoque.AsNoTracking().AsQueryable();
+            query = cwEstoqueFiltro == null ? query : AplicarFiltros(query, cwEstoqueFiltro);
+            return await query.CountAsync();
+        }
         public async Task<int> CadastrarEstoque(CWEstoque oCWEstoque, List<CWEstoqueProduto> lstEstoqueProduto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                await _context.Estoque.AddAsync(oCWEstoque);
-                await _context.SaveChangesAsync();
-                int nCdEstoque = oCWEstoque.nCdEstoque;
-
-                List<CWEstoqueProduto> lstEstoqueProdutoInserir = new List<CWEstoqueProduto>();
-                foreach (var estoqueProduto in lstEstoqueProduto)
+                var estoqueExistente = await _context.Estoque.FirstOrDefaultAsync(p => p.nCdEstoque == oCWEstoque.nCdEstoque);
+                int nCdEstoque = 0;
+                if (estoqueExistente == null)
                 {
-                    lstEstoqueProdutoInserir.Add(new CWEstoqueProduto
-                    {
-                        nCdEstoque = nCdEstoque,
-                        nCdProduto = estoqueProduto.nCdProduto,
-                    });
-                }
+                    await _context.Estoque.AddAsync(oCWEstoque);
+                    await _context.SaveChangesAsync();
+                    nCdEstoque = oCWEstoque.nCdEstoque;
 
-                await _context.EstoqueProduto.AddRangeAsync(lstEstoqueProdutoInserir);
-                await _context.SaveChangesAsync();
+                    List<CWEstoqueProduto> lstEstoqueProdutoInserir = new List<CWEstoqueProduto>();
+                    foreach (var estoqueProduto in lstEstoqueProduto)
+                    {
+                        lstEstoqueProdutoInserir.Add(new CWEstoqueProduto
+                        {
+                            nCdEstoque = nCdEstoque,
+                            nCdProduto = estoqueProduto.nCdProduto,
+                        });
+                    }
+
+                    await _context.EstoqueProduto.AddRangeAsync(lstEstoqueProdutoInserir);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    estoqueExistente.sNmEstoque = oCWEstoque.sNmEstoque;
+                    estoqueExistente.sDsEstoque = oCWEstoque.sDsEstoque;
+                    estoqueExistente.sCdEstoque = oCWEstoque.sCdEstoque;
+                    estoqueExistente.sDsRua = oCWEstoque.sDsRua;
+                    estoqueExistente.sDsComplemento = oCWEstoque.sDsComplemento;
+                    estoqueExistente.sCdCep = oCWEstoque.sCdCep;
+                    estoqueExistente.sNrNumero = oCWEstoque.sNrNumero;
+
+                    _context.Entry(estoqueExistente).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    nCdEstoque = estoqueExistente.nCdEstoque;
+                }
                 await transaction.CommitAsync();
                 return nCdEstoque;
             }
@@ -57,8 +101,8 @@ namespace Infra.Repositories
         }
         public async Task<bool> AdicionarEstoqueProduto(CWEstoqueProduto cwEstoqueProduto)
         {
-            var produtoExistente = await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == cwEstoqueProduto.nCdProduto && ep.nCdEstoque == cwEstoqueProduto.nCdEstoque);
-            if (produtoExistente == null)
+            var estoqueExistente = await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == cwEstoqueProduto.nCdProduto && ep.nCdEstoque == cwEstoqueProduto.nCdEstoque);
+            if (estoqueExistente == null)
             {
                 _context.EstoqueProduto.Add(cwEstoqueProduto);
                 await _context.SaveChangesAsync();
@@ -76,14 +120,14 @@ namespace Infra.Repositories
         }
         public async Task AdicionarEditarProdutoEstoque(CWEstoqueProduto cwEstoqueProduto)
         {
-            var produtoExistente = await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == cwEstoqueProduto.nCdProduto && ep.nCdEstoque == cwEstoqueProduto.nCdEstoque);
-            if (produtoExistente != null)
+            var estoqueExistente = await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == cwEstoqueProduto.nCdProduto && ep.nCdEstoque == cwEstoqueProduto.nCdEstoque);
+            if (estoqueExistente != null)
             {
-                produtoExistente.dQtMinima = cwEstoqueProduto.dQtMinima;
-                produtoExistente.dQtEstoque = cwEstoqueProduto.dQtEstoque;
-                produtoExistente.dVlVenda = cwEstoqueProduto.dVlVenda;
-                produtoExistente.dVlCusto = cwEstoqueProduto.dVlCusto;
-                _context.Entry(produtoExistente).State = EntityState.Modified;
+                estoqueExistente.dQtMinima = cwEstoqueProduto.dQtMinima;
+                estoqueExistente.dQtEstoque = cwEstoqueProduto.dQtEstoque;
+                estoqueExistente.dVlVenda = cwEstoqueProduto.dVlVenda;
+                estoqueExistente.dVlCusto = cwEstoqueProduto.dVlCusto;
+                _context.Entry(estoqueExistente).State = EntityState.Modified;
             }
             else
             {

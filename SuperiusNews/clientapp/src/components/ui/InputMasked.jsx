@@ -29,6 +29,12 @@ const MaskedInput = ({ type, className = '', ...props }) => {
         />
     ) : (
         <input
+            ref={inputRef}
+            type="text"
+            className={`form-control ${className || ''}`}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
             {...props}
             className={`form-control ${className}`}
         />

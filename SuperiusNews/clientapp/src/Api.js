@@ -16,9 +16,6 @@
         unidadeMedida: '/UnidadeDeMedida',
         salvarDados: '/SalvarDados',
         estoques: '/PesquisarEstoquesComPaginacao',
-        consultarEstoque: '/Estoque',
-        cadastrarRevendedor: '/CadastrarRevendedor',
-        pesquisarTiposRevendedor: '/TiposRevendedor',
-        consultarRevendedor: '/Revendedor'
+        consultarEstoque: '/Estoque'
     }
 };

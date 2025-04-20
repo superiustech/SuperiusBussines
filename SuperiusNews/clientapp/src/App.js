@@ -5,8 +5,8 @@ import CadastrarProduto from './pages/CadastrarProduto';
 import CadastrarEstoquePage from './pages/CadastrarEstoquePage';
 import ImagemProdutoPage from './pages/ImagemProdutoPage';
 import VariacaoProdutoPage from './pages/VariacaoProdutoPage';
-
 import EstoqueProdutoPage from './pages/EstoqueProdutoPage';
+import CadastrarRevendedorPage from './pages/CadastrarRevendedorPage';
 import EstoquePage from './pages/EstoquePage';
 import Layout from './components/layout/Layout';
 import './styles/css/site.css';
@@ -37,6 +37,11 @@ function App() {
                     <Route path="/cadastrar-estoque" element={<CadastrarEstoquePage />} />
                     <Route path="/editar-estoque/:codigoEstoque" element={<CadastrarEstoquePage />} />
                     <Route path="/estoque-produto/:codigoEstoque" element={<EstoqueProdutoPage />} />
+                    {/*Revendedores*/}
+                    <Route path="/revendedores" element={<EstoquePage />} />z
+                    <Route path="/cadastrar-revendedores" element={<CadastrarRevendedorPage />} />
+                    <Route path="/editar-revendedor/:codigoRevendedor" element={<CadastrarRevendedorPage />} />
+
                 </Routes>
             </Layout>
         </Router>

@@ -1,11 +1,6 @@
 import React from 'react';
 
-const Loading = ({
-    message = 'Carregando...',
-    details,
-    type = 'info',
-    show = true
-}) => {
+const Loading = ({ message = 'Carregando...', details, type = 'info', show = true }) => {
     const colors = {
         error: { bg: '#ffebee', border: '#f44336' },
         success: { bg: '#e8f5e9', border: '#4caf50' },

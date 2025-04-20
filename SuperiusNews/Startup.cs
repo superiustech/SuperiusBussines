@@ -49,9 +49,11 @@ public class Startup
         services.AddScoped<IProdutoRepositorySQL, ProdutoRepositorySQL>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IEstoqueRepository, EstoqueRepository>();
+        services.AddScoped<IRevendedorRepository, RevendedorRepository>();
         services.AddScoped<IProduto, ProdutoService>();
         services.AddScoped<IEstoque, EstoqueService>();
         services.AddScoped<IUsuario, UsuarioService>();
+        services.AddScoped<IRevendedor, RevendedorService>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

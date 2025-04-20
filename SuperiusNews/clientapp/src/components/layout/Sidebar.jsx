@@ -11,6 +11,8 @@ const Sidebar = () => {
         { path: "/cadastrar-estoque", icon: "fa-chart-bar", text: " Cadastrar Estoque" },
         { path: "/produtos", icon: "fa-box", text: " Produtos" },
         { path: "/cadastrar-produto", icon: "fa-box", text: " Cadastrar Produto" },
+        { path: "/cadastrar-revendedores", icon: "fa-solid fa-truck-field", text: " Cadastrar Revendedores" },
+        { path: "/revendedores", icon: "fa-solid fa-truck-field", text: " Revendedores" },
         { path: "/#", icon: "fa-gear", text: " Configurações" }
     ];
 

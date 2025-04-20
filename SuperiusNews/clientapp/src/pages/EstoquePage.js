@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import apiConfig from '../Api';
 import axios from 'axios';
 
-const ProductsPage = () => {
+const EstoquePage = () => {
     const [estoques, setEstoques] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -60,4 +60,4 @@ const ProductsPage = () => {
     );
 };
 
-export default ProductsPage;
+export default EstoquePage;

@@ -17,17 +17,14 @@ namespace WebApplication1.Controllers
         private readonly IUsuario _usuariorepository;
         private readonly IProduto _produto;
         private readonly IEstoque _estoque;
-
-        public AdministradorController(
-            ILogger<AdministradorController> logger,
-            IUsuario usuario,
-            IProduto produto,
-            IEstoque estoque)
+        private readonly IRevendedor _revendedor;
+        public AdministradorController( ILogger<AdministradorController> logger, IUsuario usuario, IProduto produto, IEstoque estoque, IRevendedor revendedor)
         {
             _logger = logger;
             _usuariorepository = usuario;
             _produto = produto;
             _estoque = estoque;
+            _revendedor = revendedor;   
         }
 
         [HttpPost("Autenticar")]
@@ -54,6 +51,19 @@ namespace WebApplication1.Controllers
                 success = true,
                 produto = oCWProduto
             });
+        }
+        [HttpGet("TiposRevendedor")]
+        public async Task<IActionResult> TiposRevendedor()
+        {
+            var lstRevendedorTipo = _revendedor.PesquisarTipos();
+            return Ok(new { success = true,  tipos = lstRevendedorTipo });
+        }
+
+        [HttpGet("Revendedor/{nCdRevendedor}")]
+        public async Task<IActionResult> Revendedor(int nCdRevendedor)
+        {
+            var lstRevendedorTipo = _revendedor.Consultar(nCdRevendedor);
+            return Ok(new { success = true, revendedor = lstRevendedorTipo });
         }
 
         [HttpGet("PesquisarProdutosComPaginacao")]
@@ -300,6 +310,23 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
             }
         }
+        [HttpPost("CadastrarRevendedor")]
+        public async Task<IActionResult> CadastrarRevendedor([FromBody] CWRevendedor revendedor)
+        {
+            try
+            {
+                if (revendedor == null) return BadRequest("Dados inválidos.");
+
+                int nCdRevendedor = await _revendedor.CadastrarRevendedor(revendedor);
+                return Ok(new { success = true, message = "Dados salvos com sucesso.", codigoRevendedor = nCdRevendedor });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar estoque");
+                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
+            }
+        }
+
 
         [HttpGet("EstoqueProduto/{codigoEstoque}")]
         public async Task<IActionResult> EstoqueProduto(int codigoEstoque)

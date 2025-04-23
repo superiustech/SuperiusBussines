@@ -15,7 +15,7 @@ const FormularioProduto = () => {
     const carregarUnidadesMedida = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.unidadeMedida}`);
+            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.unidadeDeMedida}`);
             if (!response.data.success) throw new Error('Erro na resposta da API');
             const data = await response.data.unidade;
             setUnidadesMedida(data);
@@ -40,7 +40,7 @@ const FormularioProduto = () => {
     const carregarProduto = async (codigo) => {
         try {
             setLoading(true);
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.consultarProduto}/${codigoProduto}`);
+            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.consultarProduto}/${codigoProduto}`);
             if (response.data.success) {
                 const produto = response.data.produto;
                 setFormData({
@@ -106,10 +106,10 @@ const FormularioProduto = () => {
                 dVlVenda: parseFloat(formData.preco.replace(',', '.')),
                 dVlUnitario: parseFloat(formData.precoUnitario.replace(',', '.'))
             };
-            const response = await axios.post(`${apiConfig.baseURL}${apiConfig.endpoints.salvarDados}`, dadosEnvio);
+            const response = await axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.cadastrarProduto}`, dadosEnvio);
 
             if (response.data.success) {
-                navigate(`/produto-variacao/${response.data.codigoProduto}`);
+                navigate(`/administrador/produto-variacao/${response.data.codigoProduto}`);
             } else {
                 alert(response.data.message);
             }

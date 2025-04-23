@@ -18,25 +18,31 @@ namespace Infra
         public DbSet<CWUnidadeMedida> UnidadeMedida { get; set; }
         public DbSet<CWEstoque> Estoque { get; set; }
         public DbSet<CWEstoqueProduto> EstoqueProduto { get; set; }
+        public DbSet<CWRevendedor> Revendedor { get; set; }
+        public DbSet<CWRevendedorTipo> RevendedorTipo { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CWVariacao>().HasKey(v => v.nCdVariacao);
-            modelBuilder.Entity<CWVariacaoOpcao>().HasKey(vo => vo.nCdVariacaoOpcao);
-            modelBuilder.Entity<CWProduto>().HasKey(vo => vo.nCdProduto);
-            modelBuilder.Entity<CWEstoque>().HasKey(vo => vo.nCdEstoque);
-            modelBuilder.Entity<CWProdutoImagem>().HasKey(vo => vo.nCdImagem);
-            modelBuilder.Entity<CWUnidadeMedida>().HasKey(vo => vo.nCdUnidadeMedida);
+            #region PRODUTO 
 
-            modelBuilder.Entity<CWVariacao>().ToTable("VARIACAO");  
-            modelBuilder.Entity<CWVariacaoOpcao>().ToTable("VARIACAO_OPCAO");  
-            modelBuilder.Entity<CWEstoque>().ToTable("ESTOQUE");  
-            modelBuilder.Entity<CWProduto>().ToTable("PRODUTO");  
-            modelBuilder.Entity<CWProdutoImagem>().ToTable("PRODUTO_IMAGEM");
+            //modelBuilder.Entity<CWProduto>().HasOne<CWUnidadeMedida>().WithMany().HasForeignKey(p => p.nCdUnidadeMedida).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<CWProduto>().HasOne(p => p.UnidadeMedida).WithMany().HasForeignKey(p => p.nCdUnidadeMedida).IsRequired();
+
+            modelBuilder.Entity<CWProdutoImagem>().HasOne<CWProduto>().WithMany().HasForeignKey(p => p.nCdProduto).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasKey(x => new { x.nCdProduto, x.nCdVariacaoOpcao, x.nCdVariacao });
+
+            modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasOne<CWProduto>().WithMany().HasForeignKey(p => p.nCdProduto).IsRequired(false);          
+            modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasOne<CWVariacaoOpcao>().WithMany().HasForeignKey(p => p.nCdVariacaoOpcao).IsRequired();
+            modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasOne<CWVariacao>().WithMany().HasForeignKey(p => p.nCdVariacao).IsRequired();
+
+            modelBuilder.Entity<CWProduto>().ToTable("PRODUTO");
+            modelBuilder.Entity<CWVariacao>().ToTable("VARIACAO");
+            modelBuilder.Entity<CWVariacaoOpcao>().ToTable("VARIACAO_OPCAO");
             modelBuilder.Entity<CWUnidadeMedida>().ToTable("UNIDADE_MEDIDA");
+            modelBuilder.Entity<CWProdutoImagem>().ToTable("PRODUTO_IMAGEM");
 
-            modelBuilder.Entity<CWProdutoOpcaoVariacao>().ToTable("PRODUTO_OPCAO_VARIACAO").HasKey(p => new { p.nCdProduto, p.nCdVariacaoOpcao, p.nCdVariacao });
-            modelBuilder.Entity<CWEstoqueProduto>().ToTable("ESTOQUE_PRODUTO").HasKey(p => new { p.nCdEstoque, p.nCdProduto});
+
 
             modelBuilder.Entity<CWVariacao>().HasMany(v => v.VariacaoOpcoes)
                 .WithMany(vo => vo.Variacoes)
@@ -44,6 +50,29 @@ namespace Infra
                     j => j.HasOne<CWVariacaoOpcao>().WithMany().HasForeignKey("nCdVariacaoOpcao"),
                     j => j.HasOne<CWVariacao>().WithMany().HasForeignKey("nCdVariacao"));
 
+
+            #endregion
+
+            #region ESTOQUE 
+            
+            modelBuilder.Entity<CWEstoque>().ToTable("ESTOQUE");
+            modelBuilder.Entity<CWEstoqueProduto>().ToTable("ESTOQUE_PRODUTO").HasKey(p => new { p.nCdEstoque, p.nCdProduto });
+            modelBuilder.Entity<CWEstoqueProduto>().HasOne(ep => ep.Estoque).WithMany(e => e.Produtos).HasForeignKey(ep => ep.nCdEstoque);
+
+            #endregion
+
+            #region REVENDEDOR 
+
+            modelBuilder.Entity<CWRevendedor>().HasKey(r => r.nCdRevendedor);
+            modelBuilder.Entity<CWRevendedorTipo>().HasKey(t => t.nCdTipoRevendedor);
+
+            modelBuilder.Entity<CWRevendedor>().HasOne(r => r.Estoque).WithMany().HasForeignKey(r => r.nCdEstoque).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<CWRevendedor>().HasOne(r => r.Tipo).WithMany().HasForeignKey(r => r.nCdTipoRevendedor).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CWRevendedor>().ToTable("REVENDEDOR");
+            modelBuilder.Entity<CWRevendedorTipo>().ToTable("REVENDEDOR_TIPO");
+
+            #endregion
         }
     }
 }

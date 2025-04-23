@@ -40,12 +40,12 @@ const FormularioEstoque = () => {
                 sCdCep: formData.cep
             };
 
-            const response = await axios.post(`${apiConfig.baseURL}${apiConfig.endpoints.cadastrarEstoque}`, dadosEnvio, {
+            const response = await axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.cadastrarEstoque}`, dadosEnvio, {
                 headers: { 'Content-Type': 'application/json'}
             });
 
             if (response.data.success) {
-                setTimeout(function () { navigate(`/estoque-produto/${response.data.codigoEstoque}`); }, 3000);
+                setTimeout(function () { navigate(`/administrador/estoque-produto/${response.data.codigoEstoque}`); }, 3000);
             } else {
                 alert(response.data.message);
             }
@@ -64,7 +64,7 @@ const FormularioEstoque = () => {
     const carregarEstoque = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.consultarEstoque}/${codigoEstoque}`);
+            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.consultarEstoque}/${codigoEstoque}`);
             if (response.data.success) {
                 const estoque = response.data.estoque;
                 setFormData({

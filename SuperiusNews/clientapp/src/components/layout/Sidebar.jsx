@@ -6,12 +6,14 @@ const Sidebar = () => {
     const toggleSidebar = () => { setCollapsed(!collapsed);};
 
     const navItems = [
-        { path: "/#", icon: "fa-home", text: " Dashboard" },
-        { path: "/estoques", icon: "fa-chart-bar", text: " Estoque" },
-        { path: "/cadastrar-estoque", icon: "fa-chart-bar", text: " Cadastrar Estoque" },
-        { path: "/produtos", icon: "fa-box", text: " Produtos" },
-        { path: "/cadastrar-produto", icon: "fa-box", text: " Cadastrar Produto" },
-        { path: "/#", icon: "fa-gear", text: " Configurações" }
+        { path: "/administrador/#", icon: "fa-home", text: " Dashboard" },
+        { path: "/administrador/estoques", icon: "fa-chart-bar", text: " Estoque" },
+        { path: "/administrador/cadastrar-estoque", icon: "fa-chart-bar", text: " Cadastrar Estoque" },
+        { path: "/administrador/produtos", icon: "fa-box", text: " Produtos" },
+        { path: "/administrador/cadastrar-produto", icon: "fa-box", text: " Cadastrar Produto" },
+        { path: "/administrador/revendedores", icon: "fa-solid fa-truck-field", text: " Revendedores" },
+        { path: "/administrador/cadastrar-revendedores", icon: "fa-solid fa-truck-field", text: " Cadastrar Revendedores" },
+        { path: "/administrador/#", icon: "fa-gear", text: " Configurações" }
     ];
 
     return (

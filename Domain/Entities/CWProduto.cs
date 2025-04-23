@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -17,5 +18,10 @@ namespace Domain.Entities
         public decimal dVlVenda { get; set; }
         public decimal dVlUnitario { get; set; }
         public int nCdUnidadeMedida { get; set; }
+
+        [ForeignKey("nCdUnidadeMedida")] 
+        public CWUnidadeMedida? UnidadeMedida { get; set; }
+        public ICollection<CWProdutoImagem> Imagens { get; set; } = new List<CWProdutoImagem>();
+        public ICollection<CWProdutoOpcaoVariacao> OpcoesVariacoes { get; set; } = new List<CWProdutoOpcaoVariacao>();
     }
 }

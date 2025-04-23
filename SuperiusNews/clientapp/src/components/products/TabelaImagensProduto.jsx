@@ -12,7 +12,7 @@ const TabelaImagensProduto = () => {
 
     const obterImagensProduto = async () => {
         try {
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.getImages}/` + codigoProduto);
+            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.getImages}/` + codigoProduto);
             setImagens(response.data);
         } catch (err) {
             console.error('Erro ao carregar imagens:', err);
@@ -22,7 +22,7 @@ const TabelaImagensProduto = () => {
 
     const excluirImagem = async (nCdImagem) => {
         try {
-            const response = await axios.delete(`${apiConfig.baseURL}${apiConfig.endpoints.deletarImagens}/` + codigoProduto);
+            const response = await axios.delete(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.deletarImagens}/` + codigoProduto);
             if (response.data.success) {
                 setImagens(imagens.filter(img => img.nCdImagem !== nCdImagem));
             } else {
@@ -65,8 +65,8 @@ const TabelaImagensProduto = () => {
                     </div>
                 </div>
                 <div className="col-md-12 mt-3">
-                    <button onClick={() => navigate(`/Administrador/ProdutoVariacoesEditar/${codigoProduto}`)} className="btn btn-secondary me-2"> Voltar </button>
-                    <button onClick={() => navigate('/Administrador/Produto')} className="btn btn-primary" > Finalizar </button>
+                    <button onClick={() => navigate(`/administrador/editar-variacoes${codigoProduto}`)} className="btn btn-secondary me-2"> Voltar </button>
+                    <button onClick={() => navigate('/administrador/produtos')} className="btn btn-primary" > Finalizar </button>
                 </div>
             </div>
             <hr/>

@@ -1,9 +1,6 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 
 const EstoqueProdutoTable = ({ estoqueProdutos, loading, onRefresh, onRemoverProdutoEstoque }) => {
-    const { codigoEstoque } = useParams();
-    const navigate = useNavigate();
     const handleEditar = (produtoId) => {};
     const handleRemover = async (produtoId) => { const success = await onRemoverProdutoEstoque(produtoId);};
 
@@ -30,17 +27,17 @@ const EstoqueProdutoTable = ({ estoqueProdutos, loading, onRefresh, onRemoverPro
             </thead>
             <tbody>
                 {estoqueProdutos.length > 0 ? (estoqueProdutos.map((item) => (
-                    <tr key={`${item.produto.nCdProduto}-${item.estoqueProduto.nCdEstoque}`}>
-                    <td>{item.produto.nCdProduto}</td>
-                    <td>{item.produto.sNmProduto || 'N/A'}</td>
-                    <td>{item.produto.sDsProduto || 'N/A'}</td>
-                    <td>{item.estoqueProduto.dQtMinima || '0'}</td>
-                    <td>{item.estoqueProduto.dQtEstoque || '0'}</td>
-                    <td>{item.estoqueProduto.dVlVenda}</td>
-                    <td>{item.estoqueProduto.dVlCusto}</td><td>
+                    <tr key={`${item.nCdProduto}-${item.nCdEstoque}`}>
+                    <td>{item.nCdProduto}</td>
+                    <td>{item.sNmProduto || 'N/A'}</td>
+                    <td>{item.sDsProduto || 'N/A'}</td>
+                    <td>{item.dQtMinima || '0'}</td>
+                    <td>{item.dQtEstoque || '0'}</td>
+                    <td>{item.dVlVenda}</td>
+                    <td>{item.dVlCusto}</td><td>
                     <div className="btn-group btn-group-sm">
-                    <button className="btn btn-primary" onClick={() => handleEditar(item.produto.nCdProduto)}>Editar</button>
-                    <button className="btn btn-danger"  onClick={() => handleRemover(item.produto.nCdProduto)}>Remover</button>
+                    <button className="btn btn-primary" onClick={() => handleEditar(item.nCdProduto)}>Editar</button>
+                    <button className="btn btn-danger"  onClick={() => handleRemover(item.nCdProduto)}>Remover</button>
                     </div>
                     </td>
                     </tr>

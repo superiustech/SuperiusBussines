@@ -7,10 +7,11 @@ import ImagemProdutoPage from './pages/ImagemProdutoPage';
 import VariacaoProdutoPage from './pages/VariacaoProdutoPage';
 
 import EstoqueProdutoPage from './pages/EstoqueProdutoPage';
+import CadastrarRevendedorPage from './pages/CadastrarRevendedorPage';
 import EstoquePage from './pages/EstoquePage';
 import Layout from './components/layout/Layout';
 import './styles/css/site.css';
-import './App.css';
+import './styles/App.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -27,16 +28,20 @@ function App() {
             <Layout>
                 <Routes>
                     {/*Produto*/}
-                    <Route path="/produtos" element={<ProductsPage />} />
-                    <Route path="/cadastrar-produto" element={<CadastrarProduto />} />
-                    <Route path="/editar-produto/:codigoProduto" element={<CadastrarProduto />} />
-                    <Route path="/produto-imagem/:codigoProduto" element={<ImagemProdutoPage />}/>
-                    <Route path="/produto-variacao/:codigoProduto" element={<VariacaoProdutoPage />} />
+                    <Route path="/administrador/produtos" element={<ProductsPage />} />
+                    <Route path="/administrador/cadastrar-produto" element={<CadastrarProduto />} />
+                    <Route path="/administrador/editar-produto/:codigoProduto" element={<CadastrarProduto />} />
+                    <Route path="/administrador/produto-imagem/:codigoProduto" element={<ImagemProdutoPage />}/>
+                    <Route path="/administrador/produto-variacao/:codigoProduto" element={<VariacaoProdutoPage />} />
                     {/*Estoque*/}
-                    <Route path="/estoques" element={<EstoquePage />} />
-                    <Route path="/cadastrar-estoque" element={<CadastrarEstoquePage />} />
-                    <Route path="/editar-estoque/:codigoEstoque" element={<CadastrarEstoquePage />} />
-                    <Route path="/estoque-produto/:codigoEstoque" element={<EstoqueProdutoPage />} />
+                    <Route path="/administrador/estoques" element={<EstoquePage />} />
+                    <Route path="/administrador/cadastrar-estoque" element={<CadastrarEstoquePage />} />
+                    <Route path="/administrador/editar-estoque/:codigoEstoque" element={<CadastrarEstoquePage />} />
+                    <Route path="/administrador/estoque-produto/:codigoEstoque" element={<EstoqueProdutoPage />} />
+                    {/*Revendedores*/}
+                    <Route path="/administrador/revendedores" element={<EstoquePage />} />z
+                    <Route path="/administrador/cadastrar-revendedores" element={<CadastrarRevendedorPage />} />
+                    <Route path="/administrador/editar-revendedor/:codigoRevendedor" element={<CadastrarRevendedorPage />} />
                 </Routes>
             </Layout>
         </Router>

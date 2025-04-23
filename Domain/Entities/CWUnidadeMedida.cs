@@ -1,7 +1,10 @@
-﻿namespace Domain.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Entities
 {
     public class CWUnidadeMedida
     {
+        [Key]
         public int nCdUnidadeMedida {  get; set; }
         public string sCdUnidadeMedida { get; set; }
         public string sDsUnidadeMedida { get; set; }

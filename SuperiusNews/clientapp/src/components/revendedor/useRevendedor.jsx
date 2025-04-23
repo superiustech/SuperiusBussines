@@ -11,7 +11,7 @@ export const useRevendedor = (codigoRevendedor) => {
         setState(prev => ({ ...prev, loading: true }));
         try {
             const params = new URLSearchParams({ page: 0, pageSize: 0 });
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.estoques}?${params}`);
+            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoquesComPaginacao}?${params}`);
             const data = response.data.estoques;
             setState(prev => ({ ...prev, estoques: data, loading: false }));
         } catch (err) {
@@ -22,7 +22,7 @@ export const useRevendedor = (codigoRevendedor) => {
     const carregarTipos = useCallback(async () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.pesquisarTiposRevendedor}`);
+            const response = await axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.tiposRevendedor}`);
             const data = await response.data.tipos;
             setState(prev => ({ ...prev, tipos: data.result, loading: false }));
         } catch (err) {
@@ -33,7 +33,7 @@ export const useRevendedor = (codigoRevendedor) => {
     const carregarRevendedor = async () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.consultarRevendedor}/${codigoRevendedor}`, { headers: { 'Content-Type': 'application/json' }});
+            const response = await axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.consultarRevendedor}/${codigoRevendedor}`, { headers: { 'Content-Type': 'application/json' } });
 
             if (!response.data.success) { throw new Error(response.data.message || "Erro ao carregar revendedor");}
 
@@ -79,7 +79,7 @@ export const useRevendedor = (codigoRevendedor) => {
                 sCdCep: formData.cep || ''
             };
 
-            const response = await axios.post(`${apiConfig.baseURL}${apiConfig.endpoints.cadastrarRevendedor}`, revendedorFormatado, {
+            const response = await axios.post(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.cadastrarRevendedor}`, revendedorFormatado, {
                 headers: { 'Content-Type': 'application/json' }
             });
 

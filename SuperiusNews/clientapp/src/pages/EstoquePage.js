@@ -24,7 +24,7 @@ const EstoquePage = () => {
                 ...(filters.sDsEstoque && { 'oFiltroRequest.sDsFiltro': filters.sDsEstoque })
             });
 
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.estoques}?${params}`);
+            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoquesComPaginacao}?${params}`);
 
             if (!response.data || !response.data.estoques) {
                 throw new Error('Resposta inválida da API');
@@ -41,7 +41,7 @@ const EstoquePage = () => {
 
     const handleClearFilters = () => { setFilters({ sNmEstoque: '', sDsEstoque: '' });};
 
-    const handleEstoqueClick = (codigoEstoque) => { navigate(`/editar-estoque/${codigoEstoque}`); };
+    const handleEstoqueClick = (codigoEstoque) => { navigate(`/administrador/editar-estoque/${codigoEstoque}`); };
 
     const handleDeleteClick = (productId) => { console.log('Excluir estoque:', productId); };
 

@@ -93,6 +93,7 @@ namespace Infra.Repositories
                 int nCdProduto;
                 if (produtoExistente == null)
                 {
+                    cwProduto.UnidadeMedida = await _context.UnidadeMedida.FindAsync(cwProduto.nCdUnidadeMedida);
                     await _context.Produto.AddAsync(cwProduto);
                     await _context.SaveChangesAsync();
                     nCdProduto = cwProduto.nCdProduto;

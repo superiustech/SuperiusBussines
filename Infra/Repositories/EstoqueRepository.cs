@@ -18,7 +18,7 @@ namespace Infra.Repositories
         }
         public async Task<CWEstoque> Consultar(int nCdEstoque)
         {
-            return await _context.Estoque.AsNoTracking().FirstOrDefaultAsync(x => x.nCdEstoque == nCdEstoque);
+            return await _context.Estoque.AsNoTracking().Include(e => e.Produtos).ThenInclude(ep => ep.Produto).FirstOrDefaultAsync(x => x.nCdEstoque == nCdEstoque);
         }
         public async Task<List<CWEstoque>> PesquisarTodos(int page = 0, int pageSize = 0, CWEstoque? oCWEstoqueFiltro = null)
         {
@@ -104,6 +104,8 @@ namespace Infra.Repositories
             var estoqueExistente = await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == cwEstoqueProduto.nCdProduto && ep.nCdEstoque == cwEstoqueProduto.nCdEstoque);
             if (estoqueExistente == null)
             {
+                cwEstoqueProduto.Estoque = await _context.Estoque.FindAsync(cwEstoqueProduto.nCdEstoque);
+                cwEstoqueProduto.Produto = await _context.Produto.FindAsync(cwEstoqueProduto.nCdProduto);
                 _context.EstoqueProduto.Add(cwEstoqueProduto);
                 await _context.SaveChangesAsync();
                 return false;

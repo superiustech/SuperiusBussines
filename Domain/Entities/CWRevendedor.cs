@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -17,6 +18,12 @@ namespace Domain.Entities
         public string sDsComplemento { get; set; }
         public string sNrNumero { get; set; }
         public string sCdCep { get; set; }
+
+        [ForeignKey("nCdEstoque")]
+        public CWEstoque? Estoque { get; set; }
+
+        [ForeignKey("nCdTipoRevendedor")]
+        public CWRevendedorTipo? Tipo { get; set; }
     }
 
     public class CWRevendedorTipo

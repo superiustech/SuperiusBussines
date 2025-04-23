@@ -1,4 +1,5 @@
-﻿const baseUrl = 'api/Administrador'; 
+﻿const baseUrl = 'api/Produto'; 
+import apiConfig from '../Api';
 
 export const getProducts = async (page, pageSize, filters) => {
     const params = new URLSearchParams({
@@ -9,7 +10,8 @@ export const getProducts = async (page, pageSize, filters) => {
     });
 
     try {
-        const response = await fetch(`${baseUrl}/PesquisarProdutosComPaginacao?${params}`);
+        const response = await fetch(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.pesquisarProdutosComPaginacao}?${params}`);
+
         const text = await response.text();
 
         if (!response.ok) {

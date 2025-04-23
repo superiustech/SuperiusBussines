@@ -23,14 +23,14 @@ const FormularioImagemProduto = () => {
 
     const obterImagensProduto = async () => {
         try {
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.getImages}/` + codigoProduto);
+            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.obterImagensProduto}/` + codigoProduto);
             setImagens(response.data);
         } catch (err) {  console.error('Erro ao carregar imagens:', err); }
     };
 
     const excluirImagem = async (nCdImagem) => {
         try {
-            const response = await axios.delete(`${apiConfig.baseURL}${apiConfig.endpoints.deletarImagens}/` + nCdImagem);
+            const response = await axios.delete(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.excluirImagem}/` + nCdImagem);
             if (response.data.success) {
                 setImagens(imagens.filter(img => img.nCdImagem !== nCdImagem));
                 setMensagem("Imagem excluída com sucesso!");
@@ -65,7 +65,7 @@ const FormularioImagemProduto = () => {
             formDataToSend.append('imagem', formData.imagem);
             formDataToSend.append('descricao', formData.descricao);
 
-            const response = await axios.post(`${apiConfig.baseURL}${apiConfig.endpoints.addImage}`, formDataToSend, { headers: { }} );
+            const response = await axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.adicionarImagem}`, formDataToSend, { headers: {} });
 
             if (response.data.success) {
                 setMensagem("Imagem adicionada com sucesso!");
@@ -135,8 +135,8 @@ const FormularioImagemProduto = () => {
                 </div>
 
                 <div className="col-md-12 mt-3">
-                    <button onClick={() => navigate(`/produto-variacao/${codigoProduto}`)} className="btn btn-secondary me-2"> Voltar </button>
-                    <button onClick={() => navigate('/produtos')} className="btn btn-primary" > Finalizar </button>
+                    <button onClick={() => navigate(`/administrador/produto-variacao/${codigoProduto}`)} className="btn btn-secondary me-2"> Voltar </button>
+                    <button onClick={() => navigate('/administrador/produtos')} className="btn btn-primary" > Finalizar </button>
                 </div>
             </div>
         </div>

@@ -58,6 +58,9 @@ namespace Infra.Repositories
                 int nCdRevendedor = 0;
                 if (revendedorExistente == null)
                 {
+                    oCWRevendedor.Estoque = await _context.Estoque.FindAsync(oCWRevendedor.nCdEstoque);
+                    oCWRevendedor.Tipo = await _context.RevendedorTipo.FindAsync(oCWRevendedor.nCdTipoRevendedor);
+
                     await _context.Revendedor.AddAsync(oCWRevendedor);
                     await _context.SaveChangesAsync();
                     nCdRevendedor = oCWRevendedor.nCdRevendedor;

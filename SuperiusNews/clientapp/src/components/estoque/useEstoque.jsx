@@ -9,20 +9,10 @@ export const useEstoque = (codigoEstoque) => {
     const obterEstoqueCompleto = useCallback(async () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.estoqueProduto}/${codigoEstoque}`);
-            setState(prev => ({
-                ...prev,
-                produtos: response.data.todosProdutos,
-                estoqueProdutos: response.data.produtos,
-                loading: false
-            }));
+            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.estoqueProduto}/${codigoEstoque}`);
+            setState(prev => ({ ...prev, estoqueProdutos: response.data.estoqueProduto, produtos: response.data.produtos, loading: false }));
         } catch (err) {
-            setState(prev => ({
-                ...prev,
-                error: true,
-                mensagem: "Erro ao carregar os dados",
-                loading: false
-            }));
+            setState(prev => ({ ...prev, error: true, mensagem: "Erro ao carregar os dados", loading: false }));
         }
     }, [codigoEstoque]);
 
@@ -38,7 +28,7 @@ export const useEstoque = (codigoEstoque) => {
                 dVlVenda: FormatadorValores.converterParaDecimal(produtoData.valorVenda)
             };
 
-            const response = await axios.post(`${apiConfig.baseURL}${apiConfig.endpoints.adicionarEstoqueProduto}`, produtoFormatado, { headers: { 'Content-Type': 'application/json' } });
+            const response = await axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.adicionarEstoqueProduto}`, produtoFormatado, { headers: { 'Content-Type': 'application/json' } });
 
             if (response.data.success) {
                 setState(prev => ({
@@ -70,7 +60,7 @@ export const useEstoque = (codigoEstoque) => {
             };
 
             const response = await axios.delete(
-                `${apiConfig.baseURL}${apiConfig.endpoints.removerEstoqueProduto}`,
+                `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.removerEstoqueProduto}`,
                 {
                     data: estoqueProduto,  
                     headers: {'Content-Type': 'application/json'}

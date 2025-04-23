@@ -30,29 +30,19 @@ const ProductsPage = () => {
             setTotalPages(response.totalPaginas);
         } catch (error) {
             console.error('Erro ao carregar produtos:', error);
-            // Adicione tratamento de erro visível para o usuário
             alert('Erro ao carregar produtos. Verifique o console para detalhes.');
         } finally {
             setLoading(false);
         }
   };
 
-    const handleFilterChange = (newFilters) => {
-        setFilters(newFilters);
-    };
+    const handleFilterChange = (newFilters) => { setFilters(newFilters); };
 
-    const handleClearFilters = () => {
-        setFilters({ sNmProduto: '', sDsProduto: '' });
-    };
+    const handleClearFilters = () => { setFilters({ sNmProduto: '', sDsProduto: '' }); };
 
-    const handleProductClick = (codigoProduto) => {
-        navigate(`/editar-produto/${codigoProduto}`);
-    };
+    const handleProductClick = (codigoProduto) => { navigate(`/administrador/editar-produto/${codigoProduto}`); };
 
-    const handleDeleteClick = (productId) => {
-        // Implemente a lógica de exclusão
-        console.log('Excluir produto:', productId);
-    };
+    const handleDeleteClick = (productId) => { console.log('Excluir produto:', productId); };
 
     return (
         <div className="container">

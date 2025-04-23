@@ -21,7 +21,7 @@ const VariacaoProduto = () => {
 
     const obterVariacoesProduto = async () => {
         try {
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.getVariacoesProduto}/` + codigoProduto);
+            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.consultarVariacoesProduto}/` + codigoProduto);
             if (response.data && response.data.length > 0) {
                 const novoContador = contadorVariacoes + 1;
                 setContadorVariacoes(novoContador);
@@ -48,7 +48,7 @@ const VariacaoProduto = () => {
 
     const obterVariacoes = async () => {
         try {
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.getVariacoes}`);
+            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.tipoVariacao}`);
             setVariacoes(response.data);
         } catch (err) { console.error('Erro ao carregar variações:', err); }
     };
@@ -56,7 +56,7 @@ const VariacaoProduto = () => {
     const adicionarVariacao = async () => {
         if (!tipoSelecionado) { alert('Selecione um tipo de variação.'); return; }
         try {
-            const response = await axios.get(`${apiConfig.baseURL}${apiConfig.endpoints.getVariacaoPorId}/` + tipoSelecionado);
+            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.opcoesVariacao}/` + tipoSelecionado);
 
             if (response.data && response.data.length > 0) {
                 const novoContador = contadorVariacoes + 1;
@@ -103,7 +103,7 @@ const VariacaoProduto = () => {
                 if (checkedInputs.length === 0) continue;
 
                 const variacao = {
-                    nCdVariacao: card.nCdVariacao || parseInt(card.id.replace(/\D/g, '')),
+                    nCdVariacao: card.nCdVariacao || card.tipoId,
                     sNmVariacao: card.tipo || `Variação ${card.id}`,
                     sDsVariacao: `Descrição da variação ${card.id}`,
                     bFlAtiva: true,
@@ -128,7 +128,7 @@ const VariacaoProduto = () => {
             }
 
             const response = await axios.put(
-                `${apiConfig.baseURL}${apiConfig.endpoints.adicionarEditarVariacoes}`,
+                `${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.editarVariacaoProduto}`,
                 { variacoes: variacoesParaEnvio, nCdProduto: codigoProduto},
                 { headers: { 'Content-Type': 'application/json' }}
             );
@@ -138,7 +138,7 @@ const VariacaoProduto = () => {
                 setMensagem("Variações atualizadas com sucesso!");
                 setDetails("Redirecionando...");
                 setTimeout(function () {
-                    navigate(`/produto-imagem/${response.data.codigoProduto}`);
+                    navigate(`/administrador/produto-imagem/${response.data.codigoProduto}`);
                 }, 4000);
                 
             } else {

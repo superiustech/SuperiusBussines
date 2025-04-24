@@ -39,17 +39,17 @@ export const useRevendedor = (codigoRevendedor) => {
 
             const formData = response.data.revendedor.result;
             const revendedorFormatado = {
-                nomeRevendedor: formData.sNmRevendedor || '',
+                nomeRevendedor: formData.sNmRevendedor?.toString() || '',
                 estoque: formData.nCdEstoque?.toString() || '',
                 tipo: formData.nCdTipoRevendedor?.toString() || '',
-                percRevenda: formData.dPcRevenda || '',
-                cpfcnpj: formData.sNrCpfCnpj || '',
-                telefone: formData.sTelefone || '',
-                email: formData.sEmail || '',
-                rua: formData.sDsRua || '',
-                complemento: formData.sDsComplemento || '',
-                numero: formData.sNrNumero || '',
-                cep: formData.sCdCep || ''
+                percRevenda: formData.dPcRevenda?.toString().replace(".", ",") || '',
+                cpfcnpj: formData.sNrCpfCnpj?.toString() || '',
+                telefone: formData.sTelefone?.toString() || '',
+                email: formData.sEmail?.toString() || '',
+                rua: formData.sDsRua?.toString() || '',
+                complemento: formData.sDsComplemento?.toString() || '',
+                numero: formData.sNrNumero?.toString() || '',
+                cep: formData.sCdCep?.toString() || ''
             };
 
             setState(prev => ({ ...prev, success: true, mensagem: "Revendedor consultado com sucesso!", loading: false, revendedor: revendedorFormatado}));
@@ -70,8 +70,8 @@ export const useRevendedor = (codigoRevendedor) => {
                 nCdTipoRevendedor: FormatadorValores.converterParaInteiro(formData.tipo) || '',
                 dPcRevenda: FormatadorValores.converterParaDecimal(formData.percRevenda) || '',
                 sNmRevendedor: formData.nomeRevendedor || '',
-                sNrCpfCnpj: formData.cpfcnpj || '',
-                sTelefone: formData.telefone || '',
+                sNrCpfCnpj: FormatadorValores.removerFormatacao(formData.cpfcnpj) || '',
+                sTelefone: FormatadorValores.removerFormatacao(formData.telefone) || '',
                 sEmail: formData.email || '',
                 sDsRua: formData.rua || '',
                 sDsComplemento: formData.complemento || '',

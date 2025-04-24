@@ -1,8 +1,10 @@
-import Loading from '../ui/Loading';
 import { useNavigate, useParams } from 'react-router-dom';
+import { IMaskInput } from 'react-imask';
 import React, { useState, useEffect } from 'react';
 import apiConfig from '../../Api';
 import axios from 'axios';
+import FormatadorValores from '../common/FormatadorValores';
+import Loading from '../ui/Loading';
 
 const FormularioEstoque = () => {
     const navigate = useNavigate();
@@ -37,7 +39,7 @@ const FormularioEstoque = () => {
                 sDsRua: formData.rua,
                 sDsComplemento: formData.complemento,
                 sNrNumero: formData.numero,
-                sCdCep: formData.cep
+                sCdCep: FormatadorValores.removerFormatacao(formData.cep)
             };
 
             const response = await axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.cadastrarEstoque}`, dadosEnvio, {
@@ -75,7 +77,7 @@ const FormularioEstoque = () => {
                     rua: estoque.sDsRua || '',
                     complemento: estoque.sDsComplemento || '',
                     numero: estoque.sNrNumero || '',
-                    cep: estoque.sCdCep || ''
+                    cep: estoque.sCdCep?.toString() || ''
                 });
             } else {
                 alert('Estoque não encontrado.');
@@ -87,7 +89,6 @@ const FormularioEstoque = () => {
             setLoading(false);
         }
     };
-
 
     useEffect(() => { if (codigoEstoque) { carregarEstoque(); } }, [codigoEstoque]);
 
@@ -118,12 +119,6 @@ const FormularioEstoque = () => {
                             <div className="invalid-feedback"> Por favor, insira a descrição do estoque. </div>
                         </div>
 
-                        <div className="col-md-4">
-                            <label htmlFor="tagsBusca" className="form-label">Tags para busca</label>
-                            <input type="text" className="form-control" id="tagsBusca" name="tagsBusca" value={formData.tagsBusca} onChange={handleChange} />
-                            <div className="invalid-feedback"> Por favor, insira as tags para busca. </div>
-                        </div>
-
                         <br />
 
                         <h6 className="mt-12"> Localidade 
@@ -150,7 +145,7 @@ const FormularioEstoque = () => {
 
                         <div className="col-md-6">
                             <label htmlFor="cep" className="form-label">CEP</label>
-                            <input type="text" className="form-control" id="cep" name="cep" value={formData.cep} onChange={handleChange} required />
+                            <IMaskInput mask="00000-000" placeholder="00000-000" className="form-control" name="cep" value={formData.cep} onAccept={(value) => setFormData({ ...formData, cep: value })} required />
                             <div className="invalid-feedback"> Por favor, insira o CEP. </div>
                         </div>
 

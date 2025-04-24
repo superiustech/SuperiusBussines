@@ -1,6 +1,7 @@
 import Loading from '../ui/Loading';
 import React, { useState, useEffect } from 'react';
 import FlashMessage from '../ui/FlashMessage';
+import { IMaskInput } from 'react-imask';
 
 const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tipos, revendedor, onAdicionarRevendedor, clearMessages }) => {
 
@@ -59,7 +60,8 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                             <label htmlFor="percRevenda" className="form-label">Perc. de Revenda</label>
                             <div className="input-group has-validation">
                                 <span className="input-group-text" id="inputGroupPrepend">%</span>
-                                <input type="text" className="form-control" id="percRevenda" name="percRevenda" value={formData.percRevenda} onChange={handleChange} aria-describedby="inputGroupPrepend" required />
+                                <IMaskInput mask={Number} radix="," scale={2} thousandsSeparator="." padFractionalZeros={true} max={100} normalizeZeros={true} mapToRadix={["."]} className="form-control" id="percRevenda"
+                                 name="percRevenda" value={formData.percRevenda} onAccept={(value) => handleChange({ target: { name: 'percRevenda', value } })} aria-describedby="inputGroupPrepend" required />
                                 <div className="invalid-feedback"> Por favor, insira o Percentual de Revenda do revendedor. </div>
                             </div>
                         </div>
@@ -77,8 +79,9 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                         <div className="col-md-6">
                             <label htmlFor="cpfcnpj" className="form-label">CPF/CNPJ</label>
                             <div className="input-group has-validation">
-                                <input type="text" className="form-control" id="cpfcnpj" name="cpfcnpj" value={formData.cpfcnpj} onChange={handleChange} aria-describedby="inputGroupPrepend" required />
-                                <div className="invalid-feedback"> Por favor, insira o CPF/CNPJ do revendedor. </div>
+                                <IMaskInput key={formData.tipo} mask={ Number(formData.tipo) === 1 ? '00.000.000/0000-00' : Number(formData.tipo) === 2 ? '000.000.000-00' : '' }
+                                 disabled={formData.tipo === undefined} className="form-control" id="cpfcnpj" name="cpfcnpj" value={formData.cpfcnpj} onAccept={(value) => setFormData({ ...formData, cpfcnpj: value })} unmask={false} required/>
+                                <div className="invalid-feedback"> Por favor, insira o CPF/CNPJ do revendedor.</div>
                             </div>
                         </div>
 
@@ -86,7 +89,7 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                             <label htmlFor="telefone" className="form-label">Telefone</label>
                             <div className="input-group has-validation">
                                 <span className="input-group-text" id="inputGroupPrepend">#</span>
-                                <input type="text" className="form-control" id="telefone" name="telefone" value={formData.telefone} onChange={handleChange} aria-describedby="inputGroupPrepend" required />
+                                <IMaskInput mask="(00) 00000-0000" placeholder="(00) 00000-0000" className="form-control" name="telefone" value={formData.telefone} onAccept={(value) => setFormData({ ...formData, telefone: value })} required/>
                                 <div className="invalid-feedback">  Por favor, insira o telefone do revendedor.. </div>
                             </div>
                         </div>
@@ -122,7 +125,7 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
 
                         <div className="col-md-6">
                             <label htmlFor="cep" className="form-label">CEP</label>
-                            <input type="text" className="form-control" id="cep" name="cep" value={formData.cep} onChange={handleChange} required />
+                            <IMaskInput mask="00000-000" placeholder="00000-000" className="form-control" name="cep" value={formData.cep} onAccept={(value) => setFormData({ ...formData, cep: value })} required />
                             <div className="invalid-feedback"> Por favor, insira o CEP. </div>
                         </div>
 

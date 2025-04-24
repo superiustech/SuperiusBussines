@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import InputMask from 'react-input-mask';
+import { IMaskInput } from 'react-imask';
 import FlashMessage from '../ui/FlashMessage';
+import FormatadorValores from '../common/FormatadorValores';
 
 const EstoqueProdutoFormulario = ({ produtos, loading, error, success, mensagem, onAdicionarProduto, clearMessages }) => {
     const [formData, setFormData] = useState({ quantidadeMinima: '', quantidadeEstoque: '', valorCusto: '', valorVenda: '', produtoId: ''});
@@ -50,26 +51,29 @@ const EstoqueProdutoFormulario = ({ produtos, loading, error, success, mensagem,
 
         <div className="col-md-12">
             <label htmlFor="quantidadeMinima" className="form-label">Quantidade mínima</label>
-            <InputMask mask="99999999" maskChar={null} className="form-control numero-inteiro quantidade-input" id="quantidadeMinima" name="quantidadeMinima" value={formData.quantidadeMinima} onChange={handleChange} required />
+            <IMaskInput mask={Number} className="form-control" id="quantidadeMinima" name="quantidadeMinima" value={formData.quantidadeMinima} onAccept={(value) => handleChange({ target: { name: 'quantidadeMinima', value } })} aria-describedby="inputGroupPrepend" required />
+             <div className="invalid-feedback"> Por favor, insira um valor monetário válido. </div>
             <div className="invalid-feedback">Por favor, insira uma quantidade válida (ex: 10).</div>
         </div>
 
         <div className="col-md-12">
             <label htmlFor="quantidadeEstoque" className="form-label">Quantidade estoque (inicial)</label>
-            <InputMask mask="99999999" maskChar={null} className="form-control numero-inteiro quantidade-input" id="quantidadeEstoque" name="quantidadeEstoque" value={formData.quantidadeEstoque} onChange={handleChange} required />
+            <IMaskInput mask={Number} className="form-control" id="quantidadeEstoque" name="quantidadeEstoque" value={formData.quantidadeEstoque} onAccept={(value) => handleChange({ target: { name: 'quantidadeEstoque', value } })} aria-describedby="inputGroupPrepend" required />
             <div className="invalid-feedback">Por favor, insira uma quantidade válida (ex: 100).</div>
         </div>
 
         <div className="col-md-12">
-            <label htmlFor="valorCusto" className="form-label">Valor de custo</label>
-            <input type="text" className="form-control money money-input" id="valorCusto" name="valorCusto" value={formData.valorCusto} onChange={handleChange} required />
-            <div className="invalid-feedback">Por favor, insira um valor válido (ex: R$ 12,75).</div>
+            <label htmlFor="valorVenda" className="form-label">Valor de venda</label>
+            <IMaskInput mask={Number} radix="," scale={2} thousandsSeparator="." padFractionalZeros={true} normalizeZeros={true} mapToRadix={["."]} className="form-control" id="valorVenda"
+            name="valorVenda" value={formData.valorVenda} onAccept={(value) => handleChange({ target: { name: 'valorVenda', value } })} aria-describedby="inputGroupPrepend" required />
+            <div className="invalid-feedback"> Por favor, insira um valor monetário válido. </div>
+            <div className="invalid-feedback">Por favor, insira um valor válido (ex: R$ 15,99).</div>
         </div>
 
         <div className="col-md-12">
-            <label htmlFor="valorVenda" className="form-label">Valor de venda</label>
-            <input type="text" className="form-control money money-input" id="valorVenda" name="valorVenda" value={formData.valorVenda} onChange={handleChange} required />
-            <div className="invalid-feedback">Por favor, insira um valor válido (ex: R$ 15,99).</div>
+            <label htmlFor="valorCusto" className="form-label">Valor de custo</label>
+            <input type="text" className="form-control money money-input" id="valorCusto" name="valorCusto" value={formData.valorCusto} onChange={handleChange} disabled required />
+            <div className="invalid-feedback">Por favor, insira um valor válido (ex: R$ 12,75).</div>
         </div>
 
         <div className="col-md-12">

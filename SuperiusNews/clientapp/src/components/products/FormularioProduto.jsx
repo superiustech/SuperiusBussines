@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import apiConfig from '../../Api';
+import { IMaskInput } from 'react-imask';
+import FormatadorValores from '../common/FormatadorValores';
 
 const FormularioProduto = () => {
     const navigate = useNavigate();
@@ -27,16 +29,6 @@ const FormularioProduto = () => {
         }
     };
 
-    const validarValorMonetario = (valor) => { return /^[0-9,.]*$/.test(valor); };
-
-    const formatarValorMonetario = (valor) => {
-        if (!valor) return '';
-        valor = valor.toString().replace(/[^0-9,]/g, '');
-        valor = valor.replace(',', '.');
-        if (!valor || valor.trim() === '') return '';
-        return parseFloat(valor).toFixed(2).replace('.', ',');
-    };
-
     const carregarProduto = async (codigo) => {
         try {
             setLoading(true);
@@ -46,8 +38,8 @@ const FormularioProduto = () => {
                 setFormData({
                     nomeProduto: produto.sNmProduto || '',
                     codigoProduto: produto.sCdProduto || '',
-                    preco: formatarValorMonetario(produto.dVlVenda) || '',
-                    precoUnitario: formatarValorMonetario(produto.dVlUnitario) || '',
+                    preco: produto.dVlVenda?.toString().replace(".", ",") || '',
+                    precoUnitario: produto.dVlUnitario?.toString().replace(".", ",") || '',
                     descricaoProduto: produto.sDsProduto || '',
                     tipoUnidade: produto.nCdUnidadeMedida?.toString() || '',
                     tagsBusca: produto.tagsBusca || '',
@@ -70,14 +62,10 @@ const FormularioProduto = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === 'preco' || name === 'precoUnitario') { if (!validarValorMonetario(value)) return; }
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleBlur = (e) => {
-        const { name, value } = e.target;
-        if (name === 'preco' || name === 'precoUnitario') { setFormData(prev => ({ ...prev, [name]: formatarValorMonetario(value)})); }
-    };
+    const handleBlur = (e) => { const { name, value } = e.target; };
     
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -103,8 +91,8 @@ const FormularioProduto = () => {
                 sComprimento: formData.comprimento,
                 sAltura: formData.altura,
                 sPeso: formData.peso,
-                dVlVenda: parseFloat(formData.preco.replace(',', '.')),
-                dVlUnitario: parseFloat(formData.precoUnitario.replace(',', '.'))
+                dVlVenda: FormatadorValores.converterParaDecimal(formData.preco),
+                dVlUnitario: FormatadorValores.converterParaDecimal(formData.precoUnitario)
             };
             const response = await axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.cadastrarProduto}`, dadosEnvio);
 
@@ -155,7 +143,8 @@ const FormularioProduto = () => {
                         <label htmlFor="preco" className="form-label">Preço de Venda</label>
                         <div className="input-group has-validation">
                             <span className="input-group-text" id="inputGroupPrepend">R$</span>
-                            <input type="text" className="form-control preco" id="preco" name="preco" value={formData.preco} onChange={handleChange} onBlur={handleBlur} aria-describedby="inputGroupPrepend" required />
+                            <IMaskInput mask={Number} radix="," scale={2} thousandsSeparator="." padFractionalZeros={true} normalizeZeros={true} mapToRadix={["."]} className="form-control" id="preco"
+                            name="preco" value={formData.preco} onAccept={(value) => handleChange({ target: { name: 'preco', value } })} aria-describedby="inputGroupPrepend" required />
                             <div className="invalid-feedback"> Por favor, insira um valor monetário válido. </div>
                         </div>
                     </div>
@@ -164,7 +153,8 @@ const FormularioProduto = () => {
                         <label htmlFor="precoUnitario" className="form-label">Preço unitário</label>
                         <div className="input-group has-validation">
                             <span className="input-group-text" id="inputGroupPrepend">R$</span>
-                            <input type="text" className="form-control preco" id="precoUnitario" name="precoUnitario" value={formData.precoUnitario} onChange={handleChange} onBlur={handleBlur} aria-describedby="inputGroupPrepend" required />
+                            <IMaskInput mask={Number} radix="," scale={2} thousandsSeparator="." padFractionalZeros={true} normalizeZeros={true} mapToRadix={["."]} className="form-control" id="precoUnitario"
+                            name="precoUnitario" value={formData.precoUnitario} onAccept={(value) => handleChange({ target: { name: 'precoUnitario', value } })} aria-describedby="inputGroupPrepend" required />
                             <div className="invalid-feedback"> Por favor, insira um valor monetário válido. </div>
                         </div>
                     </div>
@@ -175,7 +165,7 @@ const FormularioProduto = () => {
                         <div className="invalid-feedback"> Por favor, insira a descrição do produto. </div>
                     </div>
 
-                    <div className="col-md-3">
+                    <div className="col-md-4">
                         <label htmlFor="tipoUnidade" className="form-label">Tipo de Unidade</label>
                         <select className="form-select unidade" id="tipoUnidade" name="tipoUnidade" value={formData.tipoUnidade} onChange={handleChange} required >
                             <option selected disabled value="">Escolha...</option>
@@ -184,15 +174,9 @@ const FormularioProduto = () => {
                         <div className="invalid-feedback"> Por favor, selecione o tipo de unidade. </div>
                     </div>
 
-                    <div className="col-md-4">
-                        <label htmlFor="tagsBusca" className="form-label">Tags para busca</label>
-                        <input type="text" className="form-control" id="tagsBusca" name="tagsBusca" value={formData.tagsBusca} onChange={handleChange}/>
-                        <div className="invalid-feedback"> Por favor, insira as tags para busca. </div>
-                    </div>
-
-                    <div className="col-md-5">
+                    <div className="col-md-8">
                         <label htmlFor="videoYoutube" className="form-label">Vídeo do youtube</label>
-                        <input type="text" className="form-control" id="videoYoutube" name="videoYoutube" value={formData.videoYoutube} onChange={handleChange} required />
+                        <input type="text" className="form-control" id="videoYoutube" name="videoYoutube" value={formData.videoYoutube} onChange={handleChange} />
                         <div className="invalid-feedback">Por favor, insira o link do vídeo do YouTube.</div>
                     </div>
 
@@ -201,24 +185,24 @@ const FormularioProduto = () => {
 
                     <div className="col-md-6">
                         <label htmlFor="largura" className="form-label">Largura (cm)</label>
-                        <input type="text" className="form-control" id="largura" name="largura" value={formData.largura} onChange={handleChange} required />
+                        <IMaskInput mask={Number} className="form-control" id="largura" name="largura" value={formData.largura} onChange={handleChange} onAccept={(value) => handleChange({ target: { name: 'largura', value } })} required />
                         <div className="invalid-feedback"> Por favor, insira a largura da embalagem. </div>
                     </div>
 
                     <div className="col-md-6">
                         <label htmlFor="comprimento" className="form-label">Comprimento (cm)</label>
-                        <input type="text" className="form-control" id="comprimento" name="comprimento" value={formData.comprimento} onChange={handleChange} required />
+                        <IMaskInput mask={Number} className="form-control" id="comprimento" name="comprimento" value={formData.comprimento} onChange={handleChange} onAccept={(value) => handleChange({ target: { name: 'comprimento', value } })} required />
                         <div className="invalid-feedback"> Por favor, insira o comprimento da embalagem. </div>
                     </div>
 
                     <div className="col-md-6">
                         <label htmlFor="altura" className="form-label">Altura (cm)</label>
-                        <input type="text"className="form-control" id="altura" name="altura" value={formData.altura} onChange={handleChange} required />
+                        <IMaskInput mask={Number} className="form-control" id="altura" name="altura" value={formData.altura} onChange={handleChange} onAccept={(value) => handleChange({ target: { name: 'altura', value } })} required />
                         <div className="invalid-feedback"> Por favor, insira a altura da embalagem. </div>
                     </div>
 
                     <div className="col-md-6"> <label htmlFor="peso" className="form-label">Peso (kg)</label>
-                        <input type="text" className="form-control" id="peso" name="peso" value={formData.peso} onChange={handleChange} required />
+                        <IMaskInput mask={Number} className="form-control" id="peso" name="peso" value={formData.peso} onChange={handleChange} onAccept={(value) => handleChange({ target: { name: 'peso', value } })} required />
                         <div className="invalid-feedback"> Por favor, insira o peso da embalagem. </div>
                     </div>
 

@@ -33,8 +33,8 @@ const EstoqueProdutoTable = ({ estoqueProdutos, loading, onRefresh, onRemoverPro
                     <td>{item.sDsProduto || 'N/A'}</td>
                     <td>{item.dQtMinima || '0'}</td>
                     <td>{item.dQtEstoque || '0'}</td>
-                    <td>{item.dVlVenda}</td>
-                    <td>{item.dVlCusto}</td><td>
+                    <td>{item.dVlVenda?.toString().replace(".", ",")}</td>
+                    <td>{/*{item.dVlCusto}*/} N/A </td><td>
                     <div className="btn-group btn-group-sm">
                     <button className="btn btn-primary" onClick={() => handleEditar(item.nCdProduto)}>Editar</button>
                     <button className="btn btn-danger"  onClick={() => handleRemover(item.nCdProduto)}>Remover</button>

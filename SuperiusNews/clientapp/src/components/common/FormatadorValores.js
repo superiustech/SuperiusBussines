@@ -9,6 +9,9 @@
         if (!valor) return 0.0;
         const valorDecimal = valor.toString().replace(/\./g, '').replace(/,/g, '.');
         return parseFloat(valorDecimal) || 0.0;
+    },
+    removerFormatacao: (valor) => {
+        return valor ? valor.toString().replace(/\D/g, '') : '';
     }
 };
 

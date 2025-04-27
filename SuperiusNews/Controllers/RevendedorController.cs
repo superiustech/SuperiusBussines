@@ -33,6 +33,22 @@ namespace WebApplication1.Controllers
             var lstRevendedorTipo = _revendedor.Consultar(nCdRevendedor);
             return Ok(new { success = true, revendedor = lstRevendedorTipo });
         }
+        [HttpGet("Revendedores/")]
+        public async Task<IActionResult> Revendedores()
+        {
+            List<CWRevendedor> lstRevendedores = await _revendedor.PesquisarRevendedores();
+            List<RevendedoresDTO> lstRevendedoresDTO = new List<RevendedoresDTO>();
+
+            lstRevendedoresDTO.AddRange(lstRevendedores.Select(x => new RevendedoresDTO()
+            {
+                Codigo = x.nCdRevendedor,
+                Nome = x.sNmRevendedor,
+                Tipo = x.Tipo?.sNmTipo ?? string.Empty,
+                Estoque = x.Estoque?.sNmEstoque ?? string.Empty
+            }).ToList());
+
+            return Ok(new { success = true, revendedores = lstRevendedoresDTO });
+        }
         [HttpPost("CadastrarRevendedor")]
         public async Task<IActionResult> CadastrarRevendedor([FromBody] CWRevendedor revendedor)
         {
@@ -41,6 +57,20 @@ namespace WebApplication1.Controllers
                 if (revendedor == null) return BadRequest("Dados inválidos.");
                 int nCdRevendedor = await _revendedor.CadastrarRevendedor(revendedor);
                 return Ok(new { success = true, message = "Dados salvos com sucesso.", codigoRevendedor = nCdRevendedor });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar estoque");
+                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
+            }
+        }
+        [HttpDelete("ExcluirRevendedores")]
+        public async Task<IActionResult> ExcluirRevendedores([FromBody] string arrCodigoRevendedores)
+        {
+            try
+            {
+                await _revendedor.ExcluirRevendedores(arrCodigoRevendedores);
+                return Ok(new { success = true, message = "Revendedor(es) excluido(s) com sucesso." });
             }
             catch (Exception ex)
             {

@@ -33,6 +33,30 @@ namespace Infra.Repositories
                 return await query.OrderBy(p => p.nCdEstoque).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
             }
         }
+        public async Task<List<CWEstoque>> PesquisarSemRevendedores(int? nCdRevendedor = null)
+        {
+            int? estoqueDoRevendedor = null;
+
+            if (nCdRevendedor.HasValue)
+            {
+                estoqueDoRevendedor = await _context.Revendedor
+                    .Where(r => r.nCdRevendedor == nCdRevendedor)
+                    .Select(r => r.nCdEstoque)
+                    .FirstOrDefaultAsync();
+            }
+
+            return await _context.Estoque
+                .Where(e =>
+                    !_context.Revendedor.Any(r => r.nCdEstoque == e.nCdEstoque)
+                    || (estoqueDoRevendedor.HasValue && e.nCdEstoque == estoqueDoRevendedor.Value))
+                .Distinct()
+                .AsNoTracking()
+                .ToListAsync();
+        }
+        public async Task<List<CWEstoque>> PesquisarTodosEstoques()
+        {
+            return await _context.Estoque.AsNoTracking().OrderBy(p => p.nCdEstoque).ToListAsync();
+        }
         private IQueryable<CWEstoque> AplicarFiltros(IQueryable<CWEstoque> query, CWEstoque filtro)
         {
             query = !string.IsNullOrEmpty(filtro.sNmEstoque) ? query.Where(p => EF.Functions.Like(p.sNmEstoque, $"%{filtro.sNmEstoque}%")) : query;
@@ -137,6 +161,28 @@ namespace Infra.Repositories
             }
 
             await _context.SaveChangesAsync();
+        }
+        public async Task ExcluirEstoques(List<CWEstoque> lstEstoques)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var lstCdEstoques = lstEstoques.Select(p => p.nCdEstoque).ToList();
+                    var estoquesProdutos = _context.EstoqueProduto.Where(pov => lstCdEstoques.Contains(Convert.ToInt32(pov.nCdEstoque)));
+
+                   _context.EstoqueProduto.RemoveRange(estoquesProdutos);
+                   _context.Estoque.RemoveRange(lstEstoques);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
         }
     }
 }

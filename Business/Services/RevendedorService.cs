@@ -3,6 +3,7 @@ using Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace Business.Services
 {
@@ -71,6 +72,25 @@ namespace Business.Services
             catch (Exception ex)
             {
                 throw new Exception("Ocorreu um erro ao pesquisar os tipos do revendedor.", ex);
+            }
+        }
+        public async Task ExcluirRevendedores(string arrCodigosRevendedores)
+        {
+            try
+            {
+                List<string> lstCodigosRevendedores = arrCodigosRevendedores.Split(",").ToList();
+                List<CWRevendedor> lstRevendedores = new List<CWRevendedor>();
+                List<CWRevendedor> lstRevendedoresExistentes = await _revendedorRepository.PesquisarRevendedoresSimples();
+                foreach (CWRevendedor oCWRevendedor in lstRevendedoresExistentes)
+                {
+                    if (lstCodigosRevendedores.Contains(oCWRevendedor.nCdRevendedor.ToString()))
+                        lstRevendedores.Add(oCWRevendedor);
+                }
+                await _revendedorRepository.ExcluirRevendedores(lstRevendedores);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocorreu um erro ao deletar os revendedores.", ex);
             }
         }
     }

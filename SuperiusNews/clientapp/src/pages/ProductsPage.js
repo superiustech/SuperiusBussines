@@ -1,54 +1,68 @@
 ﻿import React, { useState, useEffect } from 'react';
-import ProductFilter from '../components/products/ProductFilter';
 import ProductTable from '../components/products/ProductTable';
-import { getProducts } from '../services/productService';
-import { useNavigate, useParams } from 'react-router-dom';
+import { getProducts, deletarProdutos } from '../services/productService';
+import { useNavigate } from 'react-router-dom';
+import Loading from '../components/ui/Loading';
+import FlashMessage from '../components//ui/FlashMessage';
 
 const ProductsPage = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
-    const [filters, setFilters] = useState({ sNmProduto: '', sDsProduto: ''
-    });
-    const pageSize = 10;
+    const [error, setError] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [mensagem, setMensagem] = useState('');
     const navigate = useNavigate();
-    useEffect(() => {
-        if (currentPage > totalPages && totalPages > 0) { setCurrentPage(totalPages); }
-        else if (totalPages === 0 && currentPage !== 1) { setCurrentPage(1); }
-        loadProducts(currentPage);
-    }, [totalPages, currentPage, filters]);
 
-    const loadProducts = async (page) => {
+    const loadProducts = async () => {
         setLoading(true);
         try {
-            const response = await getProducts(page, pageSize, filters);
+            const response = await getProducts();
             if (!response || !response.produtos) {
-                throw new Error('Resposta inválida da API');
+                setError(true);
+                setMensagem("Nenhum produto existente.");
             }
             setProducts(response.produtos);
-            setTotalPages(response.totalPaginas);
         } catch (error) {
-            console.error('Erro ao carregar produtos:', error);
-            alert('Erro ao carregar produtos. Verifique o console para detalhes.');
+            setError(true);
+            setMensagem("Erro ao carregar produtos.");
         } finally {
+
             setLoading(false);
         }
   };
 
-    const handleFilterChange = (newFilters) => { setFilters(newFilters); };
-
-    const handleClearFilters = () => { setFilters({ sNmProduto: '', sDsProduto: '' }); };
-
     const handleProductClick = (codigoProduto) => { navigate(`/administrador/editar-produto/${codigoProduto}`); };
 
-    const handleDeleteClick = (productId) => { console.log('Excluir produto:', productId); };
+    const handleDeleteClick = async (arrCodigoProdutos) => {
+        try {
+            await deletarProdutos(arrCodigoProdutos);
+            await loadProducts();
+            setMensagem("Produto(s) '" + arrCodigoProdutos + "' excluídos com sucesso! ")
+            setSuccess(true);
+        } catch (error) {
+            console.error();
+            setMensagem("Erro ao deletar produtos:" + error);
+            setError(true);
+            
+        }
+    };
+
+    const handleRefreshClick = () => { loadProducts() };
+
+    useEffect(() => {
+        loadProducts();
+    }, []);
 
     return (
         <div className="container">
-            {loading}
-            <ProductFilter onFilterChange={handleFilterChange} onClearFilters={handleClearFilters} />
-            <ProductTable products={products} onProductClick={handleProductClick} onDeleteClick={handleDeleteClick} currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage}/>
+            {success && <FlashMessage message={mensagem} type="success" duration={3000} />}
+            {error && <FlashMessage message={mensagem} type="error" duration={3000} />}
+            {loading ? (<Loading show={true} />) : (
+            <>
+                <h1 className="fw-bold display-5 text-primary m-0 mb-5"> <i className="bi bi-people-fill me-2"></i> Produtos </h1>
+                <ProductTable products={products} loading={loading} onProductClick={handleProductClick} onDeleteClick={handleDeleteClick} onRefresh={handleRefreshClick} />
+                </>
+            )}
         </div>
     );
 };

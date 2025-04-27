@@ -16,5 +16,8 @@ namespace Domain.Interfaces
         Task AdicionarEditarProdutoEstoque(CWEstoqueProduto oCWEstoqueProduto);
         Task RemoverEstoqueProduto(int nCdEstoque, int nCdProduto);
         Task<List<CWEstoque>> PesquisarEstoques(int page = 0, int pageSize = 0, CWEstoque? cwEstoqueFiltro = null);
+        Task<List<CWEstoque>> PesquisarEstoques(int? nCdRevendedor = null);
+        Task<List<CWEstoque>> PesquisarTodosEstoques();
+        Task ExcluirEstoques(string arrCodigosEstoques);
     }
 }

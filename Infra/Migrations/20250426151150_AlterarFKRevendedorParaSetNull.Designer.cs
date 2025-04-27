@@ -2,6 +2,7 @@
 using Infra;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infra.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250426151150_AlterarFKRevendedorParaSetNull")]
+    partial class AlterarFKRevendedorParaSetNull
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,7 +217,7 @@ namespace Infra.Migrations
                     b.Property<decimal>("dPcRevenda")
                         .HasColumnType("numeric");
 
-                    b.Property<int?>("nCdEstoque")
+                    b.Property<int>("nCdEstoque")
                         .HasColumnType("integer");
 
                     b.Property<int>("nCdTipoRevendedor")
@@ -470,7 +473,8 @@ namespace Infra.Migrations
                     b.HasOne("CWEstoque", "Estoque")
                         .WithMany()
                         .HasForeignKey("nCdEstoque")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
                     b.HasOne("Domain.Entities.CWRevendedorTipo", "Tipo")
                         .WithMany()

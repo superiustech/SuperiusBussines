@@ -7,10 +7,10 @@ namespace Domain.Entities
     {
         [Key]
         public int nCdRevendedor { get; set; }
-        public int nCdEstoque { get; set; }
+        public int? nCdEstoque { get; set; }
         public int nCdTipoRevendedor { get; set; }
         public string sNmRevendedor { get; set; }
-        public decimal dPcRevenda { get; set; }
+        public decimal dPcRevenda { get; set; } = 0;
         public string sNrCpfCnpj { get; set; }
         public string sTelefone { get; set; }
         public string sEmail { get; set; }

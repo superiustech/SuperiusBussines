@@ -6,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Data;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Linq;
 
 namespace Infra.Repositories
 {
@@ -30,6 +31,10 @@ namespace Infra.Repositories
                 query = oCWProdutoFiltro == null ? query : AplicarFiltros(query, oCWProdutoFiltro);
                 return await query.OrderBy(p => p.nCdProduto).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
             }
+        }
+        public async Task<List<CWProduto>> PesquisarTodosProdutos()
+        {
+            return await _context.Produto.AsNoTracking().OrderBy(p => p.nCdProduto).ToListAsync();
         }
         private IQueryable<CWProduto> AplicarFiltros(IQueryable<CWProduto> query, CWProduto filtro)
         {
@@ -215,6 +220,32 @@ namespace Infra.Repositories
                         }).ToList()
                 }).Where(v => v.VariacaoOpcoes.Any(vo => vo.bFlAtrelado)).ToListAsync();
 
+        }
+        public async Task ExcluirProdutos(List<CWProduto> lstProdutos)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var produtosIds = lstProdutos.Select(p => p.nCdProduto).ToList();
+
+                    var imagensParaRemover = _context.ProdutoImagem.Where(pi => produtosIds.Contains(pi.nCdProduto));
+                    _context.ProdutoImagem.RemoveRange(imagensParaRemover);
+
+                    var variacoesParaRemover = _context.ProdutoOpcaoVariacao.Where(pov => produtosIds.Contains(Convert.ToInt32(pov.nCdProduto)));
+                    _context.ProdutoOpcaoVariacao.RemoveRange(variacoesParaRemover);
+
+                    _context.Produto.RemoveRange(lstProdutos);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw; 
+                }
+            }
         }
     }
 }

@@ -51,6 +51,44 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, $"Erro ao obter produtos: {ex.Message}");
             }
         }
+        [HttpGet("Estoques")]
+        public async Task<IActionResult> Produtos()
+        {
+            try
+            {
+                var estoques = await _estoque.PesquisarTodosEstoques();
+                List<EstoqueDTO> lstEstoqueDTO = new List<EstoqueDTO>();
+
+                lstEstoqueDTO.AddRange(estoques.Select(x => new EstoqueDTO()
+                {
+                    Codigo = x.nCdEstoque,
+                    CodigoIdentificacao = x.sCdEstoque,
+                    Nome = x.sNmEstoque,
+                    Descricao = x.sDsEstoque,
+                    Cep = x.sCdCep
+                }).ToList());
+
+                return Ok(new { Estoques = lstEstoqueDTO });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao pesquisar estoques");
+                return StatusCode(500, $"Erro ao obter estoques: {ex.Message}");
+            }
+        }
+        [HttpGet("PesquisarEstoquesSemRevendedor")]
+        public async Task<IActionResult> PesquisarEstoquesSemRevendedor(int? nCdRevendedor = null)
+        {
+            try
+            {
+                var estoques = await _estoque.PesquisarEstoques(nCdRevendedor);
+                return Ok(new { Estoques = estoques });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao obter produtos: {ex.Message}");
+            }
+        }
         [HttpGet("Estoque/{codigoEstoque}")]
         public async Task<IActionResult> Estoque(int codigoEstoque)
         {
@@ -167,6 +205,20 @@ namespace WebApplication1.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+        [HttpDelete("ExcluirEstoques")]
+        public async Task<IActionResult> ExcluirEstoques([FromBody] string arrCodigoEstoques)
+        {
+            try
+            {
+                await _estoque.ExcluirEstoques(arrCodigoEstoques);
+                return Ok(new { success = true, message = "Estoques(s) excluido(s) com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar estoque");
+                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
             }
         }
         #endregion

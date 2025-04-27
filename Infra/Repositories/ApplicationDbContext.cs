@@ -25,14 +25,13 @@ namespace Infra
         {
             #region PRODUTO 
 
-            //modelBuilder.Entity<CWProduto>().HasOne<CWUnidadeMedida>().WithMany().HasForeignKey(p => p.nCdUnidadeMedida).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<CWProduto>().HasOne(p => p.UnidadeMedida).WithMany().HasForeignKey(p => p.nCdUnidadeMedida).IsRequired();
 
             modelBuilder.Entity<CWProdutoImagem>().HasOne<CWProduto>().WithMany().HasForeignKey(p => p.nCdProduto).OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasKey(x => new { x.nCdProduto, x.nCdVariacaoOpcao, x.nCdVariacao });
 
-            modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasOne<CWProduto>().WithMany().HasForeignKey(p => p.nCdProduto).IsRequired(false);          
+            modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasOne<CWProduto>().WithMany().HasForeignKey(p => p.nCdProduto).IsRequired(false).OnDelete(DeleteBehavior.Cascade); ;          
             modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasOne<CWVariacaoOpcao>().WithMany().HasForeignKey(p => p.nCdVariacaoOpcao).IsRequired();
             modelBuilder.Entity<CWProdutoOpcaoVariacao>().HasOne<CWVariacao>().WithMany().HasForeignKey(p => p.nCdVariacao).IsRequired();
 
@@ -66,8 +65,8 @@ namespace Infra
             modelBuilder.Entity<CWRevendedor>().HasKey(r => r.nCdRevendedor);
             modelBuilder.Entity<CWRevendedorTipo>().HasKey(t => t.nCdTipoRevendedor);
 
-            modelBuilder.Entity<CWRevendedor>().HasOne(r => r.Estoque).WithMany().HasForeignKey(r => r.nCdEstoque).OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<CWRevendedor>().HasOne(r => r.Tipo).WithMany().HasForeignKey(r => r.nCdTipoRevendedor).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<CWRevendedor>().HasOne(r => r.Estoque).WithMany().HasForeignKey(r => r.nCdEstoque).OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<CWRevendedor>().HasOne(r => r.Tipo).WithMany().HasForeignKey(r => r.nCdTipoRevendedor).OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<CWRevendedor>().ToTable("REVENDEDOR");
             modelBuilder.Entity<CWRevendedorTipo>().ToTable("REVENDEDOR_TIPO");

@@ -47,7 +47,7 @@ const FormularioEstoque = () => {
             });
 
             if (response.data.success) {
-                setTimeout(function () { navigate(`/administrador/estoque-produto/${response.data.codigoEstoque}`); }, 3000);
+                navigate(`/administrador/estoque-produto/${response.data.codigoEstoque}`);
             } else {
                 alert(response.data.message);
             }

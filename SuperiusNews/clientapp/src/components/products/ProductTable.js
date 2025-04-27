@@ -1,50 +1,68 @@
-﻿import React from 'react';
-const ProductTable = ({ products, onProductClick, onDeleteClick, currentPage, totalPages, onPageChange }) => {
-    return (
-        <div className="mt-4" style={{ maxHeight: '800px', overflow: 'scroll' }}>
-            <label className="form-label">Produtos</label>
-            <div className="table-responsive">
-                <table className="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Imagem</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Descrição</th>
-                            <th scope="col">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {products.length > 0 ? (
-                            products.map((item) => (
-                                <tr key={item.nCdProduto}>
-                                    <th scope="row">{item.nCdProduto}</th>
-                                    <td><img src="https://i.postimg.cc/RZXH7Gwb/sem-imagem.png" alt="Imagem" style={{ width: '100px', height: 'auto' }} /></td>
-                                    <td>{item.sNmProduto}</td>
-                                    <td>{item.sDsProduto}</td>
-                                    <td>
-                                        <button onClick={() => onDeleteClick(item.nCdProduto)}  className="btn btn-sm btn-danger"> Excluir </button>
-                                        <button onClick={() => onProductClick(item.nCdProduto)} className="btn btn-primary btn-sm ms-2"> Abrir Produto </button>
-                                    </td>
-                                </tr>
-                            ))) : (
-                            <tr>
-                                <td colSpan="5" className="text-center"> Nenhum produto encontrado </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+﻿import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { AgGridReact } from 'ag-grid-react';
+import { useNavigate } from 'react-router-dom';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+const ProductTable = ({ products, loading, onProductClick, onDeleteClick, onRefresh }) => {
+    const [gridApi, setGridApi] = useState(null);
+    const [selected, setSelected] = useState([]);
+    const navigate = useNavigate();
 
-            <div className="pagination-controls d-flex justify-content-center mt-3">
-                <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage <= 1} className="btn btn-secondary"> Anterior </button>
-                <div className="mx-3">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                        <button key={page} onClick={() => onPageChange(page)} className={`btn btn-secondary ms-1 ${currentPage === page ? 'active' : ''}`}> {page} </button>
-                    ))}
+    const columnDefs = useMemo(() => [
+        { headerCheckboxSelection: true, checkboxSelection: true, headerName: "", field: "checkbox", width: 20, pinned: 'left', suppressMenu: true, suppressSorting: true, suppressFilter: true },
+        { headerName: "#", field: "codigo", sortable: true, filter: true, resizable: true, width: 80 },
+        { headerName: "Código SKU", field: "codigoSKU", sortable: true, filter: true, resizable: true, width: 100 },
+        { headerName: "Nome", field: "nome", sortable: true, filter: true, resizable: true, flex: 3, minWidth: 350 },
+        { headerName: "Descricao", field: "descricao", sortable: true, filter: true, resizable: true, flex: 3, minWidth: 350 },
+        { headerName: "Vl. Unitário", field: "valorUnitario", sortable: true, filter: true, resizable: true, width: 100 },
+        { headerName: "Vl. Venda", field: "valorVenda", sortable: true, filter: true, resizable: true, width: 100 }
+    ], []);
+
+    const gridOptions = useMemo(() => ({
+        defaultColDef: { sortable: true, filter: true, resizable: true, minWidth: 100, flex: 1 },
+        rowSelection: 'multiple',
+        pagination: true,
+        paginationPageSize: 10
+    }), []);
+
+    useEffect(() => {
+        if (gridApi && products.length) {
+            gridApi.sizeColumnsToFit();
+        }
+    }, [gridApi, products]);
+
+    return (    
+        <div>
+            <>
+                <div className="mt-8 mb-3 d-flex justify-content-between align-items-center">
+                    <div className="d-flex align-items-center">
+                        <button className="btn btn-primary me-2" onClick={() => navigate(`/administrador/cadastrar-produto`)}> Incluir </button>
+                        <button className="btn btn-secondary me-2" disabled={selected.length !== 1} onClick={() => onProductClick(selected[0].codigo)}> Editar </button>
+                        <button className="btn btn-danger" disabled={selected.length === 0} onClick={() => onDeleteClick(selected.map(item => item.codigo).join(","))}> Excluir </button>
+                    </div>
+                    <div>
+                        <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>
+                    </div>
                 </div>
-                <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages} className="btn btn-secondary"> Próximo </button>
-            </div>
+
+                <div className="ag-theme-alpine" style={{ height: 450, width: '100%' }}>
+                    <AgGridReact
+                        key={products.length}
+                        rowData={products || []}
+                        columnDefs={columnDefs}
+                        onGridReady={(params) => setGridApi(params.api)}
+                        gridOptions={gridOptions}
+                        suppressReactUi={true}
+                        animateRows={true}
+                        onSelectionChanged={(event) => {
+                            const selectedNodes = event.api.getSelectedNodes();
+                            const selectedData = selectedNodes.map(node => node.data);
+                            setSelected(selectedData);
+                        }}
+                        rowHeight={48}
+                        headerHeight={56} />
+                </div>
+            </>
         </div>
     );
 };

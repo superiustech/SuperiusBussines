@@ -10,14 +10,16 @@ export const useRevendedor = (codigoRevendedor) => {
     const carregarEstoque = useCallback(async () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const params = new URLSearchParams({ page: 0, pageSize: 0 });
-            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoquesComPaginacao}?${params}`);
+            const url = `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoquesSemRevendedor}`;
+            const finalUrl = codigoRevendedor ? `${url}?nCdRevendedor=${codigoRevendedor}` : url;
+
+            const response = await axios.get(finalUrl);
             const data = response.data.estoques;
             setState(prev => ({ ...prev, estoques: data, loading: false }));
         } catch (err) {
             setState(prev => ({ ...prev, error: true, mensagem: "Erro ao carregar os dados", loading: false }));
         }
-    }, []);
+    }, [codigoRevendedor]);
 
     const carregarTipos = useCallback(async () => {
         setState(prev => ({ ...prev, loading: true }));
@@ -66,9 +68,9 @@ export const useRevendedor = (codigoRevendedor) => {
         try {
             const revendedorFormatado = {
                 nCdRevendedor: FormatadorValores.converterParaInteiro(codigoRevendedor) || 0,
-                nCdEstoque: FormatadorValores.converterParaInteiro(formData.estoque) || '',
-                nCdTipoRevendedor: FormatadorValores.converterParaInteiro(formData.tipo) || '',
-                dPcRevenda: FormatadorValores.converterParaDecimal(formData.percRevenda) || '',
+                nCdEstoque: FormatadorValores.converterParaInteiro(formData.estoque) || 0,
+                nCdTipoRevendedor: FormatadorValores.converterParaInteiro(formData.tipo) || 0,
+                dPcRevenda: FormatadorValores.converterParaDecimal(formData.percRevenda) || 0,
                 sNmRevendedor: formData.nomeRevendedor || '',
                 sNrCpfCnpj: FormatadorValores.removerFormatacao(formData.cpfcnpj) || '',
                 sTelefone: FormatadorValores.removerFormatacao(formData.telefone) || '',
@@ -85,6 +87,7 @@ export const useRevendedor = (codigoRevendedor) => {
 
             if (response.data.success) {
                 setState(prev => ({ ...prev, success: true, mensagem: "Revendedor cadastrado com sucesso!", loading: false }));
+                carregarEstoque();
                 return true;
             } else { throw new Error(response.data.message || "Erro ao salvar dados"); }
         } catch (err) {

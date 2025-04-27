@@ -28,6 +28,10 @@ namespace Business.Services
         {
             return _produtoRepository.ConsultarProduto(nCdProduto);
         }
+        public Task<List<CWProduto>> PesquisarTodosProdutos()
+        {
+            return _produtoRepository.PesquisarTodosProdutos();
+        }
         public async Task<List<CWVariacao>> ObterVariacoesAtivas() 
         {
             List<CWVariacao> lstProdutoVariacao = new List<CWVariacao>();
@@ -147,6 +151,25 @@ namespace Business.Services
             {
                 throw new Exception("Ocorreu um erro ao pesquisar produtos por estoque.", ex);
 
+            }
+        }
+        public async Task ExcluirProdutos(string arrCodigosProdutos)
+        {
+            try
+            {
+                List<string> lstCodigosProdutos = arrCodigosProdutos.Split(",").ToList();
+                List<CWProduto> lstProdutos = new List<CWProduto>();
+                List<CWProduto> lstProdutosExistentes = await _produtoRepository.PesquisarTodosProdutos();
+                foreach (CWProduto produto in lstProdutosExistentes)
+                {
+                    if (lstCodigosProdutos.Contains(produto.nCdProduto.ToString()))
+                        lstProdutos.Add(produto);
+                }
+                await _produtoRepository.ExcluirProdutos(lstProdutos);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocorreu um erro ao deletar os revendedores.", ex);
             }
         }
     }

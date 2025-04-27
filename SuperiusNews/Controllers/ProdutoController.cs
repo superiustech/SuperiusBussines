@@ -49,6 +49,32 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, $"Erro ao obter produtos: {ex.Message}");
             }
         }
+        [HttpGet("Produtos")]
+        public async Task<IActionResult> Produtos()
+        {
+            try
+            {
+                var produtos = await _produto.PesquisarTodosProdutos();
+                List<ProdutoDTO> lstProdutosDTO = new List<ProdutoDTO>();
+
+                lstProdutosDTO.AddRange(produtos.Select(x => new ProdutoDTO()
+                {
+                    Codigo = x.nCdProduto,
+                    CodigoSKU = x.sCdProduto,
+                    Nome = x.sNmProduto,
+                    Descricao = x.sDsProduto,
+                    ValorUnitario = x.dVlUnitario,
+                    ValorVenda = x.dVlVenda
+                }).ToList());
+
+                return Ok(new { Produtos = lstProdutosDTO });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar produto");
+                return StatusCode(500, $"Erro ao obter produtos: {ex.Message}");
+            }
+        }
         [HttpGet("ConsultarVariacoesProduto/{nCdProduto}")]
         public async Task<IActionResult> ConsultarVariacoesProduto(int nCdProduto)
         {
@@ -197,6 +223,20 @@ namespace WebApplication1.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+        [HttpDelete("ExcluirProdutos")]
+        public async Task<IActionResult> ExcluirProdutos([FromBody] string arrCodigoProdutos)
+        {
+            try
+            {
+                await _produto.ExcluirProdutos(arrCodigoProdutos);
+                return Ok(new { success = true, message = "Produto(s) excluido(s) com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar estoque");
+                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
             }
         }
         #endregion

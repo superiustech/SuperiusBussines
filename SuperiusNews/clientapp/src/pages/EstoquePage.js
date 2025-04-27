@@ -1,61 +1,70 @@
 ﻿import React, { useState, useEffect } from 'react';
-import EstoqueFiltro from '../components/estoque/EstoqueFiltro';
+import { useNavigate } from 'react-router-dom';
 import EstoqueTabela from '../components/estoque/EstoqueTabela';
-import { useNavigate, useParams } from 'react-router-dom';
 import apiConfig from '../Api';
 import axios from 'axios';
+import Loading from '../components/ui/Loading';
+import FlashMessage from '../components//ui/FlashMessage';
 
 const EstoquePage = () => {
+    const navigate = useNavigate();
     const [estoques, setEstoques] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
-    const [filters, setFilters] = useState({ sNmEstoque: '', sDsEstoque: ''});
-    const pageSize = 10;
-    const navigate = useNavigate();
+    const [error, setError] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [mensagem, setMensagem] = useState('');
 
-    const carregarEstoque = async (page) => {
+    const carregarEstoque = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams({
-                page: page.toString(),
-                pageSize: pageSize.toString(),
-                ...(filters.sNmEstoque && { 'oFiltroRequest.sNmFiltro': filters.sNmEstoque }),
-                ...(filters.sDsEstoque && { 'oFiltroRequest.sDsFiltro': filters.sDsEstoque })
-            });
-
-            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoquesComPaginacao}?${params}`);
+            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoques}`);
 
             if (!response.data || !response.data.estoques) {
                 throw new Error('Resposta inválida da API');
             }
             setEstoques(response.data.estoques);
-            setTotalPages(response.data.totalPaginas);
         } catch (error) {
             console.error('Erro ao carregar estoque:', error);
             alert('Erro ao carregar produtos. Verifique o console para detalhes.');
         } finally { setLoading(false);}
   };
 
-    const handleFilterChange = (newFilters) => { setFilters(newFilters);};
-
-    const handleClearFilters = () => { setFilters({ sNmEstoque: '', sDsEstoque: '' });};
-
     const handleEstoqueClick = (codigoEstoque) => { navigate(`/administrador/editar-estoque/${codigoEstoque}`); };
 
-    const handleDeleteClick = (productId) => { console.log('Excluir estoque:', productId); };
+    const handleDeleteClick = async (codigosEstoques) => {
+        try {
+            const dadosEnvio = JSON.stringify(String(codigosEstoques));
+            const response = await axios.delete(
+                `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.excluirEstoques}`,
+                {
+                    data: dadosEnvio,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+            await carregarEstoque();
+            setMensagem("Estoques(s) '" + codigosEstoques + "' excluídos com sucesso!");
+            setSuccess(true);
+        } catch (error) {
+            console.error(error);
+            setMensagem("Erro ao deletar estoques: " + error);
+            setError(true);
+        }
+    };
 
-    useEffect(() => {
-        if (currentPage > totalPages && totalPages > 0) { setCurrentPage(totalPages); }
-        else if (totalPages === 0 && currentPage !== 1) { setCurrentPage(1); }
-        carregarEstoque(currentPage);
-    }, [totalPages, currentPage, filters]);
+    const handleRefreshClick = () => { carregarEstoque() };
+
+    useEffect(() => { carregarEstoque(); }, []);
 
     return (
         <div className="container">
-            {loading}
-            <EstoqueFiltro onFilterChange={handleFilterChange} onClearFilters={handleClearFilters} />
-            <EstoqueTabela estoques={estoques} onEstoqueClick={handleEstoqueClick} onDeleteClick={handleDeleteClick} currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            {success && <FlashMessage message={mensagem} type="success" duration={3000} />}
+            {error && <FlashMessage message={mensagem} type="error" duration={3000} />}
+            {loading ? (<Loading show={true} />) : (
+                <>
+                    <h1 className="fw-bold display-5 text-primary m-0 mb-5"> <i className="bi bi-people-fill me-2"></i> Estoques </h1>
+                    <EstoqueTabela estoques={estoques} loading={loading} onEstoqueClick={handleEstoqueClick} onDeleteClick={handleDeleteClick} onRefresh={handleRefreshClick} />
+                </>
+            )}
         </div>
     );
 };

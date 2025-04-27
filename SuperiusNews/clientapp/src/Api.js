@@ -5,6 +5,7 @@ export default {
         endpoints: {
             consultarProduto: '/ConsultarProduto', 
             pesquisarProdutosComPaginacao: '/PesquisarProdutosComPaginacao', 
+            pesquisarProdutos: '/Produtos', 
             cadastrarProduto: '/CadastrarProduto',
             editarVariacaoProduto: '/EditarVariacaoProduto',
             atualizarProduto: '/AtualizarProduto', 
@@ -14,19 +15,23 @@ export default {
             opcoesVariacao: '/OpcoesVariacao', 
             obterImagensProduto: '/ImagensProduto', 
             adicionarImagem: '/AdicionarImagem', 
-            excluirImagem: '/ExcluirImagem' 
+            excluirImagem: '/ExcluirImagem',
+            excluirProdutos: '/ExcluirProdutos'
         }
     },
     estoque: {
         baseURL: `${baseApiUrl}/Estoque`,
         endpoints: {
             pesquisarEstoquesComPaginacao: "/PesquisarEstoquesComPaginacao",
+            pesquisarEstoques: "/Estoques",
+            pesquisarEstoquesSemRevendedor: '/PesquisarEstoquesSemRevendedor', 
             consultarEstoque: "/Estoque",
             cadastrarEstoque: "/CadastrarEstoque", 
             estoqueProduto: "/EstoqueProduto",
             adicionarEstoqueProduto: "/AdicionarEstoqueProduto", 
             removerEstoqueProduto: "/RemoverEstoqueProduto",
-            editarProdutoEstoque: "/EditarProdutoEstoque"
+            editarProdutoEstoque: "/EditarProdutoEstoque",
+            excluirEstoques: "/ExcluirEstoques"
         }
     },
     revendedor: {
@@ -34,7 +39,9 @@ export default {
         endpoints: {
             tiposRevendedor: "/TiposRevendedor",
             consultarRevendedor: "/Revendedor",  
-            cadastrarRevendedor: "/CadastrarRevendedor"
+            cadastrarRevendedor: "/CadastrarRevendedor",
+            pesquisarRevendedores: "/Revendedores",
+            excluirRevendedores: "/ExcluirRevendedores"
         }
     }
 };

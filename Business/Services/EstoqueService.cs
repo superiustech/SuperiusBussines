@@ -20,6 +20,14 @@ namespace Business.Services
         {
             return await _estoqueRepository.PesquisarTodos(page, pageSize, oCWEstoquueFiltro);
         }
+        public async Task<List<CWEstoque>> PesquisarEstoques(int? nCdRevendedor = null)
+        {
+            return await _estoqueRepository.PesquisarSemRevendedores(nCdRevendedor);
+        }
+        public Task<List<CWEstoque>> PesquisarTodosEstoques()
+        {
+            return _estoqueRepository.PesquisarTodosEstoques();
+        }
         public async Task<int> PesquisarQuantidadePaginas(CWEstoque? cwEstoqueFIltro = null)
         {
             return await _estoqueRepository.PesquisarQuantidadePaginas(cwEstoqueFIltro);
@@ -111,6 +119,25 @@ namespace Business.Services
             catch (Exception ex)
             {
                 throw new Exception("Ocorreu um erro ao consultar o estoque.", ex);
+            }
+        }
+        public async Task ExcluirEstoques(string arrCodigosEstoques)
+        {
+            try
+            {
+                List<string> lstCodigosEstoques = arrCodigosEstoques.Split(",").ToList();
+                List<CWEstoque> lstEstoques = new List<CWEstoque>();
+                List<CWEstoque> lstEstoquesExistentes = await _estoqueRepository.PesquisarTodosEstoques();
+                foreach (CWEstoque produto in lstEstoquesExistentes)
+                {
+                    if (lstCodigosEstoques.Contains(produto.nCdEstoque.ToString()))
+                        lstEstoques.Add(produto);
+                }
+                await _estoqueRepository.ExcluirEstoques(lstEstoques);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocorreu um erro ao deletar os revendedores.", ex);
             }
         }
 

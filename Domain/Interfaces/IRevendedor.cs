@@ -13,6 +13,6 @@ namespace Domain.Interfaces
         Task<List<CWRevendedor>> PesquisarRevendedores(int page = 0, int pageSize = 0, CWRevendedor? cwRevendedorFiltro = null);
         Task<int> PesquisarQuantidadePaginas(CWRevendedor? cwRevendedorFiltro = null);
         Task<List<CWRevendedorTipo>> PesquisarTipos();
-
+        Task ExcluirRevendedores(string arrCodigosRevendedores);
     }
 }

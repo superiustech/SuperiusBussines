@@ -56,25 +56,6 @@ namespace Domain.Requests
         public int nCdEstoque { get; set; }
         public int nCdProduto { get; set; }
     }
-    public class ProdutoEstoqueResultDTO
-    {
-        public EstoqueDTO Estoque { get; set; }
-        public List<ProdutoEstoqueDTO> Produtos { get; set; }
-        public List<ProdutoDTO> TodosProdutos { get; set; }
-    }
-
-    public class EstoqueDTO
-    {
-        public int nCdEstoque { get; set; }
-        // Outras propriedades necessárias do estoque
-    }
-
-    public class ProdutoDTO
-    {
-        public int nCdProduto { get; set; }
-        // Outras propriedades necessárias do produto
-    }
-
     public class EstoqueProdutoDTO
     {
         public int nCdEstoque { get; set; }
@@ -85,5 +66,38 @@ namespace Domain.Requests
         public string sDsProduto { get; set; }
         public decimal dVlVenda { get; set; }
         public decimal dVlCusto { get; set; }
+    }
+    public class RevendedoresDTO
+    {
+        public int Codigo { get; set; }
+        public string Nome { get; set; }
+        public string Tipo { get; set; }
+        public string Estoque { get; set; }
+    }
+    public class ProdutoDTO
+    {
+        public int Codigo { get; set; }
+        public string Nome { get; set; }
+        public string Descricao { get; set; }
+        public string CodigoSKU { get; set; }
+        public string VideoURL { get; set; }
+        public string Largura { get; set; }
+        public string Comprimento { get; set; }
+        public string Altura { get; set; }
+        public string Peso { get; set; }
+        public decimal ValorVenda { get; set; }
+        public decimal ValorUnitario { get; set; }
+        public int UnidadeMedida { get; set; }
+    }
+    public class EstoqueDTO
+    {
+        public int Codigo { get; set; }
+        public string Nome { get; set; }
+        public string Descricao { get; set; }
+        public string CodigoIdentificacao { get; set; }
+        public string Rua { get; set; }
+        public string Complemento { get; set; }
+        public string Numero { get; set; }
+        public string Cep { get; set; }
     }
 }

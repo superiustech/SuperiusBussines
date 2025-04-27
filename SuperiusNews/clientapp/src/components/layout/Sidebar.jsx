@@ -6,14 +6,11 @@ const Sidebar = () => {
     const toggleSidebar = () => { setCollapsed(!collapsed);};
 
     const navItems = [
-        { path: "/administrador/#", icon: "fa-home", text: " Dashboard" },
+        { path: "/administrador/produtos", icon: "fa-home", text: " Dashboard" },
         { path: "/administrador/estoques", icon: "fa-chart-bar", text: " Estoque" },
-        { path: "/administrador/cadastrar-estoque", icon: "fa-chart-bar", text: " Cadastrar Estoque" },
         { path: "/administrador/produtos", icon: "fa-box", text: " Produtos" },
-        { path: "/administrador/cadastrar-produto", icon: "fa-box", text: " Cadastrar Produto" },
         { path: "/administrador/revendedores", icon: "fa-solid fa-truck-field", text: " Revendedores" },
-        { path: "/administrador/cadastrar-revendedores", icon: "fa-solid fa-truck-field", text: " Cadastrar Revendedores" },
-        { path: "/administrador/#", icon: "fa-gear", text: " Configurações" }
+    //    { path: "/administrador/#", icon: "fa-gear", text: " Configurações" }
     ];
 
     return (
@@ -38,7 +35,7 @@ const Sidebar = () => {
             </div>
 
             {!collapsed && (
-                <div className="profile-section mt-auto p-2">
+                <div className="profile-section mt-10 p-2">
                     <div className="d-flex align-items-center">
                         <img src="https://i.postimg.cc/qqL8WQVS/foto-perfil.png" style={{ height: '60px' }} className="rounded-circle" alt="Profile"/>
                         <div className="ms-3 profile-info"> <h6 className="text-white mb-0">Lucas Nogueira</h6>

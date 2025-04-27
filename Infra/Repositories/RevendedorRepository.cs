@@ -20,6 +20,15 @@ namespace Infra.Repositories
         {
             return await _context.Revendedor.AsNoTracking().FirstOrDefaultAsync(x => x.nCdRevendedor == nCdRevendedor);
         }
+        public async Task ExcluirRevendedores(List<CWRevendedor> lstRevendedores)
+        {
+            _context.Revendedor.RemoveRange(lstRevendedores);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<List<CWRevendedor>> PesquisarRevendedoresSimples()
+        {
+            return await _context.Revendedor.AsNoTracking().OrderBy(p => p.nCdRevendedor).ToListAsync();
+        }
         public async Task<List<CWRevendedorTipo>> PesquisarTipos()
         {
             return await _context.RevendedorTipo.AsNoTracking().Where(x => x.bFlAtivo == 1).OrderBy(x => x.nCdTipoRevendedor).ToListAsync();
@@ -28,7 +37,7 @@ namespace Infra.Repositories
         {
             if (page == 0 || pageSize == 0)
             {
-                return await _context.Revendedor.AsNoTracking().OrderBy(p => p.nCdRevendedor).ToListAsync();
+                return await _context.Revendedor.AsNoTracking().Include(t => t.Tipo).Include(e => e.Estoque).OrderBy(p => p.nCdRevendedor).ToListAsync();
             }
             else
             {
@@ -56,9 +65,19 @@ namespace Infra.Repositories
             {
                 var revendedorExistente = await _context.Revendedor.FirstOrDefaultAsync(p => p.nCdRevendedor == oCWRevendedor.nCdRevendedor);
                 int nCdRevendedor = 0;
+
                 if (revendedorExistente == null)
                 {
-                    oCWRevendedor.Estoque = await _context.Estoque.FindAsync(oCWRevendedor.nCdEstoque);
+                    if (oCWRevendedor.nCdEstoque == 0 || oCWRevendedor.nCdEstoque == null)
+                    {
+                        oCWRevendedor.nCdEstoque = null;
+                        oCWRevendedor.Estoque = null;
+                    }
+                    else
+                    {
+                        oCWRevendedor.Estoque = await _context.Estoque.FindAsync(oCWRevendedor.nCdEstoque);
+                    }
+
                     oCWRevendedor.Tipo = await _context.RevendedorTipo.FindAsync(oCWRevendedor.nCdTipoRevendedor);
 
                     await _context.Revendedor.AddAsync(oCWRevendedor);
@@ -76,7 +95,7 @@ namespace Infra.Repositories
                     revendedorExistente.sDsComplemento = oCWRevendedor.sDsComplemento;
                     revendedorExistente.sCdCep = oCWRevendedor.sCdCep;
                     revendedorExistente.sNrNumero = oCWRevendedor.sNrNumero;
-                    revendedorExistente.nCdEstoque = oCWRevendedor.nCdEstoque;
+                    revendedorExistente.nCdEstoque = (oCWRevendedor.nCdEstoque == 0) ? null : oCWRevendedor.nCdEstoque;
                     revendedorExistente.nCdTipoRevendedor = oCWRevendedor.nCdTipoRevendedor;
 
                     _context.Entry(revendedorExistente).State = EntityState.Modified;

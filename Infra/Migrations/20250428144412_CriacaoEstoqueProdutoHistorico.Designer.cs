@@ -3,6 +3,7 @@ using System;
 using Infra;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infra.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250428144412_CriacaoEstoqueProdutoHistorico")]
+    partial class CriacaoEstoqueProdutoHistorico
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,10 +102,6 @@ namespace Infra.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("nCdEstoqueProdutoHistorico");
-
-                    b.HasIndex("nCdEstoqueDestino");
-
-                    b.HasIndex("nCdProduto");
 
                     b.HasIndex("nCdEstoque", "nCdProduto");
 
@@ -450,35 +449,11 @@ namespace Infra.Migrations
 
             modelBuilder.Entity("CWEstoqueProdutoHistorico", b =>
                 {
-                    b.HasOne("CWEstoque", "EstoqueOrigem")
-                        .WithMany()
-                        .HasForeignKey("nCdEstoque")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CWEstoque", "EstoqueDestino")
-                        .WithMany()
-                        .HasForeignKey("nCdEstoqueDestino")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.CWProduto", "Produto")
-                        .WithMany()
-                        .HasForeignKey("nCdProduto")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.CWEstoqueProduto", null)
                         .WithMany("Historicos")
                         .HasForeignKey("nCdEstoque", "nCdProduto")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("EstoqueDestino");
-
-                    b.Navigation("EstoqueOrigem");
-
-                    b.Navigation("Produto");
                 });
 
             modelBuilder.Entity("CWProdutoOpcaoVariacao", b =>

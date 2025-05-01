@@ -10,12 +10,17 @@ namespace Domain.Interfaces
         Task<List<CWEstoque>> PesquisarSemRevendedores(int? nCdRevendedor = null);
         Task<List<CWEstoque>> PesquisarTodosEstoques();
         Task<int> PesquisarQuantidadePaginas(CWEstoque? cwEstoqueFiltro = null);
-        Task<int> CadastrarEstoque(CWEstoque oCWEstoque, List<CWEstoqueProduto> lstEstoqueProduto);
+        Task CadastrarEstoque(CWEstoque oCWEstoque);
         Task<CWEstoque> Consultar(int nCdEstoque);
-        Task<List<CWEstoqueProduto>> PesquisarPorEstoqueProduto(int nCdEstoque);
         Task<bool> AdicionarEstoqueProduto(CWEstoqueProduto oCWEstoqueProduto);
         Task AdicionarEditarProdutoEstoque(CWEstoqueProduto oCWEstoqueProduto);
+        Task MovimentarEntradaSaida(CWEstoqueProduto oCWEstoqueProduto, CWEstoqueProdutoHistorico cwEstoqueProdutoHistorico);
         Task RemoverEstoqueProduto(int nCdEstoque, int nCdProduto);
         Task ExcluirEstoques(List<CWEstoque> lstEstoques);
+        Task<List<CWEstoqueProdutoHistorico>> ConsultarHistorico(int nCdEstoque);
+        Task<decimal> ObterPercentualRevenda(int nCdEstoque);
+        Task<CWEstoqueProduto> ObterEstoqueExistente(CWEstoqueProduto cwEstoqueProduto);
+        void DefinirValorVenda(CWEstoqueProduto cwEstoqueProduto, decimal percentualRevenda);
+        Task<CWEstoqueProduto> CarregarDadosProdutoEEstoque(CWEstoqueProduto cwEstoqueProduto);
     }
 }

@@ -5,7 +5,7 @@ import CadastrarProduto from './pages/CadastrarProduto';
 import CadastrarEstoquePage from './pages/CadastrarEstoquePage';
 import ImagemProdutoPage from './pages/ImagemProdutoPage';
 import VariacaoProdutoPage from './pages/VariacaoProdutoPage';
-
+import ControleEstoquePage from './pages/ControleEstoquePage';
 import EstoqueProdutoPage from './pages/EstoqueProdutoPage';
 import CadastrarRevendedorPage from './pages/CadastrarRevendedorPage';
 import RevendedorPage from './pages/RevendedorPage';
@@ -15,7 +15,6 @@ import './styles/css/site.css';
 import './styles/App.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 function App() {
     useEffect(() => {
@@ -35,6 +34,7 @@ function App() {
                     <Route path="/administrador/produto-imagem/:codigoProduto" element={<ImagemProdutoPage />}/>
                     <Route path="/administrador/produto-variacao/:codigoProduto" element={<VariacaoProdutoPage />} />
                     {/*Estoque*/}
+                    <Route path="/administrador/estoque/:codigoEstoque" element={<ControleEstoquePage />} />
                     <Route path="/administrador/estoques" element={<EstoquePage />} />
                     <Route path="/administrador/cadastrar-estoque" element={<CadastrarEstoquePage />} />
                     <Route path="/administrador/editar-estoque/:codigoEstoque" element={<CadastrarEstoquePage />} />

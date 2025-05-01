@@ -27,12 +27,19 @@ const EstoquePage = () => {
             console.error('Erro ao carregar estoque:', error);
             alert('Erro ao carregar produtos. Verifique o console para detalhes.');
         } finally { setLoading(false);}
-  };
+    };
+
+    const handleAbrirEstoqueClick = (codigoEstoque) => { navigate(`/administrador/estoque/${codigoEstoque}`); };
 
     const handleEstoqueClick = (codigoEstoque) => { navigate(`/administrador/editar-estoque/${codigoEstoque}`); };
 
     const handleDeleteClick = async (codigosEstoques) => {
         try {
+
+            setError(false);
+            setSuccess(false);
+            setMensagem('');
+
             const dadosEnvio = JSON.stringify(String(codigosEstoques));
             const response = await axios.delete(
                 `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.excluirEstoques}`,
@@ -42,12 +49,25 @@ const EstoquePage = () => {
                 }
             );
             await carregarEstoque();
-            setMensagem("Estoques(s) '" + codigosEstoques + "' excluídos com sucesso!");
-            setSuccess(true);
+
+            if (response.data.status === 1) {
+                setSuccess(true);
+                setMensagem(`Estoque(s) '${codigosEstoques}' excluído(s) com sucesso!`);
+                await carregarEstoque();
+            }
+            else if (response.data.status === 2) {
+                setError(true);
+                setMensagem("Não é possível excluir um estoque que já tenha movimentações." || response.data.mensagem);
+            }
+            else {
+                setError(true);
+                setMensagem(response.data.mensagem || "Erro desconhecido ao excluir estoque.");
+            }
+
         } catch (error) {
             console.error(error);
-            setMensagem("Erro ao deletar estoques: " + error);
             setError(true);
+            setMensagem("Erro ao deletar estoques: " + error);
         }
     };
 
@@ -62,7 +82,7 @@ const EstoquePage = () => {
             {loading ? (<Loading show={true} />) : (
                 <>
                     <h1 className="fw-bold display-5 text-primary m-0 mb-5"> <i className="bi bi-people-fill me-2"></i> Estoques </h1>
-                    <EstoqueTabela estoques={estoques} loading={loading} onEstoqueClick={handleEstoqueClick} onDeleteClick={handleDeleteClick} onRefresh={handleRefreshClick} />
+                    <EstoqueTabela estoques={estoques} loading={loading} onEstoqueClick={handleEstoqueClick} onDeleteClick={handleDeleteClick} onRefresh={handleRefreshClick} onAbrirEstoque={handleAbrirEstoqueClick} />
                 </>
             )}
         </div>

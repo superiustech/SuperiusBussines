@@ -1,12 +1,13 @@
-using Business.Services;
 using Domain.Entities;
+using Domain.Entities.Enum;
+using Domain.Entities.Uteis;
+using Domain.Entities.ViewModel;
 using Domain.Interfaces;
 using Domain.Requests;
-using DotNetNuke.Collections;
+using Domain.ViewModel;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace WebApplication1.Controllers
 {
@@ -24,56 +25,24 @@ namespace WebApplication1.Controllers
             _estoque = estoque;
         }
         #region Estoque
-        [HttpGet("PesquisarEstoquesComPaginacao")]
-        public async Task<IActionResult> PesquisarEstoquesComPaginacao([FromQuery] PaginacaoRequest oPaginacaoRequest)
-        {
-            try
-            {
-                CWEstoque oCWEstoqueFiltro = new CWEstoque()
-                {
-                    sNmEstoque = oPaginacaoRequest.oFiltroRequest?.sNmFiltro ?? string.Empty,
-                    sDsEstoque = oPaginacaoRequest.oFiltroRequest?.sDsFiltro ?? string.Empty
-                };
-
-                var estoques = await _estoque.PesquisarEstoques(oPaginacaoRequest.page, oPaginacaoRequest.pageSize, oCWEstoqueFiltro);
-                var totalItens = await _estoque.PesquisarQuantidadePaginas(oCWEstoqueFiltro);
-                var totalPaginas = (int)Math.Ceiling(totalItens / (double)oPaginacaoRequest.pageSize);
-
-                return Ok(new
-                {
-                    Estoques = estoques,
-                    TotalPaginas = totalPaginas,
-                    PaginaAtual = oPaginacaoRequest.page
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Erro ao obter produtos: {ex.Message}");
-            }
-        }
         [HttpGet("Estoques")]
-        public async Task<IActionResult> Produtos()
+        public async Task<IActionResult> Estoques()
         {
             try
             {
                 var estoques = await _estoque.PesquisarTodosEstoques();
-                List<EstoqueDTO> lstEstoqueDTO = new List<EstoqueDTO>();
-
-                lstEstoqueDTO.AddRange(estoques.Select(x => new EstoqueDTO()
-                {
-                    Codigo = x.nCdEstoque,
-                    CodigoIdentificacao = x.sCdEstoque,
-                    Nome = x.sNmEstoque,
-                    Descricao = x.sDsEstoque,
-                    Cep = x.sCdCep
-                }).ToList());
-
-                return Ok(new { Estoques = lstEstoqueDTO });
+                return Ok(new { Estoques = estoques });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao pesquisar estoques");
-                return StatusCode(500, $"Erro ao obter estoques: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpGet("PesquisarEstoquesSemRevendedor")]
@@ -84,9 +53,16 @@ namespace WebApplication1.Controllers
                 var estoques = await _estoque.PesquisarEstoques(nCdRevendedor);
                 return Ok(new { Estoques = estoques });
             }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao obter produtos: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpGet("Estoque/{codigoEstoque}")]
@@ -94,13 +70,19 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                CWEstoque oCWEstoque = await _estoque.Consultar(codigoEstoque);
-                oCWEstoque.Produtos = new List<CWEstoqueProduto>();
-                return Ok(new { success = true, estoque = oCWEstoque });
+                DTOEstoque oDTOEstoque = await _estoque.Consultar(codigoEstoque);
+                return Ok(new { success = true, estoque = oDTOEstoque });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao obter estoque: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
 
@@ -110,85 +92,79 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                CWEstoque estoque = await _estoque.Consultar(codigoEstoque);
-                List<CWProduto> todosProdutos = await _produto.PesquisarProdutos();
-                List<EstoqueProdutoDTO> lstEstoqueProdutoDTO = new List<EstoqueProdutoDTO>();
+                List<DTOEstoqueProdutoHistorico> lstHistoricoEstoque = await _estoque.ConsultarHistorico(codigoEstoque);
+                List<DTOEstoqueProduto> estoqueProduto = await _estoque.PesquisarEstoqueProduto(codigoEstoque);
+                List<CWProduto> todosProdutos = await _produto.PesquisarProdutos();               
 
-                lstEstoqueProdutoDTO.AddRange(estoque.Produtos.Select(x => new EstoqueProdutoDTO()
-                {
-                    nCdProduto = x.nCdProduto,
-                    dQtMinima = x.dQtMinima,
-                    dQtEstoque = x.dQtEstoque,
-                    dVlVenda = x.dVlVenda,
-                    dVlCusto = x.dVlCusto,
-                    sNmProduto = x.Produto?.sNmProduto ?? string.Empty,
-                    sDsProduto = x.Produto?.sDsProduto ?? string.Empty,
-                }).ToList());
-
-                return Ok(new { EstoqueProduto = lstEstoqueProdutoDTO, Produtos = todosProdutos });
+                return Ok(new { EstoqueProduto = estoqueProduto, Produtos = todosProdutos, Historico = lstHistoricoEstoque });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao obter estoque: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpPost("CadastrarEstoque")]
-        public async Task<IActionResult> CadastrarEstoque([FromBody] CWEstoque estoque)
+        public async Task<IActionResult> CadastrarEstoque([FromBody] DTOEstoque estoque)
         {
-            if (estoque == null) return BadRequest("Dados inválidos.");
             try
             {
-                int nCdEstoque = await _estoque.CadastrarEstoque(estoque, new List<CWProduto>());
-                return Ok(new { success = true, message = "Dados salvos com sucesso.", codigoEstoque = nCdEstoque });
+                return Ok(await _estoque.CadastrarEstoque(estoque));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao salvar estoque");
-                return StatusCode(500, $"Erro ao obter estoque: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
-        [HttpPost("AdicionarEstoqueProduto")]
-        public async Task<IActionResult> AdicionarEstoqueProduto([FromBody] CWEstoqueProduto oCWEstoqueProduto)
+        [HttpPost("MovimentarEntradaSaida")]
+        public async Task<IActionResult> MovimentarEntradaSaida([FromBody] DTOEstoqueProdutoHistorico oDTOEstoqueProdutoHistorico)
         {
             try
             {
-                if (oCWEstoqueProduto.nCdEstoque == 0 || oCWEstoqueProduto.nCdProduto == 0)
-                {
-                    return BadRequest(new { success = false, message = "Dados inválidos." });
-                }
-
-                var oEstoqueProduto = new CWEstoqueProduto()
-                {
-                    nCdEstoque = oCWEstoqueProduto.nCdEstoque,
-                    nCdProduto = oCWEstoqueProduto.nCdProduto,
-                    dQtEstoque = oCWEstoqueProduto?.dQtEstoque ?? 0,
-                    dQtMinima = oCWEstoqueProduto?.dQtMinima ?? 0,
-                    dVlCusto = oCWEstoqueProduto?.dVlCusto ?? 0,
-                    dVlVenda = oCWEstoqueProduto?.dVlVenda ?? 0
-                };
-
-                bool bFLProdutoAtrelado = await _estoque.AdicionarEstoqueProduto(oEstoqueProduto);
-                return Ok(new { success = true, produtoAtrelado = bFLProdutoAtrelado });
+                return Ok(await _estoque.MovimentarEntradaSaida(oDTOEstoqueProdutoHistorico));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpPut("EditarProdutoEstoque")]
-        public async Task<IActionResult> EditarProdutoEstoque([FromBody] CWEstoqueProduto request)
+        public async Task<IActionResult> EditarProdutoEstoque([FromBody] DTOEstoqueProduto oDTOEstoqueProduto)
         {
             try
             {
-                if (request.nCdEstoque == 0 || request.nCdProduto == 0)
-                    return BadRequest(new { success = false, message = "Dados inválidos." });
-
-                await _estoque.AdicionarEditarProdutoEstoque(request);
-                return Ok(new { success = true });
+                return Ok(_estoque.AdicionarEditarProdutoEstoque(oDTOEstoqueProduto));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpDelete("RemoverEstoqueProduto")]
@@ -196,15 +172,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                if (request.nCdEstoque == 0 || request.nCdProduto == 0)
-                    return BadRequest(new { success = false, message = "Dados inválidos." });
-
-                await _estoque.RemoverEstoqueProduto(request.nCdEstoque, request.nCdProduto);
-                return Ok(new { success = true });
+                return Ok(_estoque.RemoverEstoqueProduto(request.nCdEstoque, request.nCdProduto));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpDelete("ExcluirEstoques")]
@@ -212,8 +191,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                await _estoque.ExcluirEstoques(arrCodigoEstoques);
-                return Ok(new { success = true, message = "Estoques(s) excluido(s) com sucesso." });
+                return Ok(await _estoque.ExcluirEstoques(arrCodigoEstoques));
             }
             catch (Exception ex)
             {

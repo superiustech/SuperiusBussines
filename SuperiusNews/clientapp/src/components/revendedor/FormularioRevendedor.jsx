@@ -51,7 +51,7 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                             <label htmlFor="estoque" className="form-label">Estoque</label>
                             <select className="form-select unidade" id="estoque" name="estoque" value={formData.estoque} onChange={handleChange}>
                                 <option selected disabled value="">Escolha...</option>
-                                {estoques.map((item) => (<option key={item.nCdEstoque} value={item.nCdEstoque}> {item.sNmEstoque} - {item.sCdEstoque} </option>))}
+                                {estoques.map((item) => (<option key={item.codigo} value={item.codigo}> {item.codigo}) {item.nome} </option>))}
                             </select>
                             <div className="invalid-feedback"> Por favor, selecione um estoque para o revendedor. </div>
                         </div>

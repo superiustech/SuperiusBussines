@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -66,6 +68,17 @@ namespace Domain.Requests
         public string sDsProduto { get; set; }
         public decimal dVlVenda { get; set; }
         public decimal dVlCusto { get; set; }
+    }
+    public class EstoqueProdutoHistoricoDTO
+    {
+        public int Codigo { get; set; }
+        public string EstoqueOrigem { get; set; }
+        public string EstoqueDestino { get; set; }
+        public string TipoMovimentacao { get; set; }
+        public string DataMovimentacao { get; set; }
+        public int QuantidadeMovimentada { get; set; }
+        public string? Observacao { get; set; }
+        public string? Produto { get; set; }
     }
     public class RevendedoresDTO
     {

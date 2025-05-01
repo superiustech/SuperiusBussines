@@ -38,7 +38,11 @@ public class Startup
             options.Cookie.IsEssential = true;
         });
 
-        services.AddControllers();
+        services.AddControllers(options =>
+        {
+            options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+        });
+        
         services.AddSwaggerGen();
         services.AddSpaStaticFiles(configuration =>
         {

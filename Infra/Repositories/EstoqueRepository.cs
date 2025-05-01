@@ -18,8 +18,24 @@ namespace Infra.Repositories
         }
         public async Task<CWEstoque> Consultar(int nCdEstoque)
         {
-            return await _context.Estoque.AsNoTracking().Include(e => e.Produtos).ThenInclude(ep => ep.Produto).FirstOrDefaultAsync(x => x.nCdEstoque == nCdEstoque);
+            return await _context.Estoque
+                .AsNoTracking()
+                .Include(e => e.Produtos.Where(x => x.bFlAtivo))
+                .ThenInclude(ep => ep.Produto)
+                .FirstOrDefaultAsync(x => x.nCdEstoque == nCdEstoque);
         }
+        public async Task<List<CWEstoqueProdutoHistorico>> ConsultarHistorico(int nCdEstoque)
+        {
+            return await _context.EstoqueProdutoHistorico
+                .AsNoTracking()
+                .OrderByDescending(x => x.nCdEstoqueProdutoHistorico)
+                .Where(h => h.nCdEstoque == nCdEstoque)
+                .Include(h => h.Produto)
+                .Include(h => h.EstoqueOrigem)
+                .Include(h => h.EstoqueDestino)
+                .ToListAsync();
+        }
+        
         public async Task<List<CWEstoque>> PesquisarTodos(int page = 0, int pageSize = 0, CWEstoque? oCWEstoqueFiltro = null)
         {
             if (page == 0 || pageSize == 0)
@@ -57,7 +73,7 @@ namespace Infra.Repositories
         {
             return await _context.Estoque.AsNoTracking().OrderBy(p => p.nCdEstoque).ToListAsync();
         }
-        private IQueryable<CWEstoque> AplicarFiltros(IQueryable<CWEstoque> query, CWEstoque filtro)
+        public IQueryable<CWEstoque> AplicarFiltros(IQueryable<CWEstoque> query, CWEstoque filtro)
         {
             query = !string.IsNullOrEmpty(filtro.sNmEstoque) ? query.Where(p => EF.Functions.Like(p.sNmEstoque, $"%{filtro.sNmEstoque}%")) : query;
             query = !string.IsNullOrEmpty(filtro.sDsEstoque) ? query.Where(p => EF.Functions.Like(p.sDsEstoque, $"%{filtro.sDsEstoque}%")) : query;
@@ -69,7 +85,7 @@ namespace Infra.Repositories
             query = cwEstoqueFiltro == null ? query : AplicarFiltros(query, cwEstoqueFiltro);
             return await query.CountAsync();
         }
-        public async Task<int> CadastrarEstoque(CWEstoque oCWEstoque, List<CWEstoqueProduto> lstEstoqueProduto)
+        public async Task CadastrarEstoque(CWEstoque oCWEstoque)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -81,18 +97,6 @@ namespace Infra.Repositories
                     await _context.Estoque.AddAsync(oCWEstoque);
                     await _context.SaveChangesAsync();
                     nCdEstoque = oCWEstoque.nCdEstoque;
-
-                    List<CWEstoqueProduto> lstEstoqueProdutoInserir = new List<CWEstoqueProduto>();
-                    foreach (var estoqueProduto in lstEstoqueProduto)
-                    {
-                        lstEstoqueProdutoInserir.Add(new CWEstoqueProduto
-                        {
-                            nCdEstoque = nCdEstoque,
-                            nCdProduto = estoqueProduto.nCdProduto,
-                        });
-                    }
-
-                    await _context.EstoqueProduto.AddRangeAsync(lstEstoqueProdutoInserir);
                     await _context.SaveChangesAsync();
                 }
                 else
@@ -110,7 +114,6 @@ namespace Infra.Repositories
                     nCdEstoque = estoqueExistente.nCdEstoque;
                 }
                 await transaction.CommitAsync();
-                return nCdEstoque;
             }
             catch
             {
@@ -121,28 +124,127 @@ namespace Infra.Repositories
         public async Task<List<CWEstoqueProduto>> PesquisarPorEstoqueProduto(int nCdEstoque)
         {
             var produtosIds = await _context.EstoqueProduto.Where(ep => ep.nCdEstoque == nCdEstoque).Select(ep => ep.nCdProduto).Distinct().ToListAsync();
-            return await _context.EstoqueProduto.Where(p => produtosIds.Contains(p.nCdProduto)).ToListAsync();
+            return await _context.EstoqueProduto.Where(p => produtosIds.Contains(p.nCdProduto) && p.bFlAtivo).ToListAsync();
         }
         public async Task<bool> AdicionarEstoqueProduto(CWEstoqueProduto cwEstoqueProduto)
         {
-            var estoqueExistente = await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == cwEstoqueProduto.nCdProduto && ep.nCdEstoque == cwEstoqueProduto.nCdEstoque);
-            if (estoqueExistente == null)
+            var estoqueExistente = await ObterEstoqueExistente(cwEstoqueProduto);
+
+            if (estoqueExistente != null)
             {
-                cwEstoqueProduto.Estoque = await _context.Estoque.FindAsync(cwEstoqueProduto.nCdEstoque);
-                cwEstoqueProduto.Produto = await _context.Produto.FindAsync(cwEstoqueProduto.nCdProduto);
-                _context.EstoqueProduto.Add(cwEstoqueProduto);
-                await _context.SaveChangesAsync();
-                return false;
+                AtualizarEstoqueExistenteEntrada(estoqueExistente, cwEstoqueProduto);
             }
             else
             {
-                return true;
+                _context.EstoqueProduto.Add(cwEstoqueProduto);
             }
+
+            AdicionarHistoricoMovimentacaoEntrada(cwEstoqueProduto, "Entrada Manual", nTipoMovimentacao.Entrada);
+
+            await _context.SaveChangesAsync();
+
+            return estoqueExistente != null;
+        }
+        public async Task MovimentarEntradaSaida(CWEstoqueProduto cwEstoqueProduto, CWEstoqueProdutoHistorico cwEstoqueProdutoHistorico)
+        {
+            var estoqueExistente = await ObterEstoqueExistente(cwEstoqueProduto);
+
+            if (estoqueExistente != null)
+            {
+                estoqueExistente.dQtMinima = cwEstoqueProduto.dQtMinima;
+                estoqueExistente.dQtEstoque = cwEstoqueProduto.dQtEstoque;
+                estoqueExistente.dVlVenda = cwEstoqueProduto.dVlVenda;
+                estoqueExistente.dVlCusto = cwEstoqueProduto.dVlCusto;
+                estoqueExistente.bFlAtivo = true;
+
+                _context.Entry(estoqueExistente).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.EstoqueProduto.Add(cwEstoqueProduto);
+            }
+
+            _context.EstoqueProdutoHistorico.Add(cwEstoqueProdutoHistorico);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<CWEstoqueProduto> ObterEstoqueExistente(CWEstoqueProduto cwEstoqueProduto)
+        {
+            return await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == cwEstoqueProduto.nCdProduto && ep.nCdEstoque == cwEstoqueProduto.nCdEstoque);
+        }
+
+        public async Task<decimal> ObterPercentualRevenda(int nCdEstoque)
+        {
+            var revendedor = await _context.Revendedor.FirstOrDefaultAsync(r => r.nCdEstoque == nCdEstoque);
+            return revendedor != null && revendedor.dPcRevenda > 0 ? revendedor.dPcRevenda / 100m : 0m;
+        }
+
+        public async Task<CWEstoqueProduto> CarregarDadosProdutoEEstoque(CWEstoqueProduto cwEstoqueProduto)
+        {
+            var cwEstoqueProdutoRetorno = await _context.EstoqueProduto.Where(x => x.nCdEstoque == cwEstoqueProduto.nCdEstoque && x.nCdProduto == cwEstoqueProduto.nCdProduto).FirstOrDefaultAsync() ?? new CWEstoqueProduto();
+            cwEstoqueProdutoRetorno.Estoque = await _context.Estoque.FindAsync(cwEstoqueProduto.nCdEstoque);
+            cwEstoqueProdutoRetorno.Produto = await _context.Produto.FindAsync(cwEstoqueProduto.nCdProduto);
+            return cwEstoqueProdutoRetorno;
+        }
+
+        public void DefinirValorVenda(CWEstoqueProduto cwEstoqueProduto, decimal percentualRevenda)
+        {
+            cwEstoqueProduto.dVlVenda = cwEstoqueProduto.Produto.dVlVenda * (1 + percentualRevenda);
+        }
+
+        public void AtualizarEstoqueExistenteEntrada(CWEstoqueProduto estoqueExistente, CWEstoqueProduto novoEstoque)
+        {
+            estoqueExistente.dQtMinima = novoEstoque.dQtMinima;
+            estoqueExistente.dQtEstoque += novoEstoque.dQtEstoque;
+            estoqueExistente.dVlVenda = novoEstoque.dVlVenda;
+            estoqueExistente.dVlCusto = novoEstoque.dVlCusto;
+            estoqueExistente.bFlAtivo = true;
+
+            _context.Entry(estoqueExistente).State = EntityState.Modified;
+        }
+
+        public void AdicionarHistoricoMovimentacaoEntrada(CWEstoqueProduto cwEstoqueProduto, string sDsObservacao, nTipoMovimentacao onTipoMovimentacao)
+        {
+            var historico = new CWEstoqueProdutoHistorico
+            {
+                nCdEstoqueProdutoHistorico = 0,
+                nCdEstoque = cwEstoqueProduto.nCdEstoque,
+                nCdProduto = cwEstoqueProduto.nCdProduto,
+                nCdEstoqueDestino = cwEstoqueProduto.nCdEstoque,
+                dQtMovimentada = cwEstoqueProduto.dQtEstoque,
+                tDtMovimentacao = default,
+                sDsObservacao = sDsObservacao,
+                nTipoMovimentacao = onTipoMovimentacao
+            };
+
+            _context.EstoqueProdutoHistorico.Add(historico);
         }
         public async Task RemoverEstoqueProduto(int nCdEstoque, int nCdProduto)
         {
-            _context.EstoqueProduto.Remove(new CWEstoqueProduto() { nCdEstoque = nCdEstoque, nCdProduto = nCdProduto });
-            await _context.SaveChangesAsync();
+            var estoqueExistente = await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == nCdProduto && ep.nCdEstoque == nCdEstoque);
+            if (estoqueExistente != null)
+            {
+                var historico = new CWEstoqueProdutoHistorico
+                {
+                    nCdEstoqueProdutoHistorico = 0,
+                    nCdEstoque = estoqueExistente.nCdEstoque,
+                    nCdProduto = estoqueExistente.nCdProduto,
+                    nCdEstoqueDestino = estoqueExistente.nCdEstoque,
+                    dQtMovimentada = estoqueExistente.dQtEstoque,
+                    tDtMovimentacao = default,
+                    sDsObservacao = "Inativação do produto ao estoque",
+                    nTipoMovimentacao = nTipoMovimentacao.Saida
+                };
+                _context.EstoqueProdutoHistorico.Add(historico);
+
+                estoqueExistente.bFlAtivo = false;
+                estoqueExistente.dQtEstoque = 0;
+
+                _context.Entry(estoqueExistente).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync();
+            }
         }
         public async Task AdicionarEditarProdutoEstoque(CWEstoqueProduto cwEstoqueProduto)
         {

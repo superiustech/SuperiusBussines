@@ -18,6 +18,7 @@ namespace Infra
         public DbSet<CWUnidadeMedida> UnidadeMedida { get; set; }
         public DbSet<CWEstoque> Estoque { get; set; }
         public DbSet<CWEstoqueProduto> EstoqueProduto { get; set; }
+        public DbSet<CWEstoqueProdutoHistorico> EstoqueProdutoHistorico { get; set; }
         public DbSet<CWRevendedor> Revendedor { get; set; }
         public DbSet<CWRevendedorTipo> RevendedorTipo { get; set; }
 
@@ -57,6 +58,42 @@ namespace Infra
             modelBuilder.Entity<CWEstoque>().ToTable("ESTOQUE");
             modelBuilder.Entity<CWEstoqueProduto>().ToTable("ESTOQUE_PRODUTO").HasKey(p => new { p.nCdEstoque, p.nCdProduto });
             modelBuilder.Entity<CWEstoqueProduto>().HasOne(ep => ep.Estoque).WithMany(e => e.Produtos).HasForeignKey(ep => ep.nCdEstoque);
+
+            modelBuilder.Entity<CWEstoqueProdutoHistorico>(entity =>
+            {
+                entity.HasKey(e => e.nCdEstoqueProdutoHistorico);
+                entity.ToTable("ESTOQUE_PRODUTO_HISTORICO");
+
+                entity.Property(e => e.nCdEstoqueProdutoHistorico).ValueGeneratedOnAdd(); 
+                entity.Property(e => e.nCdEstoque).IsRequired();
+                entity.Property(e => e.nCdEstoqueDestino).IsRequired();
+                entity.Property(e => e.nCdProduto).IsRequired();
+                entity.Property(e => e.tDtMovimentacao).IsRequired();
+                entity.Property(e => e.tDtMovimentacao).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.dQtMovimentada).IsRequired();
+                entity.Property(e => e.nTipoMovimentacao).IsRequired().HasConversion<int>();
+                entity.Property(e => e.sDsObservacao).HasMaxLength(500); 
+
+                entity.HasOne<CWEstoqueProduto>()
+                .WithMany(p => p.Historicos)
+                .HasForeignKey(e => new { e.nCdEstoque, e.nCdProduto })
+                .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Produto)
+               .WithMany()
+               .HasForeignKey(e => e.nCdProduto)
+               .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.EstoqueOrigem)
+                .WithMany()
+                .HasForeignKey(e => e.nCdEstoque)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.EstoqueDestino)
+                .WithMany()
+                .HasForeignKey(e => e.nCdEstoqueDestino)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
 
             #endregion
 

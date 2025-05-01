@@ -32,25 +32,21 @@ const FormularioEstoque = () => {
 
         try {
             const dadosEnvio = {
-                nCdEstoque: codigoEstoque || 0,
-                sNmEstoque: formData.nomeEstoque,
-                sCdEstoque: formData.codigoEstoque,
-                sDsEstoque: formData.descricaoEstoque,
-                sDsRua: formData.rua,
-                sDsComplemento: formData.complemento,
-                sNrNumero: formData.numero,
-                sCdCep: FormatadorValores.removerFormatacao(formData.cep)
+                Codigo: codigoEstoque || 0,
+                Nome: formData.nomeEstoque,
+                Descricao: formData.descricaoEstoque,
+                CodigoIdentificacao: formData.codigoEstoque,
+                Rua: formData.rua,
+                Complemento: formData.complemento,
+                Numero: formData.numero,
+                Cep: FormatadorValores.removerFormatacao(formData.cep),
             };
 
             const response = await axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.cadastrarEstoque}`, dadosEnvio, {
                 headers: { 'Content-Type': 'application/json'}
             });
 
-            if (response.data.success) {
-                navigate(`/administrador/estoque-produto/${response.data.codigoEstoque}`);
-            } else {
-                alert(response.data.message);
-            }
+            navigate(`/administrador/estoques`);
         } catch (error) {
             if (error.response?.status === 400) {
                 const errors = error.response.data.errors;
@@ -70,14 +66,14 @@ const FormularioEstoque = () => {
             if (response.data.success) {
                 const estoque = response.data.estoque;
                 setFormData({
-                    nomeEstoque: estoque.sNmEstoque || '',
-                    codigoEstoque: estoque.sCdEstoque || '',
-                    descricaoEstoque: estoque.sDsEstoque || '',
+                    nomeEstoque: estoque.nome || '',         
+                    codigoEstoque: estoque.codigoIdentificacao || '',  
+                    descricaoEstoque: estoque.descricao || '', 
                     tagsBusca: '',
-                    rua: estoque.sDsRua || '',
-                    complemento: estoque.sDsComplemento || '',
-                    numero: estoque.sNrNumero || '',
-                    cep: estoque.sCdCep?.toString() || ''
+                    rua: estoque.rua || '',                  
+                    complemento: estoque.complemento || '',   
+                    numero: estoque.numero || '',             
+                    cep: estoque.cep?.toString() || ''       
                 });
             } else {
                 alert('Estoque não encontrado.');

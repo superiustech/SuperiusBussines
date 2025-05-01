@@ -31,7 +31,8 @@ export default {
             adicionarEstoqueProduto: "/AdicionarEstoqueProduto", 
             removerEstoqueProduto: "/RemoverEstoqueProduto",
             editarProdutoEstoque: "/EditarProdutoEstoque",
-            excluirEstoques: "/ExcluirEstoques"
+            excluirEstoques: "/ExcluirEstoques",
+            movimentarEntradaSaida: "/MovimentarEntradaSaida"
         }
     },
     revendedor: {

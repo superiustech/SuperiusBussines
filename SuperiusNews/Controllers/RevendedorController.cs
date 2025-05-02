@@ -1,12 +1,12 @@
-using Business.Services;
 using Domain.Entities;
+using Domain.Entities.Enum;
 using Domain.Interfaces;
 using Domain.Requests;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
+
+using Domain.Entities.Uteis;
+using Domain.ViewModel;
 namespace WebApplication1.Controllers
 {
     [ApiController]
@@ -24,44 +24,78 @@ namespace WebApplication1.Controllers
         [HttpGet("TiposRevendedor")]
         public async Task<IActionResult> TiposRevendedor()
         {
-            var lstRevendedorTipo = _revendedor.PesquisarTipos();
-            return Ok(new { success = true, tipos = lstRevendedorTipo });
+            try
+            {
+                return Ok( new { tipos = await _revendedor.PesquisarTipos() });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
         }
         [HttpGet("Revendedor/{nCdRevendedor}")]
         public async Task<IActionResult> Revendedor(int nCdRevendedor)
         {
-            var lstRevendedorTipo = _revendedor.Consultar(nCdRevendedor);
-            return Ok(new { success = true, revendedor = lstRevendedorTipo });
+            try 
+            {
+                DTORevendedor oDTORevendedor = await _revendedor.Consultar(nCdRevendedor);
+                return Ok(new { revendedor = oDTORevendedor });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
         }
         [HttpGet("Revendedores/")]
         public async Task<IActionResult> Revendedores()
         {
-            List<CWRevendedor> lstRevendedores = await _revendedor.PesquisarRevendedores();
-            List<RevendedoresDTO> lstRevendedoresDTO = new List<RevendedoresDTO>();
-
-            lstRevendedoresDTO.AddRange(lstRevendedores.Select(x => new RevendedoresDTO()
-            {
-                Codigo = x.nCdRevendedor,
-                Nome = x.sNmRevendedor,
-                Tipo = x.Tipo?.sNmTipo ?? string.Empty,
-                Estoque = x.Estoque?.sNmEstoque ?? string.Empty
-            }).ToList());
-
-            return Ok(new { success = true, revendedores = lstRevendedoresDTO });
-        }
-        [HttpPost("CadastrarRevendedor")]
-        public async Task<IActionResult> CadastrarRevendedor([FromBody] CWRevendedor revendedor)
-        {
             try
+            { 
+                return Ok(new {revendedores = await _revendedor.PesquisarRevendedores() });
+            }
+            catch (ExceptionCustom ex)
             {
-                if (revendedor == null) return BadRequest("Dados inválidos.");
-                int nCdRevendedor = await _revendedor.CadastrarRevendedor(revendedor);
-                return Ok(new { success = true, message = "Dados salvos com sucesso.", codigoRevendedor = nCdRevendedor });
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao salvar estoque");
-                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
+        [HttpPost("CadastrarRevendedor")]
+        public async Task<IActionResult> CadastrarRevendedor([FromBody] DTORevendedor oDTORevendedor)
+        {
+            try
+            {
+                return Ok(await _revendedor.CadastrarRevendedor(oDTORevendedor));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpDelete("ExcluirRevendedores")]
@@ -69,13 +103,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                await _revendedor.ExcluirRevendedores(arrCodigoRevendedores);
-                return Ok(new { success = true, message = "Revendedor(es) excluido(s) com sucesso." });
+                return Ok(_revendedor.ExcluirRevendedores(arrCodigoRevendedores));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao salvar estoque");
-                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
     }

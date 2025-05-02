@@ -12,7 +12,7 @@ const RevendedorTable = ({ revendedores, loading, onEditarRevendedor, onExcluirR
     const columnDefs = useMemo(() => [
         { headerCheckboxSelection: true, checkboxSelection: true, headerName: "", field: "checkbox",width: 20, pinned: 'left', suppressMenu: true,suppressSorting: true, suppressFilter: true},
         { headerName: "#", field: "codigo", sortable: true, filter: true, resizable: true, width: 80 },
-        { headerName: "Tipo", field: "tipo", sortable: true, filter: true, resizable: true, width: 100 },
+        { headerName: "Tipo", field: "tipoRevendedor", sortable: true, filter: true, resizable: true, width: 100 },
         { headerName: "Nome", field: "nome", sortable: true, filter: true, resizable: true, flex: 3, minWidth: 350 },
         { headerName: "Estoque", field: "estoque", sortable: true, filter: true, resizable: true, flex: 3, minWidth: 250 }
     ], []);

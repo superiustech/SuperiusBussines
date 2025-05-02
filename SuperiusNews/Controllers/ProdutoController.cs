@@ -1,4 +1,7 @@
 using Domain.Entities;
+using Domain.Entities.Enum;
+using Domain.Entities.Uteis;
+using Domain.Entities.ViewModel;
 using Domain.Interfaces;
 using Domain.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -20,33 +23,22 @@ namespace WebApplication1.Controllers
 
         #region Produto
         [HttpGet("ConsultarProduto/{nCdProduto}")]
-        public IActionResult ConsultarProduto(int nCdProduto)
-        {
-            CWProduto oCWProduto = _produto.ConsultarProduto(nCdProduto);
-            return Ok(new { success = true, produto = oCWProduto});
-        }
-
-        [HttpGet("PesquisarProdutosComPaginacao")]
-        public async Task<IActionResult> PesquisarProdutosComPaginacao([FromQuery] PaginacaoRequest oPaginacaoRequest)
+        public async Task<IActionResult> ConsultarProduto(int nCdProduto)
         {
             try
             {
-                CWProduto oCWProdutoFiltro = new CWProduto()
-                {
-                    sNmProduto = oPaginacaoRequest.oFiltroRequest?.sNmFiltro ?? string.Empty,
-                    sDsProduto = oPaginacaoRequest.oFiltroRequest?.sDsFiltro ?? string.Empty
-                };
-
-                var produtos = await _produto.PesquisarProdutos(oPaginacaoRequest.page, oPaginacaoRequest.pageSize, oCWProdutoFiltro);
-                var totalItens = await _produto.PesquisarQuantidadePaginas(oCWProdutoFiltro);
-                var totalPaginas = (int)Math.Ceiling(totalItens / (double)oPaginacaoRequest.pageSize);
-
-                return Ok(new { Produtos = produtos, TotalPaginas = totalPaginas, PaginaAtual = oPaginacaoRequest.page});
+                return Ok(new { produto = await _produto.ConsultarProduto(nCdProduto) });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao salvar produto");
-                return StatusCode(500, $"Erro ao obter produtos: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpGet("Produtos")]
@@ -54,25 +46,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var produtos = await _produto.PesquisarTodosProdutos();
-                List<ProdutoDTO> lstProdutosDTO = new List<ProdutoDTO>();
-
-                lstProdutosDTO.AddRange(produtos.Select(x => new ProdutoDTO()
-                {
-                    Codigo = x.nCdProduto,
-                    CodigoSKU = x.sCdProduto,
-                    Nome = x.sNmProduto,
-                    Descricao = x.sDsProduto,
-                    ValorUnitario = x.dVlUnitario,
-                    ValorVenda = x.dVlVenda
-                }).ToList());
-
-                return Ok(new { Produtos = lstProdutosDTO });
+                return Ok(new { Produtos = await _produto.PesquisarTodosProdutos() });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao salvar produto");
-                return StatusCode(500, $"Erro ao obter produtos: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpGet("ConsultarVariacoesProduto/{nCdProduto}")]
@@ -94,12 +79,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var variacoes = await _produto.ObterVariacoesAtivas();
-                return Ok(variacoes);
+                return Ok(await _produto.ObterVariacoesAtivas());
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao obter variações: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
 
@@ -111,9 +102,16 @@ namespace WebApplication1.Controllers
                 var unidadeMedidas = await _produto.ObterUnidadesAtivas();
                 return Ok(new { success = true, unidade = unidadeMedidas });
             }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao obter unidade de medida: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
 
@@ -122,12 +120,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var variacoes = await _produto.ObterVariacoesAtivas();
-                return Ok(variacoes.Where(x => x.nCdVariacao == tipo));
+                return Ok(await _produto.ObterVariacoesAtivas(tipo));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao obter variações: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
 
@@ -139,48 +143,55 @@ namespace WebApplication1.Controllers
                 var imagensProduto = await _produto.ObterImagensProduto(codigoProduto);
                 return Ok(imagensProduto);
             }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao obter imagens: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
 
         [HttpPost("CadastrarProduto")]
-        public async Task<IActionResult> CadastrarProduto([FromBody] CWProduto dados)
+        public async Task<IActionResult> CadastrarProduto([FromBody] DTOProduto oDTOProduto)
         { 
             try
             {
-                if (dados == null) return BadRequest("Dados inválidos.");
-
-                int nCdProduto = await _produto.CadastrarProduto(dados);
-                return Ok(new { success = true, message = "Dados salvos com sucesso.", codigoProduto = nCdProduto });
+                return Ok(await _produto.CadastrarProduto(oDTOProduto));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao salvar produto");
-                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." + ex.Message });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpPost("AdicionarImagem")]
         public async Task<IActionResult> AdicionarImagem([FromForm] ProdutoImagemRequest oProdutoImagemRequest)
         {
             try
+            {   
+                return Ok(await _produto.AdicionarImagem(oProdutoImagemRequest.codigoProduto, oProdutoImagemRequest.Imagem, oProdutoImagemRequest.Descricao));
+            }
+            catch (ExceptionCustom ex)
             {
-                if (oProdutoImagemRequest.Imagem == null || oProdutoImagemRequest.Imagem.Length == 0)
-                {
-                    return BadRequest(new { success = false, message = "Nenhuma imagem foi enviada." });
-                }
-
-                CWProdutoImagem oCWProdutoImagem = await _produto.AdicionarImagem(
-                    oProdutoImagemRequest.nCdProduto,
-                    oProdutoImagemRequest.Imagem,
-                    oProdutoImagemRequest.Descricao);
-
-                return Ok(new { success = true, produtoImagem = oCWProdutoImagem });
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpPut("EditarVariacaoProduto")]
@@ -188,12 +199,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                await _produto.EditarVariacaoProduto(request.nCdProduto, request.variacoes);
-                return Ok(new { success = true, codigoProduto = request.nCdProduto, message = "Produto atualizado com sucesso." });
+                return Ok(await _produto.EditarVariacaoProduto(request.Codigo, request.variacoes));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao atualizar variações: {ex.Message}");
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
 
@@ -202,12 +219,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                await _produto.AtualizarProduto(oCWProduto);
-                return Ok(new { success = true, message = "Produto atualizado com sucesso." });
+                return Ok(await _produto.AtualizarProduto(oCWProduto));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpDelete("ExcluirImagem/{codigoImagem}")]
@@ -215,14 +238,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                if (codigoImagem == 0) return BadRequest(new { success = false, message = "Código inválido." });
-
-                await _produto.ExcluirImagem(codigoImagem);
-                return Ok(new { success = true });
+                return Ok(await _produto.ExcluirImagem(codigoImagem));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         [HttpDelete("ExcluirProdutos")]
@@ -230,13 +257,18 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                await _produto.ExcluirProdutos(arrCodigoProdutos);
-                return Ok(new { success = true, message = "Produto(s) excluido(s) com sucesso." });
+                return Ok(await _produto.ExcluirProdutos(arrCodigoProdutos));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao salvar estoque");
-                return StatusCode(500, new { success = false, message = "Ocorreu um erro ao processar sua solicitação." });
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
         #endregion

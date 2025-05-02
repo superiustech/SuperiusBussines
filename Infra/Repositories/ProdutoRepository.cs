@@ -54,7 +54,7 @@ namespace Infra.Repositories
             var produtosIds = await _context.EstoqueProduto.Where(ep => ep.nCdEstoque == nCdEstoque).Select(ep => ep.nCdProduto).Distinct().ToListAsync();
             return await _context.Produto.Where(p => produtosIds.Contains(p.nCdProduto)).ToListAsync();
         }
-        public CWProduto ConsultarProduto(int nCdProduto)
+        public async Task<CWProduto> ConsultarProduto(int nCdProduto)
         {
             return _context.Produto.FirstOrDefault(x => x.nCdProduto == nCdProduto);
         }
@@ -76,6 +76,7 @@ namespace Infra.Repositories
                     nCdVariacao = v.nCdVariacao,
                     sNmVariacao = v.sNmVariacao,
                     sDsVariacao = v.sDsVariacao,
+                    bFlAtiva = v.bFlAtiva,
                     VariacaoOpcoes = v.VariacaoOpcoes
                         .Where(vo => vo.bFlAtiva) 
                         .Select(vo => new CWVariacaoOpcao

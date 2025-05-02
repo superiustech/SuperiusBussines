@@ -6,10 +6,8 @@ namespace Domain.Interfaces
 {
     public interface IProdutoRepository
     {
-        Task<List<CWProduto>> PesquisarTodos(int page = 0, int pageSize = 0, CWProduto? oCWProdutoFiltro = null);
         Task<List<CWProduto>> PesquisarTodosProdutos();
-        CWProduto ConsultarProduto(int nCdProduto);
-        Task<int> PesquisarQuantidadePaginas(CWProduto? cwProdutoFiltro = null);
+        Task<CWProduto> ConsultarProduto(int nCdProduto);
         Task<List<CWVariacao>> PesquisarVariacoes();
         Task<List<CWUnidadeMedida>> PesquisarUnidadeMedidas();
         Task<List<CWProdutoImagem>> PesquisarProdutoImagens(int nCdProduto);

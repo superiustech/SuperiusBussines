@@ -18,7 +18,6 @@ const FormularioProduto = () => {
         try {
             setLoading(true);
             const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.unidadeDeMedida}`);
-            if (!response.data.success) throw new Error('Erro na resposta da API');
             const data = await response.data.unidade;
             setUnidadesMedida(data);
         } catch (error) {
@@ -33,21 +32,21 @@ const FormularioProduto = () => {
         try {
             setLoading(true);
             const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.consultarProduto}/${codigoProduto}`);
-            if (response.data.success) {
+            if (response.data) {
                 const produto = response.data.produto;
                 setFormData({
-                    nomeProduto: produto.sNmProduto || '',
-                    codigoProduto: produto.sCdProduto || '',
-                    preco: produto.dVlVenda?.toString().replace(".", ",") || '',
-                    precoUnitario: produto.dVlUnitario?.toString().replace(".", ",") || '',
-                    descricaoProduto: produto.sDsProduto || '',
-                    tipoUnidade: produto.nCdUnidadeMedida?.toString() || '',
+                    nomeProduto: produto.nome|| '',
+                    codigoProduto: produto.codigoProduto || '',
+                    preco: produto.valorVenda?.toString().replace(".", ",") || '',
+                    precoUnitario: produto.valorUnitario?.toString().replace(".", ",") || '',
+                    descricaoProduto: produto.descricao || '',
+                    tipoUnidade: produto.codigoUnidadeMedida?.toString() || '',
                     tagsBusca: produto.tagsBusca || '',
-                    videoYoutube: produto.sUrlVideo || '',
-                    largura: produto.sLargura || '',
-                    comprimento: produto.sComprimento || '',
-                    altura: produto.sAltura || '',
-                    peso: produto.sPeso || ''
+                    videoYoutube: produto.urlVideo || '',
+                    largura: produto.largura || '',
+                    comprimento: produto.comprimento || '',
+                    altura: produto.altura || '',
+                    peso: produto.peso || ''
                 });
             } else {
                 alert('Produto não encontrado.');
@@ -81,26 +80,28 @@ const FormularioProduto = () => {
 
         try {
             const dadosEnvio = {
-                nCdProduto: codigoProduto || 0,
-                sNmProduto: formData.nomeProduto,
-                sCdProduto: formData.codigoProduto,
-                sDsProduto: formData.descricaoProduto,
-                nCdUnidadeMedida: parseInt(formData.tipoUnidade),
-                sUrlVideo: formData.videoYoutube,
-                sLargura: formData.largura,
-                sComprimento: formData.comprimento,
-                sAltura: formData.altura,
-                sPeso: formData.peso,
-                dVlVenda: FormatadorValores.converterParaDecimal(formData.preco),
-                dVlUnitario: FormatadorValores.converterParaDecimal(formData.precoUnitario)
+                codigo: codigoProduto || 0,
+                nome: formData.nomeProduto,
+                codigoProduto: formData.codigoProduto,
+                descricao: formData.descricaoProduto,
+                codigoUnidadeMedida: parseInt(formData.tipoUnidade),
+                urlVideo: formData.videoYoutube,
+                largura: formData.largura,
+                comprimento: formData.comprimento,
+                altura: formData.altura,
+                peso: formData.peso,
+                valorVenda: FormatadorValores.converterParaDecimal(formData.preco),
+                valorUnitario: FormatadorValores.converterParaDecimal(formData.precoUnitario)
             };
+
             const response = await axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.cadastrarProduto}`, dadosEnvio);
 
-            if (response.data.success) {
-                navigate(`/administrador/produto-variacao/${response.data.codigoProduto}`);
+            if (response.data.status === 1) {
+                navigate(`/administrador/produto-variacao/${response.data.id}`);
             } else {
-                alert(response.data.message);
+                alert(response.data.mensagem)
             }
+
         } catch (error) {
             if (error.response?.status === 400) {
                 const errors = error.response.data.errors;
@@ -169,7 +170,7 @@ const FormularioProduto = () => {
                         <label htmlFor="tipoUnidade" className="form-label">Tipo de Unidade</label>
                         <select className="form-select unidade" id="tipoUnidade" name="tipoUnidade" value={formData.tipoUnidade} onChange={handleChange} required >
                             <option selected disabled value="">Escolha...</option>
-                            {unidadesMedida.map((item) => ( <option key={item.nCdUnidadeMedida} value={item.nCdUnidadeMedida}> {item.sDsUnidadeMedida} </option> ))}
+                            {unidadesMedida.map((item) => ( <option key={item.codigo} value={item.codigo}> {item.descricao} </option> ))}
                         </select>
                         <div className="invalid-feedback"> Por favor, selecione o tipo de unidade. </div>
                     </div>

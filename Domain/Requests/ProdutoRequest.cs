@@ -7,17 +7,18 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.ViewModel;
 
 namespace Domain.Requests
 {
     public class EditarVariacaoProdutoRequest
     {
-        public int nCdProduto { get; set; }
-        public List<CWVariacao> variacoes { get; set; }
+        public int Codigo { get; set; }
+        public List<DTOVariacao> variacoes { get; set; }
     }
     public class ProdutoImagemRequest
     {
-        public int nCdProduto { get; set; }
+        public int codigoProduto { get; set; }
         public IFormFile Imagem { get; set; }
         public string Descricao { get; set; }
     }

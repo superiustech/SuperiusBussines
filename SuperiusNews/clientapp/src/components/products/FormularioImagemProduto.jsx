@@ -28,11 +28,11 @@ const FormularioImagemProduto = () => {
         } catch (err) {  console.error('Erro ao carregar imagens:', err); }
     };
 
-    const excluirImagem = async (nCdImagem) => {
+    const excluirImagem = async (codigoImagem) => {
         try {
-            const response = await axios.delete(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.excluirImagem}/` + nCdImagem);
-            if (response.data.success) {
-                setImagens(imagens.filter(img => img.nCdImagem !== nCdImagem));
+            const response = await axios.delete(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.excluirImagem}/` + codigoImagem);
+            if (response.data.status === 1) {
+                setImagens(imagens.filter(img => img.codigoImagem !== codigoImagem));
                 setMensagem("Imagem excluída com sucesso!");
                 setSuccess(true);
             } else {
@@ -61,13 +61,13 @@ const FormularioImagemProduto = () => {
 
         try {
             const formDataToSend = new FormData();
-            formDataToSend.append('nCdProduto', codigoProduto);
+            formDataToSend.append('codigoProduto', codigoProduto);
             formDataToSend.append('imagem', formData.imagem);
             formDataToSend.append('descricao', formData.descricao);
 
             const response = await axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.adicionarImagem}`, formDataToSend, { headers: {} });
 
-            if (response.data.success) {
+            if (response.data.status === 1) {
                 setMensagem("Imagem adicionada com sucesso!");
                 setSuccess(true);
                 setFormData({ descricao: '', imagem: null });
@@ -89,7 +89,7 @@ const FormularioImagemProduto = () => {
 
                 <form id="formImagem" className={`row g-3 needs-validation ${validated ? 'was-validated' : ''}`} noValidate onSubmit={handleSubmit} encType="multipart/form-data">
 
-                    <input type="hidden" name="nCdProduto" value={codigoProduto} />
+                    <input type="hidden" name="codigo" value={codigoProduto} />
                     <div className="col-md-12">
                         <label htmlFor="imagem" className="form-label">Selecione a Imagem</label>
                         <input type="file" className="form-control" id="imagem" name="imagem" accept="image/*" onChange={handleChange} required />
@@ -122,11 +122,11 @@ const FormularioImagemProduto = () => {
                             </thead>
                             <tbody>
                                 {imagens.map((imagem, index) => (
-                                    <tr key={imagem.nCdImagem}>
+                                    <tr key={imagem.codigoImagem}>
                                         <th scope="row">{index + 1}</th>
-                                        <td> <img src={`/${imagem.sDsCaminho}`} alt={`Imagem ${imagem.nCdImagem}`} style={{ width: '100px', height: 'auto' }} className="img-thumbnail" onError={(e) => { e.target.onerror = null; e.target.src = ''; }} /> </td>
-                                        <td>{imagem.sDsImagem}</td>
-                                        <td> <button onClick={() => excluirImagem(imagem.nCdImagem)} className="btn btn-sm btn-danger"> Excluir</button> </td>
+                                        <td> <img src={`/${imagem.caminho}`} alt={`Imagem ${imagem.codigoImagem}`} style={{ width: '100px', height: 'auto' }} className="img-thumbnail" onError={(e) => { e.target.onerror = null; e.target.src = ''; }} /> </td>
+                                        <td>{imagem.descricao}</td>
+                                        <td> <button onClick={() => excluirImagem(imagem.codigoImagem)} className="btn btn-sm btn-danger"> Excluir</button> </td>
                                     </tr>
                                 ))}
                             </tbody>

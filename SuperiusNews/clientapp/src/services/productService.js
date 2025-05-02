@@ -26,8 +26,8 @@ export const deletarProdutos = async (arrCodigoProdutos) => {
                 headers: { 'Content-Type': 'application/json' }
             }
         );
-        return true;
+        return response;
     } catch (err) {
-        return false;
+        return null;
     }
 };

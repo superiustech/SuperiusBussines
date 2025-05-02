@@ -35,15 +35,21 @@ const ProductsPage = () => {
 
     const handleDeleteClick = async (arrCodigoProdutos) => {
         try {
-            await deletarProdutos(arrCodigoProdutos);
-            await loadProducts();
-            setMensagem("Produto(s) '" + arrCodigoProdutos + "' excluídos com sucesso! ")
-            setSuccess(true);
+            const response = await deletarProdutos(arrCodigoProdutos);
+            if (response.data.status === 1) {
+                await loadProducts();
+                setSuccess(true);
+                setMensagem("Produto(s) '" + arrCodigoProdutos + "' excluídos com sucesso! ")
+            }
+            else {
+                setError(true);
+                setMensagem("Não é possível movimentar produtos que tenha movimentações em estoque.");
+            }
+            
         } catch (error) {
             console.error();
             setMensagem("Erro ao deletar produtos:" + error);
             setError(true);
-            
         }
     };
 

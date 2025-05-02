@@ -16,7 +16,7 @@ const FormEntradaEstoque = ({ produtos, tipo, onSubmit, onCancel }) => {
                 <Form.Select
                     value={formData.produtoId} onChange={e => setFormData({ ...formData, produtoId: e.target.value })}>
                     <option value="">Selecione...</option>
-                    {produtos.map(p => ( <option key={p.nCdProduto} value={p.nCdProduto}>{p.sNmProduto}</option> ))}
+                    {produtos.map(p => (<option key={p.codigo} value={p.codigo}> {p.codigo}) {p.nome}</option> ))}
                 </Form.Select>
             </Form.Group>
 

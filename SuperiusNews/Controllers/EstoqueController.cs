@@ -94,7 +94,7 @@ namespace WebApplication1.Controllers
             {
                 List<DTOEstoqueProdutoHistorico> lstHistoricoEstoque = await _estoque.ConsultarHistorico(codigoEstoque);
                 List<DTOEstoqueProduto> estoqueProduto = await _estoque.PesquisarEstoqueProduto(codigoEstoque);
-                List<CWProduto> todosProdutos = await _produto.PesquisarProdutos();               
+                List<DTOProduto> todosProdutos = await _produto.PesquisarTodosProdutos();               
 
                 return Ok(new { EstoqueProduto = estoqueProduto, Produtos = todosProdutos, Historico = lstHistoricoEstoque });
             }

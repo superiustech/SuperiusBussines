@@ -11,7 +11,7 @@ const ProductTable = ({ products, loading, onProductClick, onDeleteClick, onRefr
     const columnDefs = useMemo(() => [
         { headerCheckboxSelection: true, checkboxSelection: true, headerName: "", field: "checkbox", width: 20, pinned: 'left', suppressMenu: true, suppressSorting: true, suppressFilter: true },
         { headerName: "#", field: "codigo", sortable: true, filter: true, resizable: true, width: 80 },
-        { headerName: "Código SKU", field: "codigoSKU", sortable: true, filter: true, resizable: true, width: 100 },
+        { headerName: "Código SKU", field: "codigoProduto", sortable: true, filter: true, resizable: true, width: 100 },
         { headerName: "Nome", field: "nome", sortable: true, filter: true, resizable: true, flex: 3, minWidth: 350 },
         { headerName: "Descricao", field: "descricao", sortable: true, filter: true, resizable: true, flex: 3, minWidth: 350 },
         { headerName: "Vl. Unitário", field: "valorUnitario", sortable: true, filter: true, resizable: true, width: 100 },

@@ -25,7 +25,7 @@ namespace Business.Services
         {
             try
             {
-                var estoque = await _estoqueRepository.Consultar(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no portal de compras.");
+                var estoque = await _estoqueRepository.Consultar(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
                 DTOEstoque oDTOEstoque = new DTOEstoque()
                 {
                     Codigo = estoque.nCdEstoque,
@@ -96,7 +96,7 @@ namespace Business.Services
             try
             {
                 List<DTOEstoqueProdutoHistorico> lstHistoricoEstoque = new List<DTOEstoqueProdutoHistorico>();
-                var historico = await _estoqueRepository.ConsultarHistorico(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no portal de compras.");
+                var historico = await _estoqueRepository.ConsultarHistorico(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
                 lstHistoricoEstoque.AddRange(historico.Select(x => new DTOEstoqueProdutoHistorico()
                 {
                     Codigo = x.nCdEstoqueProdutoHistorico,
@@ -120,7 +120,7 @@ namespace Business.Services
             try
             {
                 List<DTOEstoqueProduto> lstEstoqueProdutoDTO = new List<DTOEstoqueProduto>();
-                var estoque = await _estoqueRepository.Consultar(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no portal de compras.");
+                var estoque = await _estoqueRepository.Consultar(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema1.");
 
                 lstEstoqueProdutoDTO.AddRange(estoque.Produtos.Select(x => new DTOEstoqueProduto()
                 {

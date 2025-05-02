@@ -27,16 +27,16 @@ const VariacaoProduto = () => {
                 setContadorVariacoes(novoContador);
                 const novosCards = response.data.map((variacao) => {
                     return {
-                        id: `card_${novoContador}_${variacao.nCdVariacao}`,  
-                        headerId: `heading_${novoContador}_${variacao.nCdVariacao}`,
-                        collapseId: `collapse_${novoContador}_${variacao.nCdVariacao}`,
-                        tipo: variacao.sNmVariacao,
-                        tipoId: variacao.nCdVariacao, 
-                        opcoes: variacao.variacaoOpcoes.map((item, index) => ({
-                            id: `variacao_${novoContador}_${index}_${variacao.nCdVariacao}`,
-                            valor: `${item.nCdVariacaoOpcao}|${variacao.nCdVariacao}`,
-                            nome: item.sNmVariacaoOpcao,
-                            atrelado: item?.bFlAtrelado ?? false
+                        id: `card_${novoContador}_${variacao.codigo}`,  
+                        headerId: `heading_${novoContador}_${variacao.codigo}`,
+                        collapseId: `collapse_${novoContador}_${variacao.codigo}`,
+                        tipo: variacao.nome,
+                        tipoId: variacao.codigo, 
+                        opcoes: variacao.opcoes.map((item, index) => ({
+                            id: `variacao_${novoContador}_${index}_${variacao.codigo}`,
+                            valor: `${item.codigo}|${variacao.codigo}`,
+                            nome: item.nome,
+                            atrelado: item?.atrelado ?? false
                         }))
                     };
                 });
@@ -56,30 +56,24 @@ const VariacaoProduto = () => {
     const adicionarVariacao = async () => {
         if (!tipoSelecionado) { alert('Selecione um tipo de variação.'); return; }
         try {
-            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.opcoesVariacao}/` + tipoSelecionado);
-
-            if (response.data && response.data.length > 0) {
-                const novoContador = contadorVariacoes + 1;
-                setContadorVariacoes(novoContador);
-                const tipoNome = variacoes.find(v => v.nCdVariacao == tipoSelecionado)?.sNmVariacao || 'Variação';
-                const novoCard = {
-                    id: `card_${novoContador}`,
-                    headerId: `heading_${novoContador}`,
-                    collapseId: `collapse_${novoContador}`,
-                    tipo: tipoNome,
-                    tipoId: tipoSelecionado,
-                    opcoes: response.data[0].variacaoOpcoes.map((item, index) => ({
-                        id: `variacao_${novoContador}_${index}`,
-                        valor: `${item.nCdVariacaoOpcao}|${response.data[0].nCdVariacao}`,
-                        nome: item.sNmVariacaoOpcao,
-                        atrelado: false
-
-                    }))
-                };
-                setCardsVariacoes([...cardsVariacoes, novoCard]);
-            } else { 
-                alert('Nenhuma opção de variação encontrada.');
-            }
+            const novoContador = contadorVariacoes + 1;
+            setContadorVariacoes(novoContador);
+            const variacaoSelecionada = variacoes.find(v => v.codigo == tipoSelecionado);
+            const tipoNome = variacaoSelecionada?.nome || 'Variação';
+            const novoCard = {
+                id: `card_${novoContador}`,
+                headerId: `heading_${novoContador}`,
+                collapseId: `collapse_${novoContador}`,
+                tipo: tipoNome,
+                tipoId: tipoSelecionado,
+                opcoes: variacaoSelecionada.opcoes.map((item, index) => ({
+                    id: `variacao_${novoContador}_${index}`,
+                    valor: `${item.codigo}|${variacaoSelecionada.codigo}`,
+                    nome: item.nome,
+                    atrelado: false
+                }))
+            };
+            setCardsVariacoes([...cardsVariacoes, novoCard]);
         } catch (error) {
             console.error('Erro ao buscar variações:', error);
             alert('Erro ao carregar as variações.');
@@ -103,20 +97,20 @@ const VariacaoProduto = () => {
                 if (checkedInputs.length === 0) continue;
 
                 const variacao = {
-                    nCdVariacao: card.nCdVariacao || card.tipoId,
-                    sNmVariacao: card.tipo || `Variação ${card.id}`,
-                    sDsVariacao: `Descrição da variação ${card.id}`,
-                    bFlAtiva: true,
-                    VariacaoOpcoes: []
+                    codigo: card.codigo || card.tipoId,
+                    nome: card.tipo || `Variação ${card.id}`,
+                    descricao: `Descrição da variação ${card.id}`,
+                    ativa: true,
+                    opcoes: []
                 };
 
                 checkedInputs.forEach(input => {
-                    const [nCdVariacaoOpcao, nCdVariacao] = input.value.split('|');
-                    variacao.VariacaoOpcoes.push({
-                        nCdVariacaoOpcao: parseInt(nCdVariacaoOpcao, 10),
-                        sNmVariacaoOpcao: input.nextElementSibling.textContent.trim() || `Opção ${nCdVariacaoOpcao}`,
-                        sDsVariacaoOpcao: `Descrição da opção ${nCdVariacaoOpcao}`,
-                        bFlAtiva: true
+                    const [codigoOpcao, codigo] = input.value.split('|');
+                    variacao.opcoes.push({
+                        codigo: parseInt(codigoOpcao, 10),
+                        nome: input.nextElementSibling.textContent.trim() || `Opção ${codigoOpcao}`,
+                        descricao: `Descrição da opção ${codigoOpcao}`,
+                        ativa: true
                     });
                 });
 
@@ -129,16 +123,16 @@ const VariacaoProduto = () => {
 
             const response = await axios.put(
                 `${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.editarVariacaoProduto}`,
-                { variacoes: variacoesParaEnvio, nCdProduto: codigoProduto},
+                { variacoes: variacoesParaEnvio, codigo: codigoProduto},
                 { headers: { 'Content-Type': 'application/json' }}
             );
 
-            if (response.data.success) {
+            if (response.data) {
                 setSuccess(true);
                 setMensagem("Variações atualizadas com sucesso!");
                 setDetails("Redirecionando...");
                 setTimeout(function () {
-                    navigate(`/administrador/produto-imagem/${response.data.codigoProduto}`);
+                    navigate(`/administrador/produto-imagem/${codigoProduto}`);
                 }, 4000);
                 
             } else {
@@ -180,7 +174,7 @@ const VariacaoProduto = () => {
                             <label htmlFor="tipoVariacao" className="form-label">Tipo de Variação</label>
                             <select className="form-select tipo-variacao" id="tipoVariacao" name="tipoVariacao" value={tipoSelecionado} onChange={(e) => setTipoSelecionado(e.target.value)} required >
                                 <option value="" disabled>Escolha...</option>
-                                {variacoes.map((item) => (<option key={item.nCdVariacao} value={item.nCdVariacao}> {item.sNmVariacao} </option>))}
+                                {variacoes.map((item) => (<option key={item.codigo} value={item.codigo}> {item.nome} </option>))}
                             </select>
                             <div className="invalid-feedback"> Por favor, selecione um tipo de variação.</div>
                         </div>

@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import FormatadorValores from '../common/FormatadorValores';
 import apiConfig from '../../Api';
+import { useNavigate } from 'react-router-dom';
 
 export const useRevendedor = (codigoRevendedor) => {
+    const navigate = useNavigate();
 
     const [state, setState] = useState({ loading: false, error: null, success: false, mensagem: '', estoques: [], tipos: [], revendedor: [] });
 
@@ -25,8 +27,7 @@ export const useRevendedor = (codigoRevendedor) => {
         setState(prev => ({ ...prev, loading: true }));
         try {
             const response = await axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.tiposRevendedor}`);
-            const data = await response.data.tipos;
-            setState(prev => ({ ...prev, tipos: data.result, loading: false }));
+            setState(prev => ({ ...prev, tipos: response.data.tipos, loading: false }));
         } catch (err) {
             setState(prev => ({ ...prev, error: true, mensagem: "Erro ao carregar os dados", loading: false }));
         }
@@ -37,24 +38,28 @@ export const useRevendedor = (codigoRevendedor) => {
         try {
             const response = await axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.consultarRevendedor}/${codigoRevendedor}`, { headers: { 'Content-Type': 'application/json' } });
 
-            if (!response.data.success) { throw new Error(response.data.message || "Erro ao carregar revendedor");}
+            if (response) {
 
-            const formData = response.data.revendedor.result;
-            const revendedorFormatado = {
-                nomeRevendedor: formData.sNmRevendedor?.toString() || '',
-                estoque: formData.nCdEstoque?.toString() || '',
-                tipo: formData.nCdTipoRevendedor?.toString() || '',
-                percRevenda: formData.dPcRevenda?.toString().replace(".", ",") || '',
-                cpfcnpj: formData.sNrCpfCnpj?.toString() || '',
-                telefone: formData.sTelefone?.toString() || '',
-                email: formData.sEmail?.toString() || '',
-                rua: formData.sDsRua?.toString() || '',
-                complemento: formData.sDsComplemento?.toString() || '',
-                numero: formData.sNrNumero?.toString() || '',
-                cep: formData.sCdCep?.toString() || ''
-            };
+                const dtoRevendedor = response.data.revendedor;
+                const revendedorFormatado = {
+                    nomeRevendedor: dtoRevendedor.nome || '',
+                    estoque: dtoRevendedor.codigoEstoque?.toString() || '',
+                    tipo: dtoRevendedor.codigoTipoRevendedor?.toString() || '',
+                    percRevenda: dtoRevendedor.percentualRevenda.toString().replace(".", ",") || '0',
+                    cpfCnpj: dtoRevendedor.cpfCnpj || '',
+                    telefone: dtoRevendedor.telefone || '',
+                    email: dtoRevendedor.email || '',
+                    rua: dtoRevendedor.rua || '',
+                    complemento: dtoRevendedor.complemento || '',
+                    numero: dtoRevendedor.numero || '',
+                    cep: dtoRevendedor.cep || ''
+                };
 
-            setState(prev => ({ ...prev, success: true, mensagem: "Revendedor consultado com sucesso!", loading: false, revendedor: revendedorFormatado}));
+                setState(prev => ({ ...prev, success: true, mensagem: "Revendedor consultado com sucesso!", loading: false, revendedor: revendedorFormatado }));
+            }
+            else if (response.status === 2) {
+                setState(prev => ({ ...prev, error: true, mensagem: response.mensagem || "Ocorreu um erro ao consultar o revendedor.", loading: false, revendedor: revendedorFormatado }));
+            }
 
             return revendedorFormatado;
         } catch (err) {
@@ -66,33 +71,32 @@ export const useRevendedor = (codigoRevendedor) => {
     const adicionarRevendedor = async (formData) => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const revendedorFormatado = {
-                nCdRevendedor: FormatadorValores.converterParaInteiro(codigoRevendedor) || 0,
-                nCdEstoque: FormatadorValores.converterParaInteiro(formData.estoque) || 0,
-                nCdTipoRevendedor: FormatadorValores.converterParaInteiro(formData.tipo) || 0,
-                dPcRevenda: FormatadorValores.converterParaDecimal(formData.percRevenda) || 0,
-                sNmRevendedor: formData.nomeRevendedor || '',
-                sNrCpfCnpj: FormatadorValores.removerFormatacao(formData.cpfcnpj) || '',
-                sTelefone: FormatadorValores.removerFormatacao(formData.telefone) || '',
-                sEmail: formData.email || '',
-                sDsRua: formData.rua || '',
-                sDsComplemento: formData.complemento || '',
-                sNrNumero: formData.numero || '',
-                sCdCep: formData.cep || ''
+            const DTORevendedor = { 
+                Codigo: FormatadorValores.converterParaInteiro(codigoRevendedor) || 0,
+                CodigoEstoque: FormatadorValores.converterParaInteiro(formData.estoque) || null,
+                CodigoTipoRevendedor: FormatadorValores.converterParaInteiro(formData.tipo) || 0,
+                PercentualRevenda: FormatadorValores.converterParaDecimal(formData.percRevenda) || 0,
+                Nome: formData.nomeRevendedor || '',
+                CpfCnpj: FormatadorValores.removerFormatacao(formData.cpfCnpj) || '',
+                Telefone: FormatadorValores.removerFormatacao(formData.telefone) || '',
+                Email: formData.email || '',
+                Rua: formData.rua || '',
+                Complemento: formData.complemento || '',
+                Numero: formData.numero || '',
+                Cep: FormatadorValores.removerFormatacao(formData.cep) || ''
             };
 
-            const response = await axios.post(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.cadastrarRevendedor}`, revendedorFormatado, {
+            const response = await axios.post(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.cadastrarRevendedor}`, DTORevendedor, {
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            if (response.data.success) {
+            if (response.data.status === 1) {
                 setState(prev => ({ ...prev, success: true, mensagem: "Revendedor cadastrado com sucesso!", loading: false }));
                 carregarEstoque();
-                return true;
-            } else { throw new Error(response.data.message || "Erro ao salvar dados"); }
+                navigate(`/administrador/revendedores`);
+            } else { throw new Error(response.data.mensagem || "Erro ao salvar dados"); }
         } catch (err) {
             setState(prev => ({ ...prev, error: true, mensagem: err.message || "Erro na comunicação com o servidor", loading: false }));
-            return false;
         }
     };
 

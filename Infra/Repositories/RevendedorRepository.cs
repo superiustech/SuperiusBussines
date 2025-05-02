@@ -6,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Data;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Azure;
 
 namespace Infra.Repositories
 {
@@ -33,32 +34,11 @@ namespace Infra.Repositories
         {
             return await _context.RevendedorTipo.AsNoTracking().Where(x => x.bFlAtivo == 1).OrderBy(x => x.nCdTipoRevendedor).ToListAsync();
         }
-        public async Task<List<CWRevendedor>> PesquisarRevendedores(int page = 0, int pageSize = 0, CWRevendedor? oCWRevendedorFiltro = null)
+        public async Task<List<CWRevendedor>> PesquisarRevendedores()
         {
-            if (page == 0 || pageSize == 0)
-            {
-                return await _context.Revendedor.AsNoTracking().Include(t => t.Tipo).Include(e => e.Estoque).OrderBy(p => p.nCdRevendedor).ToListAsync();
-            }
-            else
-            {
-                var query = _context.Revendedor.AsNoTracking().AsQueryable();
-                query = oCWRevendedorFiltro == null ? query : AplicarFiltros(query, oCWRevendedorFiltro);
-                return await query.OrderBy(p => p.nCdRevendedor).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-            }
+            return await _context.Revendedor.AsNoTracking().Include(t => t.Tipo).Include(e => e.Estoque).OrderBy(p => p.nCdRevendedor).ToListAsync();
         }
-        private IQueryable<CWRevendedor> AplicarFiltros(IQueryable<CWRevendedor> query, CWRevendedor filtro)
-        {
-            query = !string.IsNullOrEmpty(filtro.sNmRevendedor) ? query.Where(p => EF.Functions.Like(p.sNmRevendedor, $"%{filtro.sNmRevendedor}%")) : query;
-            query = !string.IsNullOrEmpty(filtro.sNrCpfCnpj) ? query.Where(p => EF.Functions.Like(p.sNrCpfCnpj, $"%{filtro.sNrCpfCnpj}%")) : query;
-            return query;
-        }
-        public async Task<int> PesquisarQuantidadePaginas(CWRevendedor? cwRevendedorFiltro = null)
-        {
-            var query = _context.Revendedor.AsNoTracking().AsQueryable();
-            query = cwRevendedorFiltro == null ? query : AplicarFiltros(query, cwRevendedorFiltro);
-            return await query.CountAsync();
-        }
-        public async Task<int> CadastrarRevendedor(CWRevendedor oCWRevendedor)
+        public async Task CadastrarRevendedor(CWRevendedor oCWRevendedor)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -103,7 +83,6 @@ namespace Infra.Repositories
                     nCdRevendedor = revendedorExistente.nCdRevendedor;
                 }
                 await transaction.CommitAsync();
-                return nCdRevendedor;
             }
             catch
             {

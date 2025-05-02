@@ -1,5 +1,7 @@
 ﻿using Domain.Entities;
+using Domain.Entities.ViewModel;
 using Domain.Requests;
+using Domain.ViewModel;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Data;
@@ -8,20 +10,18 @@ namespace Domain.Interfaces
 {
     public interface IProduto
     {
-        public Task<List<CWProduto>> PesquisarProdutos(int page = 0, int pageSize = 0, CWProduto? cwProdutoFiltro = null);
-        public Task<List<CWProduto>> PesquisarTodosProdutos();
-        public CWProduto ConsultarProduto(int nCdProduto);
-        public Task<int> PesquisarQuantidadePaginas(CWProduto? cwProdutoFiltro = null);
-        public Task<List<CWVariacao>> ObterVariacoesAtivas();
-        public Task<List<CWUnidadeMedida>> ObterUnidadesAtivas();
-        public Task<List<CWProdutoImagem>> ObterImagensProduto(int nCdProduto);
-        public Task<int> CadastrarProduto(CWProduto cwProduto);
-        public Task EditarVariacaoProduto(int nCdProduto, List<CWVariacao> variacoes);
-        public Task AtualizarProduto(CWProduto cwProduto);
-        public Task ExcluirImagem(int nCdImagem);
-        public Task<List<CWVariacao>> ConsultarProdutoVariacao(int nCdProduto);
-        public Task<CWProdutoImagem> AdicionarImagem(int nCdProduto, IFormFile Imagem, string Descricao);
-        Task<List<CWProduto>> PesquisarPorEstoque(int nCdEstoque);
-        Task ExcluirProdutos(string arrCodigosProdutos);
+        public Task<List<DTOProduto>> PesquisarTodosProdutos();
+        public Task<DTOProduto> ConsultarProduto(int nCdProduto);
+        public Task<List<DTOVariacao>> ObterVariacoesAtivas();
+        public Task<List<DTOVariacao>> ObterVariacoesAtivas(int? tipo);
+        public Task<List<DTOUnidadeMedida>> ObterUnidadesAtivas();
+        public Task<List<DTOProdutoImagem>> ObterImagensProduto(int nCdProduto);
+        public Task<DTORetorno> CadastrarProduto(DTOProduto oDTOProduto);
+        public Task<DTORetorno> EditarVariacaoProduto(int nCdProduto, List<DTOVariacao> variacoes);
+        public Task<DTORetorno> AtualizarProduto(CWProduto cwProduto);
+        public Task<DTORetorno> ExcluirImagem(int nCdImagem);
+        public Task<List<DTOVariacao>> ConsultarProdutoVariacao(int nCdProduto);
+        public Task<DTORetorno> AdicionarImagem(int nCdProduto, IFormFile Imagem, string Descricao);
+        Task<DTORetorno> ExcluirProdutos(string arrCodigosProdutos);
     }
 }

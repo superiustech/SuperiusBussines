@@ -4,7 +4,6 @@ export default {
         baseURL: `${baseApiUrl}/Produto`,
         endpoints: {
             consultarProduto: '/ConsultarProduto', 
-            pesquisarProdutosComPaginacao: '/PesquisarProdutosComPaginacao', 
             pesquisarProdutos: '/Produtos', 
             cadastrarProduto: '/CadastrarProduto',
             editarVariacaoProduto: '/EditarVariacaoProduto',

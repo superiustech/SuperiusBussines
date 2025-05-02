@@ -70,7 +70,7 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                             <label htmlFor="tipo" className="form-label">Tipo</label>
                             <select className="form-select unidade" id="tipo" name="tipo" value={formData.tipo} onChange={handleChange} required >
                                 <option selected disabled value="">Escolha...</option>
-                                {tipos.map((item) => (<option key={item.nCdTipoRevendedor} value={item.nCdTipoRevendedor}> {item.nCdTipoRevendedor} - {item.sNmTipo}</option>))}
+                                {tipos.map((item) => (<option key={item.codigo} value={item.codigo}> {item.codigo}) {item.nome}</option>))}
                             </select>
                             <div className="invalid-feedback"> Por favor, selecione o tipo do revendedor. </div>
                         </div>
@@ -80,7 +80,7 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                             <label htmlFor="cpfcnpj" className="form-label">CPF/CNPJ</label>
                             <div className="input-group has-validation">
                                 <IMaskInput key={formData.tipo} mask={ Number(formData.tipo) === 1 ? '00.000.000/0000-00' : Number(formData.tipo) === 2 ? '000.000.000-00' : '' }
-                                 disabled={formData.tipo === undefined} className="form-control" id="cpfcnpj" name="cpfcnpj" value={formData.cpfcnpj} onAccept={(value) => setFormData({ ...formData, cpfcnpj: value })} unmask={false} required/>
+                                 disabled={formData.tipo === undefined} className="form-control" id="cpfcnpj" name="cpfcnpj" value={formData.cpfCnpj} onAccept={(value) => setFormData({ ...formData, cpfCnpj: value })} unmask={false} required/>
                                 <div className="invalid-feedback"> Por favor, insira o CPF/CNPJ do revendedor.</div>
                             </div>
                         </div>

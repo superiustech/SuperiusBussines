@@ -316,15 +316,31 @@ namespace Business.Services
         {
             try
             {
-                List<string> lstCodigosProdutos = arrCodigosProdutos.Split(",").ToList();
+                if (string.IsNullOrEmpty(arrCodigosProdutos)) throw new ExceptionCustom($"Favor, preencher quais produtos devem ser removidos.");
+
+                List<int> lstCodigosProdutos = arrCodigosProdutos.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(valor =>
+                {
+                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                    else throw new ExceptionCustom("Passe somente números como parâmetro para remoção.");
+                }).ToList();                
+                
                 List<CWProduto> lstProdutos = new List<CWProduto>();
                 List<CWProduto> lstProdutosExistentes = await _produtoRepository.PesquisarTodosProdutos();
+                List<int> lstCodigosInvalidos = lstCodigosProdutos.Except(lstProdutosExistentes.Select(x => x.nCdProduto)).ToList();
+
                 foreach (CWProduto produto in lstProdutosExistentes)
                 {
-                    if (lstCodigosProdutos.Contains(produto.nCdProduto.ToString()))
-                        lstProdutos.Add(produto);
+                    if (lstCodigosProdutos.Contains(produto.nCdProduto)) lstProdutos.Add(produto);
                 }
+                
                 await _produtoRepository.ExcluirProdutos(lstProdutos);
+
+                if (lstCodigosInvalidos.Any())
+                {
+                    return new DTORetorno() { Mensagem = string.Format("Os seguintes códigos de produtos não existem: '{0}'", string.Join(", ", lstCodigosInvalidos)), Status = enumSituacao.Aviso };
+                }
+
                 return new DTORetorno() { Mensagem = "Sucesso", Status = enumSituacao.Sucesso };
             }
             catch (ExceptionCustom ex)

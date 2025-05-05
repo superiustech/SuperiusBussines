@@ -110,6 +110,25 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
+        [HttpGet("HistoricoMovimentacao/{codigoEstoque}")]
+        public async Task<IActionResult> HistoricoMovimentacao(int codigoEstoque)
+        {
+            try
+            {
+                return Ok(new { Historico = await _estoque.ConsultarHistorico(codigoEstoque) });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
         [HttpPost("CadastrarEstoque")]
         public async Task<IActionResult> CadastrarEstoque([FromBody] DTOEstoque estoque)
         {
@@ -153,7 +172,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                return Ok(_estoque.AdicionarEditarProdutoEstoque(oDTOEstoqueProduto));
+                return Ok(await _estoque.AdicionarEditarProdutoEstoque(oDTOEstoqueProduto));
             }
             catch (ExceptionCustom ex)
             {
@@ -172,7 +191,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                return Ok(_estoque.RemoverEstoqueProduto(request.nCdEstoque, request.nCdProduto));
+                return Ok(await _estoque.RemoverEstoqueProduto(request.codigoEstoque, request.arrCodigosProdutos));
             }
             catch (ExceptionCustom ex)
             {

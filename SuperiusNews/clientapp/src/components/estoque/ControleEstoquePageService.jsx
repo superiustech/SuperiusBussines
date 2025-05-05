@@ -13,6 +13,8 @@ export const ControleEstoquePageService = (codigoEstoque) => {
         try {
             const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.estoqueProduto}/${codigoEstoque}`);
             setState(prev => ({ ...prev, estoqueProdutos: response.data.estoqueProduto, produtos: response.data.produtos, historico: response.data.historico, loading: false }));
+            setState(prev => ({ ...prev, loading: false, error: false, success: false }));
+
         } catch (err) {
             setState(prev => ({ ...prev, error: true, mensagem: "Erro ao carregar os dados", loading: false }));
         }
@@ -103,7 +105,39 @@ export const ControleEstoquePageService = (codigoEstoque) => {
         }
     };
 
+    const deletarProduto = async (arrCodigosProdutos) => {
+        setState(prev => ({ ...prev, loading: true }));
+        try {
+
+            const estoqueProduto = {
+                codigoEstoque: FormatadorValores.converterParaInteiro(codigoEstoque),
+                arrCodigosProdutos: String(arrCodigosProdutos)
+            };
+
+            const response = await axios.delete(
+                `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.removerEstoqueProduto}`,
+                {
+                    data: estoqueProduto,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+            await carregarEstoque();
+            if (response.data.status === 1) {
+                fecharModal();
+                await carregarEstoque();
+                setState(prev => ({ ...prev, success: true, mensagem: "Inativação de produto efetuada com sucesso!" }));
+            } else {
+                fecharModal();
+                setState(prev => ({ ...prev, error: true, mensagem: response.data.mensagem || "Ocorreu um erro ao inserir o produto." }));
+            }
+            setState(prev => ({ ...prev, loading: false }));
+        } catch (err) {
+            setState(prev => ({ ...prev, error: true, mensagem: err.message || "Erro na comunicação com o servidor", loading: false }));
+            return false;
+        }
+    };
+
     useEffect(() => { carregarEstoque(); }, [carregarEstoque]);
 
-    return { ...state, abrirModal, fecharModal, confirmar, carregarEstoque, clearMessages: () => setState(prev => ({ ...prev, error: false, success: false, mensagem: '' }))};
+    return { ...state, abrirModal, fecharModal, confirmar, carregarEstoque, deletarProduto, clearMessages: () => setState(prev => ({ ...prev, error: false, success: false, mensagem: '' }))};
 };

@@ -15,7 +15,7 @@ namespace Domain.Interfaces
         Task<bool> AdicionarEstoqueProduto(CWEstoqueProduto oCWEstoqueProduto);
         Task AdicionarEditarProdutoEstoque(CWEstoqueProduto oCWEstoqueProduto);
         Task MovimentarEntradaSaida(CWEstoqueProduto oCWEstoqueProduto, CWEstoqueProdutoHistorico cwEstoqueProdutoHistorico);
-        Task RemoverEstoqueProduto(int nCdEstoque, int nCdProduto);
+        Task RemoverEstoqueProduto(List<CWEstoqueProduto> lstEstoqueProduto);
         Task ExcluirEstoques(List<CWEstoque> lstEstoques);
         Task<List<CWEstoqueProdutoHistorico>> ConsultarHistorico(int nCdEstoque);
         Task<decimal> ObterPercentualRevenda(int nCdEstoque);

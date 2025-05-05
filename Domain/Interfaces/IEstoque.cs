@@ -15,7 +15,7 @@ namespace Domain.Interfaces
         Task<List<DTOEstoqueProduto>> PesquisarEstoqueProduto(int nCdEstoque);
         Task<DTORetorno> MovimentarEntradaSaida(DTOEstoqueProdutoHistorico oDTOEstoqueProdutoHistorico);
         Task<DTORetorno> AdicionarEditarProdutoEstoque(DTOEstoqueProduto oDTOEstoqueProduto);
-        Task<DTORetorno> RemoverEstoqueProduto(int nCdEstoque, int nCdProduto);
+        Task<DTORetorno> RemoverEstoqueProduto(int codigoEstoque, string arrCodigosProdutos);
         Task<List<DTOEstoque>> PesquisarEstoques(int? nCdRevendedor = null);
         Task<List<DTOEstoque>> PesquisarTodosEstoques();
         Task<DTORetorno> ExcluirEstoques(string arrCodigosEstoques);

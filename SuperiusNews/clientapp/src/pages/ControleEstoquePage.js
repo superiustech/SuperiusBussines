@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Modal } from "react-bootstrap";
 
 import EstoqueProdutoHistoricoTable from '../components/estoque/EstoqueProdutoHistoricoTable';
+import EstoqueProdutoTabela from '../components/estoque/EstoqueProdutoTabela';
 import FormEntradaEstoque from '../components/estoque/FormEntradaEstoque';
 import FormSaidaEstoque from '../components/estoque/FormSaidaEstoque';
 import Loading from '../components/ui/Loading';
@@ -10,8 +11,8 @@ import FlashMessage from '../components//ui/FlashMessage';
 import { ControleEstoquePageService } from '../components/estoque/ControleEstoquePageService';
 
 const ControleEstoquePage = () => {
-    const { codigoEstoque } = useParams(); 
-    const { loading, error, success, mensagem, historico, produtos, estoqueProdutos, modal, abrirModal, fecharModal, confirmar, carregarEstoque, clearMessages } = ControleEstoquePageService(codigoEstoque);
+    const { codigoEstoque } = useParams();
+    const { loading, error, success, mensagem, historico, produtos, estoqueProdutos, modal, abrirModal, fecharModal, confirmar, carregarEstoque, deletarProduto, clearMessages } = ControleEstoquePageService(codigoEstoque);
 
     return (
         <div className="container">
@@ -20,6 +21,8 @@ const ControleEstoquePage = () => {
             {loading ? (<Loading show={true} />) : (
                 <>
                     <h1 className="fw-bold display-5 text-primary m-0 mb-5"> <i className="bi bi-people-fill me-2"></i> Estoque </h1>
+
+                    <EstoqueProdutoTabela estoqueProdutos={estoqueProdutos} loading={loading} onDeletarProduto={deletarProduto} onEntradaEstoque={() => abrirModal("entrada")} onSaidaEstoque={() => abrirModal("saida")} onRefresh={carregarEstoque} />
                     <EstoqueProdutoHistoricoTable historico={historico} loading={loading} onEntradaEstoque={() => abrirModal("entrada")} onSaidaEstoque={() => abrirModal("saida")} onRefresh={carregarEstoque} />
 
                     <Modal show={modal.open} onHide={fecharModal} centered size="md" animation={true}>

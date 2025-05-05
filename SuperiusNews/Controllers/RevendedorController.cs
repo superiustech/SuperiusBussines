@@ -103,7 +103,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                return Ok(_revendedor.ExcluirRevendedores(arrCodigoRevendedores));
+                return Ok(await _revendedor.ExcluirRevendedores(arrCodigoRevendedores));
             }
             catch (ExceptionCustom ex)
             {

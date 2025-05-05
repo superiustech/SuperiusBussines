@@ -219,32 +219,35 @@ namespace Infra.Repositories
             };
 
             _context.EstoqueProdutoHistorico.Add(historico);
-        }
-        public async Task RemoverEstoqueProduto(int nCdEstoque, int nCdProduto)
+        } 
+        public async Task RemoverEstoqueProduto(List<CWEstoqueProduto> lstEstoqueProduto)
         {
-            var estoqueExistente = await _context.EstoqueProduto.FirstOrDefaultAsync(ep => ep.nCdProduto == nCdProduto && ep.nCdEstoque == nCdEstoque);
-            if (estoqueExistente != null)
+            var historicos = new List<CWEstoqueProdutoHistorico>();
+            var chaves = lstEstoqueProduto.Select(x => new { x.nCdEstoque, x.nCdProduto }).ToList();
+            var estoquesExistentes = await _context.EstoqueProduto.Where(ep => chaves.Select(c => c.nCdEstoque).Contains(ep.nCdEstoque) &&chaves.Select(c => c.nCdProduto).Contains(ep.nCdProduto)).ToListAsync();
+
+            foreach (var estoque in estoquesExistentes)
             {
-                var historico = new CWEstoqueProdutoHistorico
+                historicos.Add(new CWEstoqueProdutoHistorico
                 {
                     nCdEstoqueProdutoHistorico = 0,
-                    nCdEstoque = estoqueExistente.nCdEstoque,
-                    nCdProduto = estoqueExistente.nCdProduto,
-                    nCdEstoqueDestino = estoqueExistente.nCdEstoque,
-                    dQtMovimentada = estoqueExistente.dQtEstoque,
+                    nCdEstoque = estoque.nCdEstoque,
+                    nCdProduto = estoque.nCdProduto,
+                    nCdEstoqueDestino = estoque.nCdEstoque,
+                    dQtMovimentada = estoque.dQtEstoque,
                     tDtMovimentacao = default,
                     sDsObservacao = "Inativação do produto ao estoque",
                     nTipoMovimentacao = nTipoMovimentacao.Saida
-                };
-                _context.EstoqueProdutoHistorico.Add(historico);
+                });
 
-                estoqueExistente.bFlAtivo = false;
-                estoqueExistente.dQtEstoque = 0;
+                estoque.bFlAtivo = false;
+                estoque.dQtEstoque = 0;
 
-                _context.Entry(estoqueExistente).State = EntityState.Modified;
-
-                await _context.SaveChangesAsync();
+                _context.Entry(estoque).State = EntityState.Modified;
             }
+
+            _context.EstoqueProdutoHistorico.AddRange(historicos);
+            await _context.SaveChangesAsync();
         }
         public async Task AdicionarEditarProdutoEstoque(CWEstoqueProduto cwEstoqueProduto)
         {
@@ -257,8 +260,7 @@ namespace Infra.Repositories
                 estoqueExistente.dVlCusto = cwEstoqueProduto.dVlCusto;
                 _context.Entry(estoqueExistente).State = EntityState.Modified;
             }
-            else
-            {
+            else{
                 _context.EstoqueProduto.Add(cwEstoqueProduto);
             }
 

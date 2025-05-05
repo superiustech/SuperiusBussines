@@ -59,6 +59,9 @@ namespace Business.Services
                     CodigoIdentificacao = x.sCdEstoque,
                     Nome = x.sNmEstoque,
                     Descricao = x.sDsEstoque,
+                    Rua = x.sDsRua,
+                    Complemento = x.sDsComplemento,
+                    Numero = x.sNrNumero,
                     Cep = x.sCdCep
                 }).ToList());
 
@@ -81,6 +84,9 @@ namespace Business.Services
                     CodigoIdentificacao = x.sCdEstoque,
                     Nome = x.sNmEstoque,
                     Descricao = x.sDsEstoque,
+                    Rua = x.sDsRua,
+                    Complemento = x.sDsComplemento,
+                    Numero = x.sNrNumero,
                     Cep = x.sCdCep
                 }).ToList());
 
@@ -100,8 +106,11 @@ namespace Business.Services
                 lstHistoricoEstoque.AddRange(historico.Select(x => new DTOEstoqueProdutoHistorico()
                 {
                     Codigo = x.nCdEstoqueProdutoHistorico,
+                    CodigoProduto = x.nCdProduto,
+                    CodigoEstoqueOrigem = x.nCdEstoque,
+                    CodigoEstoqueDestino = x.nCdEstoqueDestino,
                     TipoMovimentacao = ObterStringTipoMovimentacao(x.nTipoMovimentacao),
-                    DataMovimentacao = x.tDtMovimentacao?.ToString("yyyy-MM-dd") ?? string.Empty,
+                    DataMovimentacao = x.tDtMovimentacao?.ToString("yyyy-MM-dd HH:mm:ss") ?? string.Empty,
                     QuantidadeMovimentada = x.dQtMovimentada,
                     Observacao = x.sDsObservacao ?? string.Empty,
                     EstoqueOrigem = x.EstoqueOrigem?.sNmEstoque ?? string.Empty,
@@ -210,11 +219,36 @@ namespace Business.Services
                 return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
             }
         }
-        public async Task<DTORetorno> RemoverEstoqueProduto(int nCdEstoque, int nCdProduto)
+        public async Task<DTORetorno> RemoverEstoqueProduto(int codigoEstoque, string arrCodigosProdutos)
         {
             try
             {
-                await _estoqueRepository.RemoverEstoqueProduto(nCdEstoque, nCdProduto);
+                if (string.IsNullOrEmpty(arrCodigosProdutos)) throw new ExceptionCustom($"Favor, preencher quais estoques devem ser removidos.");
+
+                List<int> lstCodigosProdutos = arrCodigosProdutos.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(valor =>
+                {
+                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                    else throw new ExceptionCustom("Passe somente números como parâmetro para remoção.");
+                }).ToList();
+
+                CWEstoque cwEstoque = await _estoqueRepository.Consultar(codigoEstoque) ?? throw new ExceptionCustom($"Estoque cod. {codigoEstoque} não localizado no sistema1.");
+                List<CWEstoqueProduto> lstEstoqueProdutos = new List<CWEstoqueProduto>();                
+                List<CWEstoqueProduto> lstEstoquesExistentes = cwEstoque.Produtos.ToList();
+                List<int> lstCodigosInvalidos = lstCodigosProdutos.Except(lstEstoquesExistentes.Select(x => x.nCdProduto)).ToList();
+
+                foreach (CWEstoqueProduto estoque in lstEstoquesExistentes)
+                {
+                    if (lstCodigosProdutos.Contains(estoque.nCdProduto)) lstEstoqueProdutos.Add(estoque);
+                }
+
+                await _estoqueRepository.RemoverEstoqueProduto(lstEstoqueProdutos);
+
+                if (lstCodigosInvalidos.Any())
+                {
+                    return new DTORetorno() { Mensagem = string.Format("Os seguintes produtos não existem no estoque: '{0}'", string.Join(", ", lstCodigosInvalidos)), Status = enumSituacao.Aviso };
+                }
+
                 return new DTORetorno() { Mensagem = "Sucesso", Status = enumSituacao.Sucesso };
             }
             catch (ExceptionCustom ex)
@@ -233,6 +267,8 @@ namespace Business.Services
         {
             try
             {
+                if(DTOEstoqueProduto.CodigoEstoque <= 0) throw new ExceptionCustom($"Preencha o código do estoque.");
+
                 CWEstoqueProduto cwEstoqueProduto = new CWEstoqueProduto()
                 {
                     nCdEstoque = DTOEstoqueProduto.CodigoEstoque,
@@ -264,15 +300,31 @@ namespace Business.Services
         {
             try
             {
-                List<string> lstCodigosEstoques = arrCodigosEstoques.Split(",").ToList();
+                if(string.IsNullOrEmpty(arrCodigosEstoques)) throw new ExceptionCustom($"Favor, preencher quais estoques devem ser removidos.");
+
+                List<int> lstCodigosEstoques = arrCodigosEstoques.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(valor =>
+                {
+                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                    else throw new ExceptionCustom("Passe somente números como parâmetro para remoção.");
+                }).ToList();                   
+                
                 List<CWEstoque> lstEstoques = new List<CWEstoque>();
                 List<CWEstoque> lstEstoquesExistentes = await _estoqueRepository.PesquisarTodosEstoques();
+                List<int> lstCodigosInvalidos = lstCodigosEstoques.Except(lstEstoquesExistentes.Select(x => x.nCdEstoque)).ToList();
+
                 foreach (CWEstoque produto in lstEstoquesExistentes)
                 {
-                    if (lstCodigosEstoques.Contains(produto.nCdEstoque.ToString()))
-                        lstEstoques.Add(produto);
+                    if (lstCodigosEstoques.Contains(produto.nCdEstoque)) lstEstoques.Add(produto);
                 }
+
                 await _estoqueRepository.ExcluirEstoques(lstEstoques);
+
+                if (lstCodigosInvalidos.Any())
+                {
+                    return new DTORetorno() { Mensagem = string.Format("Os seguintes códigos de estoque não existem: '{0}'", string.Join(", ", lstCodigosInvalidos)), Status = enumSituacao.Aviso };
+                }
+
                 return new DTORetorno() { Mensagem = "Sucesso", Status = enumSituacao.Sucesso };
             }
             catch (ExceptionCustom ex)

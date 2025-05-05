@@ -69,9 +69,16 @@ namespace Business.Services
                 await _revendedorRepository.CadastrarRevendedor(oCWRevendedor);
                 return new DTORetorno() { Mensagem = "Sucesso", Status = enumSituacao.Sucesso };
             }
-            catch
+            catch (ExceptionCustom ex)
             {
-                throw;
+                return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+                #endif
+                return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
             }
         }
         public async Task<DTORevendedor> Consultar(int nCdRevendedor)
@@ -123,22 +130,43 @@ namespace Business.Services
         {
             try
             {
-                List<string> lstCodigosRevendedores = arrCodigosRevendedores.Split(",").ToList();
+                if (string.IsNullOrEmpty(arrCodigosRevendedores)) throw new ExceptionCustom($"Favor, preencher quais revendedores devem ser removidos.");
+
+                List<int> lstCodigosRevendedores = arrCodigosRevendedores.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(valor =>
+                {
+                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                    else throw new ExceptionCustom("Passe somente números como parâmetro para remoção.");
+                }).ToList();
+
                 List<CWRevendedor> lstRevendedores = new List<CWRevendedor>();
                 List<CWRevendedor> lstRevendedoresExistentes = await _revendedorRepository.PesquisarRevendedoresSimples();
+                List<int> lstCodigosInvalidos = lstCodigosRevendedores.Except(lstRevendedoresExistentes.Select(x => x.nCdRevendedor)).ToList();
+
                 foreach (CWRevendedor oCWRevendedor in lstRevendedoresExistentes)
                 {
-                    if (lstCodigosRevendedores.Contains(oCWRevendedor.nCdRevendedor.ToString()))
-                        lstRevendedores.Add(oCWRevendedor);
+                    if (lstCodigosRevendedores.Contains(oCWRevendedor.nCdRevendedor)) lstRevendedores.Add(oCWRevendedor);
                 }
+
                 await _revendedorRepository.ExcluirRevendedores(lstRevendedores);
 
-                return new DTORetorno() { Mensagem = "Revendedor(es) excluido(s) com sucesso.", Status = enumSituacao.Sucesso };
+                if (lstCodigosInvalidos.Any())
+                {
+                    return new DTORetorno() { Mensagem = string.Format("Os seguintes códigos de revendedor não existem: '{0}'", string.Join(", ", lstCodigosInvalidos)), Status = enumSituacao.Aviso };
+                }
 
+                return new DTORetorno() { Mensagem = "Revendedor(es) excluido(s) com sucesso.", Status = enumSituacao.Sucesso };
             }
-            catch
+            catch (ExceptionCustom ex)
             {
-                throw;
+                return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+                #endif
+                return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
             }
         }
     }

@@ -56,8 +56,8 @@ namespace Domain.Requests
     }
     public class EstoqueRequest
     {
-        public int nCdEstoque { get; set; }
-        public int nCdProduto { get; set; }
+        public int codigoEstoque { get; set; }
+        public string arrCodigosProdutos { get; set; }
     }
     public class EstoqueProdutoDTO
     {

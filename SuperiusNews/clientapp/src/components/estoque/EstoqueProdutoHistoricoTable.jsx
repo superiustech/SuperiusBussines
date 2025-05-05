@@ -42,16 +42,7 @@ const EstoqueProdutoHistoricoTable = ({ historico, loading, onEntradaEstoque, on
     return (
         <div>
             <>
-            <div className="mt-4 mb-3 d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center">
-                    <button className="btn btn-primary me-2" onClick={() => onEntradaEstoque()}> Entrada de estoque </button>
-                    <button className="btn btn-secondary me-2" onClick={() => onSaidaEstoque()}> Venda </button>
-                </div>
-                <div>
-                    <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>
-                </div>
-            </div>
-
+            <br></br>
             <div className="ag-theme-alpine" style={{ height: 450, width: '100%' }}>
                 <AgGridReact
                     key={historico.length}

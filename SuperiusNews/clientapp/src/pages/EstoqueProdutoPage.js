@@ -2,7 +2,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEstoque } from '../components/estoque/useEstoque';
 import EstoqueProdutoForm from '../components/estoque/EstoqueProdutoFormulario';
-import EstoqueProdutoTable from '../components/estoque/EstoqueProdutoTable';
 
 const EstoqueProdutoPage = () => {
     const { codigoEstoque } = useParams();
@@ -17,7 +16,6 @@ const EstoqueProdutoPage = () => {
             </div>
 
             <EstoqueProdutoForm produtos={produtos} loading={loading} error={error} success={success} mensagem={mensagem} onAdicionarProduto={adicionarProduto} clearMessages={clearMessages}/><hr />
-            <EstoqueProdutoTable estoqueProdutos={estoqueProdutos} loading={loading} onRefresh={obterEstoqueCompleto} onRemoverProdutoEstoque={removerProdutoEstoque}/>
 
             <button onClick={() => navigate(`/administrador/editar-estoque/${codigoEstoque}`)} className="btn btn-secondary"> Voltar </button>
             <button onClick={() => navigate('/administrador/estoques')} className="btn btn-primary"> Finalizar </button>

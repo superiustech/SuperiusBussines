@@ -17,7 +17,7 @@ const FormularioProduto = () => {
     const carregarUnidadesMedida = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.unidadeDeMedida}`);
+            const response = await apiConfig.produto.axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.unidadeDeMedida}`);
             const data = await response.data.unidade;
             setUnidadesMedida(data);
         } catch (error) {
@@ -31,7 +31,7 @@ const FormularioProduto = () => {
     const carregarProduto = async (codigo) => {
         try {
             setLoading(true);
-            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.consultarProduto}/${codigoProduto}`);
+            const response = await apiConfig.produto.axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.consultarProduto}/${codigoProduto}`);
             if (response.data) {
                 const produto = response.data.produto;
                 setFormData({
@@ -94,7 +94,7 @@ const FormularioProduto = () => {
                 valorUnitario: FormatadorValores.converterParaDecimal(formData.precoUnitario)
             };
 
-            const response = await axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.cadastrarProduto}`, dadosEnvio);
+            const response = await apiConfig.produto.axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.cadastrarProduto}`, dadosEnvio);
 
             if (response.data.status === 1) {
                 navigate(`/administrador/produto-variacao/${response.data.id}`);

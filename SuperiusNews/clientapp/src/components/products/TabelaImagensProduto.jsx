@@ -12,7 +12,7 @@ const TabelaImagensProduto = () => {
 
     const obterImagensProduto = async () => {
         try {
-            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.getImages}/` + codigoProduto);
+            const response = await apiConfig.produto.axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.getImages}/` + codigoProduto);
             setImagens(response.data);
         } catch (err) {
             console.error('Erro ao carregar imagens:', err);
@@ -22,7 +22,7 @@ const TabelaImagensProduto = () => {
 
     const excluirImagem = async (nCdImagem) => {
         try {
-            const response = await axios.delete(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.deletarImagens}/` + codigoProduto);
+            const response = await apiConfig.produto.axios.delete(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.deletarImagens}/` + codigoProduto);
             if (response.data.success) {
                 setImagens(imagens.filter(img => img.nCdImagem !== nCdImagem));
             } else {

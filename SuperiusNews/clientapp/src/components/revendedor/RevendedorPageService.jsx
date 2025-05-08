@@ -11,7 +11,7 @@ export const RevendedorPageService = () => {
     const carregarRevendedores = useCallback(async () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const response = await axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.pesquisarRevendedores}`);
+            const response = await apiConfig.revendedor.axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.pesquisarRevendedores}`);
             const data = response.data.revendedores;
             setState(prev => ({ ...prev, revendedores: data, loading: false }));
         } catch (err) {
@@ -25,7 +25,7 @@ export const RevendedorPageService = () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
             const dadosEnvio = JSON.stringify(String(arrCodigoRevendedor));
-            const response = await axios.delete(
+            const response = await apiConfig.revendedor.axios.delete(
                 `${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.excluirRevendedores}`,
                 {
                     data: dadosEnvio, 

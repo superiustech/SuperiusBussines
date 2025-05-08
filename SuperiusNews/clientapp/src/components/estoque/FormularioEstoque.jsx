@@ -42,7 +42,7 @@ const FormularioEstoque = () => {
                 Cep: FormatadorValores.removerFormatacao(formData.cep),
             };
 
-            const response = await axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.cadastrarEstoque}`, dadosEnvio, {
+            const response = await apiConfig.estoque.axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.cadastrarEstoque}`, dadosEnvio, {
                 headers: { 'Content-Type': 'application/json'}
             });
 
@@ -62,7 +62,7 @@ const FormularioEstoque = () => {
     const carregarEstoque = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.consultarEstoque}/${codigoEstoque}`);
+            const response = await apiConfig.estoque.axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.consultarEstoque}/${codigoEstoque}`);
             if (response.data.success) {
                 const estoque = response.data.estoque;
                 setFormData({

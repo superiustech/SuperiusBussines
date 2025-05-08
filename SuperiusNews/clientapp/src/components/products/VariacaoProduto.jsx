@@ -21,7 +21,7 @@ const VariacaoProduto = () => {
 
     const obterVariacoesProduto = async () => {
         try {
-            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.consultarVariacoesProduto}/` + codigoProduto);
+            const response = await apiConfig.produto.axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.consultarVariacoesProduto}/` + codigoProduto);
             if (response.data && response.data.length > 0) {
                 const novoContador = contadorVariacoes + 1;
                 setContadorVariacoes(novoContador);
@@ -48,7 +48,7 @@ const VariacaoProduto = () => {
 
     const obterVariacoes = async () => {
         try {
-            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.tipoVariacao}`);
+            const response = await apiConfig.produto.axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.tipoVariacao}`);
             setVariacoes(response.data);
         } catch (err) { console.error('Erro ao carregar variações:', err); }
     };
@@ -121,7 +121,7 @@ const VariacaoProduto = () => {
                 throw new Error("Selecione pelo menos uma opção de variação");
             }
 
-            const response = await axios.put(
+            const response = await apiConfig.produto.axios.put(
                 `${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.editarVariacaoProduto}`,
                 { variacoes: variacoesParaEnvio, codigo: codigoProduto},
                 { headers: { 'Content-Type': 'application/json' }}

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Domain.Entities; // Substitua com seu namespace de entidades
+using Domain.Entities; 
 
 namespace Infra
 {

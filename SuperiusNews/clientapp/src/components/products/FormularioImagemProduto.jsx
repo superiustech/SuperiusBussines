@@ -23,14 +23,14 @@ const FormularioImagemProduto = () => {
 
     const obterImagensProduto = async () => {
         try {
-            const response = await axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.obterImagensProduto}/` + codigoProduto);
+            const response = await apiConfig.produto.axios.get(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.obterImagensProduto}/` + codigoProduto);
             setImagens(response.data);
         } catch (err) {  console.error('Erro ao carregar imagens:', err); }
     };
 
     const excluirImagem = async (codigoImagem) => {
         try {
-            const response = await axios.delete(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.excluirImagem}/` + codigoImagem);
+            const response = await apiConfig.produto.axios.delete(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.excluirImagem}/` + codigoImagem);
             if (response.data.status === 1) {
                 setImagens(imagens.filter(img => img.codigoImagem !== codigoImagem));
                 setMensagem("Imagem excluída com sucesso!");
@@ -65,7 +65,7 @@ const FormularioImagemProduto = () => {
             formDataToSend.append('imagem', formData.imagem);
             formDataToSend.append('descricao', formData.descricao);
 
-            const response = await axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.adicionarImagem}`, formDataToSend, { headers: {} });
+            const response = await apiConfig.produto.axios.post(`${apiConfig.produto.baseURL}${apiConfig.produto.endpoints.adicionarImagem}`, formDataToSend, { headers: {} });
 
             if (response.data.status === 1) {
                 setMensagem("Imagem adicionada com sucesso!");

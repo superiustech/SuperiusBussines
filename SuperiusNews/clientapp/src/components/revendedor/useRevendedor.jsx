@@ -15,7 +15,7 @@ export const useRevendedor = (codigoRevendedor) => {
             const url = `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoquesSemRevendedor}`;
             const finalUrl = codigoRevendedor ? `${url}?nCdRevendedor=${codigoRevendedor}` : url;
 
-            const response = await axios.get(finalUrl);
+            const response = await apiConfig.revendedor.axios.get(finalUrl);
             const data = response.data.estoques;
             setState(prev => ({ ...prev, estoques: data, loading: false }));
         } catch (err) {
@@ -26,7 +26,7 @@ export const useRevendedor = (codigoRevendedor) => {
     const carregarTipos = useCallback(async () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const response = await axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.tiposRevendedor}`);
+            const response = await apiConfig.revendedor.axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.tiposRevendedor}`);
             setState(prev => ({ ...prev, tipos: response.data.tipos, loading: false }));
         } catch (err) {
             setState(prev => ({ ...prev, error: true, mensagem: "Erro ao carregar os dados", loading: false }));
@@ -36,7 +36,7 @@ export const useRevendedor = (codigoRevendedor) => {
     const carregarRevendedor = async () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const response = await axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.consultarRevendedor}/${codigoRevendedor}`, { headers: { 'Content-Type': 'application/json' } });
+            const response = await apiConfig.revendedor.axios.get(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.consultarRevendedor}/${codigoRevendedor}`, { headers: { 'Content-Type': 'application/json' } });
 
             if (response) {
 
@@ -86,7 +86,7 @@ export const useRevendedor = (codigoRevendedor) => {
                 Cep: FormatadorValores.removerFormatacao(formData.cep) || ''
             };
 
-            const response = await axios.post(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.cadastrarRevendedor}`, DTORevendedor, {
+            const response = await apiConfig.revendedor.axios.post(`${apiConfig.revendedor.baseURL}${apiConfig.revendedor.endpoints.cadastrarRevendedor}`, DTORevendedor, {
                 headers: { 'Content-Type': 'application/json' }
             });
 

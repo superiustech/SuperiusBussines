@@ -11,7 +11,7 @@ export const ControleEstoquePageService = (codigoEstoque) => {
     const carregarEstoque = useCallback(async () => {
         setState(prev => ({ ...prev, loading: true }));
         try {
-            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.estoqueProduto}/${codigoEstoque}`);
+            const response = await apiConfig.estoque.axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.estoqueProduto}/${codigoEstoque}`);
             setState(prev => ({ ...prev, estoqueProdutos: response.data.estoqueProduto, produtos: response.data.produtos, historico: response.data.historico, loading: false }));
             setState(prev => ({ ...prev, loading: false, error: false, success: false }));
 
@@ -58,7 +58,7 @@ export const ControleEstoquePageService = (codigoEstoque) => {
                 TipoMovimentacao: "1"
             };
 
-            const response = await axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.movimentarEntradaSaida}`, historicoFormatado, { headers: { 'Content-Type': 'application/json' } });
+            const response = await apiConfig.estoque.axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.movimentarEntradaSaida}`, historicoFormatado, { headers: { 'Content-Type': 'application/json' } });
 
             if (response.data.status === 1) {
                 fecharModal();
@@ -88,7 +88,7 @@ export const ControleEstoquePageService = (codigoEstoque) => {
                 TipoMovimentacao: "2"
             };
 
-            const response = await axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.movimentarEntradaSaida}`, historicoFormatado, { headers: { 'Content-Type': 'application/json' } });
+            const response = await apiConfig.estoque.axios.post(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.movimentarEntradaSaida}`, historicoFormatado, { headers: { 'Content-Type': 'application/json' } });
 
             if (response.data.status === 1) {
                 fecharModal();
@@ -114,13 +114,14 @@ export const ControleEstoquePageService = (codigoEstoque) => {
                 arrCodigosProdutos: String(arrCodigosProdutos)
             };
 
-            const response = await axios.delete(
+            const response = await apiConfig.estoque.axios.delete(
                 `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.removerEstoqueProduto}`,
                 {
                     data: estoqueProduto,
                     headers: { 'Content-Type': 'application/json' }
                 }
             );
+
             await carregarEstoque();
             if (response.data.status === 1) {
                 fecharModal();

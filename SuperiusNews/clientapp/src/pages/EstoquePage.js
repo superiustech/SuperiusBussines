@@ -17,7 +17,10 @@ const EstoquePage = () => {
     const carregarEstoque = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoques}`);
+
+            const response = await apiConfig.estoque.axios.get(
+                `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.pesquisarEstoques}`
+            );
 
             if (!response.data || !response.data.estoques) {
                 throw new Error('Resposta inválida da API');
@@ -41,7 +44,7 @@ const EstoquePage = () => {
             setMensagem('');
 
             const dadosEnvio = JSON.stringify(String(codigosEstoques));
-            const response = await axios.delete(
+            const response = await apiConfig.estoque.axios.delete(
                 `${apiConfig.estoque.baseURL}${apiConfig.estoque.endpoints.excluirEstoques}`,
                 {
                     data: dadosEnvio,

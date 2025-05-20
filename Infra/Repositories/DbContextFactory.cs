@@ -14,40 +14,55 @@ public class RuntimeDbContextFactory : IRuntimeDbContextFactory<ApplicationDbCon
 
     public ApplicationDbContext CreateDbContext(string tenantBase)
     {
-        var connectionStringTemplate = _configuration.GetConnectionString("TenantBaseConnectionTemplate");
-        var connectionString = connectionStringTemplate.Replace("{tenant}", tenantBase.ToUpper());
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseNpgsql(connectionString);
+        string connectionString;
 
+        if (string.IsNullOrWhiteSpace(tenantBase))
+        {
+            connectionString = _configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection não encontrada no appsettings.");
+        }
+        else
+        {
+            var template = _configuration.GetConnectionString("TenantBaseConnectionTemplate") ?? throw new InvalidOperationException("TenantBaseConnectionTemplate não encontrada no appsettings.");
+            connectionString = template.Replace("{tenant}", tenantBase.ToUpper());
+        }
+
+        optionsBuilder.UseNpgsql(connectionString);
         var context = new ApplicationDbContext(optionsBuilder.Options);
 
         if (!context.Database.CanConnect())
         {
-            context.Database.Migrate(); // AJUSTAR ISSO EM UM PROJETO A PARTE E NÃO AQUI!
+            // TODO: Essa lógica deve ser extraída futuramente para um serviço separado!
 
-            context.UnidadeMedida.Add(new Domain.Entities.CWUnidadeMedida
+            context.Database.Migrate();
+
+            if (!context.UnidadeMedida.Any())
             {
-               sCdUnidadeMedida = "UN",
-               sDsUnidadeMedida = "Unidade",
-               sSgUnidadeMedida = "UN",
-               bFlAtivo = 1
-            });
+                context.UnidadeMedida.Add(new Domain.Entities.CWUnidadeMedida
+                {
+                    sCdUnidadeMedida = "UN",
+                    sDsUnidadeMedida = "Unidade",
+                    sSgUnidadeMedida = "UN",
+                    bFlAtivo = 1
+                });
 
-            context.RevendedorTipo.Add(new Domain.Entities.CWRevendedorTipo
-            {
-                bFlAtivo = 1,
-                sDsTipo = "Pessoa Jurídica",
-                sNmTipo = "Pessoa Jurídica"
-            });
+                context.RevendedorTipo.AddRange(
+                    new Domain.Entities.CWRevendedorTipo
+                    {
+                        bFlAtivo = 1,
+                        sDsTipo = "Pessoa Jurídica",
+                        sNmTipo = "Pessoa Jurídica"
+                    },
+                    new Domain.Entities.CWRevendedorTipo
+                    {
+                        bFlAtivo = 1,
+                        sDsTipo = "Pessoa Física",
+                        sNmTipo = "Pessoa Física"
+                    }
+                );
 
-            context.RevendedorTipo.Add(new Domain.Entities.CWRevendedorTipo
-            {
-                bFlAtivo = 1,
-                sDsTipo = "Pessoa Física",
-                sNmTipo = "Pessoa Física"
-            });
-
-            context.SaveChanges();
+                context.SaveChanges();
+            }
         }
 
         return context;

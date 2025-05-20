@@ -2,6 +2,7 @@
 using Infra;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infra.Migrations.ApplicationDbContextMasterMigrations
 {
     [DbContext(typeof(ApplicationDbContextMaster))]
-    partial class ApplicationDbContextMasterModelSnapshot : ModelSnapshot
+    [Migration("20250515163626_TabelaClientUsuario_Correcao")]
+    partial class TabelaClientUsuario_Correcao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

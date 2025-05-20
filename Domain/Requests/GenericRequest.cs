@@ -1,12 +1,5 @@
 ﻿using Domain.Entities;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Domain.ViewModel;
 
 namespace Domain.Requests
@@ -58,6 +51,16 @@ namespace Domain.Requests
     {
         public int codigoEstoque { get; set; }
         public string arrCodigosProdutos { get; set; }
+    }
+    public class AssociacaoRequest
+    {
+        public int Codigo { get; set; }
+        public string CodigosAssociacao { get; set; }
+    }
+    public class AssociacaoUsuarioRequest
+    {
+        public string Codigo { get; set; }
+        public string CodigosAssociacao { get; set; }
     }
     public class EstoqueProdutoDTO
     {

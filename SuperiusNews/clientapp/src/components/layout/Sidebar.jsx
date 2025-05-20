@@ -8,10 +8,12 @@ const Sidebar = () => {
     const toggleSidebar = () => { setCollapsed(!collapsed); };
 
     const navItems = [
-        { path: "/administrador/produtos", icon: "fa-home", text: " Dashboard" },
-        { path: "/administrador/estoques", icon: "fa-chart-bar", text: " Estoque" },
-        { path: "/administrador/produtos", icon: "fa-box", text: " Produtos" },
-        { path: "/administrador/revendedores", icon: "fa-solid fa-truck-field", text: " Revendedores" },
+        { path: "/administrador/produtos", icon: "fa-home", text: "Dashboard" },
+        { path: "/administrador/estoques", icon: "fa-chart-bar", text: "Estoque" },
+        { path: "/administrador/produtos", icon: "fa-box", text: "Produtos" },
+        { path: "/administrador/revendedores", icon: "fa-solid fa-truck-field", text: "Revendedores" },
+        { path: "/administrador/configuracoes", icon: "fa-solid fa-gear", text: "Configurações" },
+        { path: "#", icon: "fas fa-sign-out-alt", text: "Sair", onClick: logout },
     ];
 
     return (
@@ -28,18 +30,14 @@ const Sidebar = () => {
             </div>
 
             <div className="nav flex-column">
+
                 {navItems.map((item, index) => (
-                    <NavLink key={index} to={item.path} className={({ isActive }) => `sidebar-link text-decoration-none text-light p-3 ${isActive ? 'active' : ''}`}>
-                        <i className={`fas ${item.icon} me-3`}></i> {!collapsed && <span>{item.text}</span>}
+                    <NavLink key={index} to={item.path} onClick={item.onClick} className={({ isActive }) => `sidebar-link text-decoration-none text-light p-3 ${isActive && item.path !== "#" ? 'active' : ''}`}>
+                        <i className={`fas ${item.icon} me-3`}></i>
+                        {!collapsed && <span>{item.text}</span>}
                     </NavLink>
                 ))}
-                <button onClick={logout} className={`btn bg-transparent text-secondary border-0 p-2 d-flex align-items-center ${collapsed ? 'justify-content-center ms-0' : 'justify-content-start w-100 ms-4'}`}>
-                    <i className="fas fa-sign-out-alt"></i>
-                    {!collapsed && <span className="ms-2">Sair</span>}
-                </button>
             </div>
-
-            
 
             {!collapsed && (
                 <div className="profile-section mt-10 p-2">

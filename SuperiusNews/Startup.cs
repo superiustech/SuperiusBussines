@@ -60,7 +60,7 @@ public class Startup
             var tenantProvider = provider.GetRequiredService<ITenantProvider>();
             var tenantId = tenantProvider.ConsultarTenantID();
             var tentantBase = tenantProvider.ConsultarTenantBase();
-            if (string.IsNullOrEmpty(tenantId)) throw new Exception("Tenant não identificado");
+            //if (string.IsNullOrEmpty(tenantId)) throw new Exception("Tenant não identificado");
             var factory = provider.GetRequiredService<IRuntimeDbContextFactory<ApplicationDbContext>>();
             return factory.CreateDbContext(tentantBase);
         });
@@ -116,14 +116,9 @@ public class Startup
         services.Configure<JwtSettings>(Configuration.GetSection(JwtSettings.SectionName));
 
         #region Injeção de dependência
+
         services.AddScoped<IRuntimeDbContextFactory<ApplicationDbContext>, RuntimeDbContextFactory>();
 
-        services.AddScoped<IProdutoRepository, ProdutoRepository>();
-        services.AddScoped<IProdutoRepositorySQL, ProdutoRepositorySQL>();
-        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-        services.AddScoped<IEstoqueRepository, EstoqueRepository>();
-        services.AddScoped<IRevendedorRepository, RevendedorRepository>();
-        services.AddScoped<IAutenticacaoRepository, AutenticacaoRepository>();
         services.AddScoped<IProduto, ProdutoService>();
         services.AddScoped<IEstoque, EstoqueService>();
         services.AddScoped<IUsuario, UsuarioService>();
@@ -131,6 +126,20 @@ public class Startup
         services.AddScoped<ITenantProvider, TenantProvider>();
         services.AddScoped<IAutenticacao, AutenticacaoService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IFuncionalidade, FuncionalidadeService>();
+        services.AddScoped<IPermissao, PermissaoService>();
+        services.AddScoped<IPerfil, PerfilService>();
+
+        services.AddScoped<IProdutoRepository, ProdutoRepository>();
+        services.AddScoped<IProdutoRepositorySQL, ProdutoRepositorySQL>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IEstoqueRepository, EstoqueRepository>();
+        services.AddScoped<IRevendedorRepository, RevendedorRepository>();
+        services.AddScoped<IAutenticacaoRepository, AutenticacaoRepository>();
+        services.AddScoped<IFuncionalidadeRepository, FuncionalidadeRepository>();
+        services.AddScoped<IPermissaoRepository, PermissaoRepository>();
+        services.AddScoped<IPerfilRepository, PerfilRepository>();
+        services.AddScoped<IEntidadeLeituraRepository, EntidadeLeituraRepository>();
         #endregion
     }
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

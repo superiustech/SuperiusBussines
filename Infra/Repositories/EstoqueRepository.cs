@@ -224,7 +224,7 @@ namespace Infra.Repositories
         {
             var historicos = new List<CWEstoqueProdutoHistorico>();
             var chaves = lstEstoqueProduto.Select(x => new { x.nCdEstoque, x.nCdProduto }).ToList();
-            var estoquesExistentes = await _context.EstoqueProduto.Where(ep => chaves.Select(c => c.nCdEstoque).Contains(ep.nCdEstoque) &&chaves.Select(c => c.nCdProduto).Contains(ep.nCdProduto)).ToListAsync();
+            var estoquesExistentes = await _context.EstoqueProduto.Where(ep => chaves.Select(c => c.nCdEstoque).Contains(ep.nCdEstoque) && chaves.Select(c => c.nCdProduto).Contains(ep.nCdProduto)).ToListAsync();
 
             foreach (var estoque in estoquesExistentes)
             {

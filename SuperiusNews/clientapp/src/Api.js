@@ -71,5 +71,17 @@ export default {
             token: "/Token",
             login: "/Login"
         }
+    },
+    funcionalidade: {
+        baseURL: `${baseApiUrl}/Funcionalidade`,
+        axios: axiosWithToken(`${baseApiUrl}/Funcionalidade`),
+        endpoints: {
+            pesquisarFuncionalidades: "/Funcionalidade",
+            cadastrarFuncionalidade: "/Funcionalidade",
+            ativarFuncionalidades: "/AtivarFuncionalidade",
+            inativarFuncionalidades: "/InativarFuncionalidade",
+            editarFuncionalidade: "/Funcionalidade"
+        }
     }
+
 };

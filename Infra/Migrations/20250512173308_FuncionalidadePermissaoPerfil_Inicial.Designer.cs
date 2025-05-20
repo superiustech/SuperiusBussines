@@ -3,6 +3,7 @@ using System;
 using Infra;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infra.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250512173308_FuncionalidadePermissaoPerfil_Inicial")]
+    partial class FuncionalidadePermissaoPerfil_Inicial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -241,7 +244,12 @@ namespace Infra.Migrations
                         .HasColumnType("text")
                         .HasColumnOrder(1);
 
+                    b.Property<string>("CWUsuariosCdUsuario")
+                        .HasColumnType("text");
+
                     b.HasKey("nCdPerfil", "sCdUsuario");
+
+                    b.HasIndex("CWUsuariosCdUsuario");
 
                     b.HasIndex("sCdUsuario");
 
@@ -495,26 +503,22 @@ namespace Infra.Migrations
                 {
                     b.Property<string>("sCdUsuario")
                         .HasColumnType("text")
-                        .HasColumnName("sCdUsuario")
                         .HasColumnOrder(0);
 
                     b.Property<string>("sEmail")
-                        .HasColumnType("text")
-                        .HasColumnName("sEmail");
+                        .HasColumnType("text");
 
                     b.Property<string>("sNmUsuario")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("sNmUsuario");
+                        .HasColumnType("text");
 
                     b.Property<string>("sSenha")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("sSenha");
+                        .HasColumnType("text");
 
                     b.HasKey("sCdUsuario");
 
-                    b.ToTable("USUARIO", (string)null);
+                    b.ToTable("Usuario");
                 });
 
             modelBuilder.Entity("Domain.Entities.CWVariacao", b =>
@@ -677,6 +681,10 @@ namespace Infra.Migrations
 
             modelBuilder.Entity("Domain.Entities.CWPerfilUsuario", b =>
                 {
+                    b.HasOne("Domain.Entities.CWUsuario", null)
+                        .WithMany("Perfis")
+                        .HasForeignKey("CWUsuariosCdUsuario");
+
                     b.HasOne("Domain.Entities.CWPerfil", "Perfil")
                         .WithMany()
                         .HasForeignKey("nCdPerfil")
@@ -684,7 +692,7 @@ namespace Infra.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.CWUsuario", "Usuario")
-                        .WithMany("Perfis")
+                        .WithMany()
                         .HasForeignKey("sCdUsuario")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

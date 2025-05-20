@@ -13,7 +13,7 @@ namespace Infra
         public DbSet<CWProduto> Produto { get; set; }
         public DbSet<CWProdutoImagem> ProdutoImagem { get; set; }
         public DbSet<CWVariacao> Variacao { get; set; }
-        public DbSet<CWVariacaoOpcao> VariacaoOpcao { get; set; }
+        public DbSet<CWVariacaoOpcao> VariacaoOpcao { get; set; }  
         public DbSet<CWProdutoOpcaoVariacao> ProdutoOpcaoVariacao { get; set; }
         public DbSet<CWUnidadeMedida> UnidadeMedida { get; set; }
         public DbSet<CWEstoque> Estoque { get; set; }
@@ -21,6 +21,12 @@ namespace Infra
         public DbSet<CWEstoqueProdutoHistorico> EstoqueProdutoHistorico { get; set; }
         public DbSet<CWRevendedor> Revendedor { get; set; }
         public DbSet<CWRevendedorTipo> RevendedorTipo { get; set; }
+        public DbSet<CWFuncionalidade> Funcionalidade { get; set; }
+        public DbSet<CWFuncionalidadePermissao> FuncionalidadePermissao { get; set; }
+        public DbSet<CWPermissao> Permissao { get; set; }
+        public DbSet<CWPermissaoPerfil> PermissaoPerfil { get; set; }
+        public DbSet<CWPerfil> Perfil { get; set; }
+        public DbSet<CWPerfilUsuario> PerfilUsuario { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -108,6 +114,81 @@ namespace Infra
             modelBuilder.Entity<CWRevendedor>().ToTable("REVENDEDOR");
             modelBuilder.Entity<CWRevendedorTipo>().ToTable("REVENDEDOR_TIPO");
 
+            #endregion
+
+            #region FUNCIONALIDAE - PERMISSAO - PERFIL
+
+            #region FUNCIONALIDADE 
+            modelBuilder.Entity<CWFuncionalidade>(entity =>
+            {
+                entity.ToTable("FUNCIONALIDADE");
+                entity.HasKey(e => e.nCdFuncionalidade);
+                entity.Property(e => e.nCdFuncionalidade).ValueGeneratedOnAdd();
+                entity.Property(e => e.sNmFuncionalidade).IsRequired();
+            });
+
+            modelBuilder.Entity<CWFuncionalidadePermissao>(entity =>
+            {
+                entity.ToTable("FUNCIONALIDADE_PERMISSAO");
+                entity.HasKey(e => new { e.nCdFuncionalidade, e.nCdPermissao });
+                entity.HasOne(e => e.Funcionalidade).WithMany().HasForeignKey(e => e.nCdFuncionalidade);
+                entity.HasOne(e => e.Permissao).WithMany().HasForeignKey(e => e.nCdPermissao);
+            });
+            #endregion
+
+            #region PERMISSAO
+
+            modelBuilder.Entity<CWPermissao>(entity =>
+            {
+                entity.ToTable("PERMISSAO");
+                entity.HasKey(e => e.nCdPermissao);
+                entity.Property(e => e.nCdPermissao).ValueGeneratedOnAdd();
+                entity.Property(e => e.sNmPermissao).IsRequired();
+            });
+
+            modelBuilder.Entity<CWPermissaoPerfil>(entity =>
+            {
+                entity.ToTable("PERMISSAO_PERFIL");
+                entity.HasKey(e => new {e.nCdPermissao , e.nCdPerfil});
+                entity.HasOne(e => e.Permissao).WithMany().HasForeignKey(e => e.nCdPermissao);
+                entity.HasOne(e => e.Perfil).WithMany().HasForeignKey(e => e.nCdPerfil);
+
+            });
+            #endregion
+
+            #region PERFIL
+
+            modelBuilder.Entity<CWPerfil>(entity =>
+            {
+                entity.ToTable("PERFIL");
+                entity.HasKey(e => e.nCdPerfil);
+                entity.Property(e => e.nCdPerfil).ValueGeneratedOnAdd();
+                entity.Property(e => e.sNmPerfil).IsRequired();
+            });
+
+            modelBuilder.Entity<CWPerfilUsuario>(entity =>
+            {
+                entity.ToTable("PERFIL_USUARIO");
+                entity.HasKey(e => new { e.nCdPerfil, e.sCdUsuario });
+                entity.HasOne(e => e.Perfil).WithMany().HasForeignKey(e => e.nCdPerfil);
+                entity.HasOne(e => e.Usuario).WithMany().HasForeignKey(e => e.sCdUsuario);
+            });
+            #endregion
+
+            #endregion
+
+            #region USUARIO
+
+            modelBuilder.Entity<CWUsuario>(entity =>
+            {
+                entity.ToTable("USUARIO");
+                entity.HasKey(e => e.sCdUsuario);
+                entity.Property(e => e.sCdUsuario).HasColumnName("sCdUsuario").IsRequired();
+                entity.Property(e => e.sNmUsuario).HasColumnName("sNmUsuario").IsRequired();
+                entity.Property(e => e.sSenha).HasColumnName("sSenha").IsRequired();
+                entity.Property(e => e.sEmail).HasColumnName("sEmail");
+                entity.HasMany(e => e.Perfis).WithOne(e => e.Usuario).HasForeignKey(e => e.sCdUsuario);
+            });
             #endregion
         }
     }

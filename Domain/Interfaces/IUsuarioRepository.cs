@@ -5,6 +5,8 @@ namespace Domain.Interfaces
 {
     public interface IUsuarioRepository
     {
-        Task<CWUsuario> ObterPorLogin(CWUsuario oCWUsuario);
+        Task<CWUsuario> CadastrarUsuario(CWUsuario cwUsuario);
+        Task AssociarPerfis(string codigoUsuario, List<CWPerfil> lstPerfis);
+        Task DesassociarPerfis(List<CWPerfilUsuario> lstPerfis);
     }
 }

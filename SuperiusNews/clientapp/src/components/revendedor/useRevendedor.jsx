@@ -58,10 +58,8 @@ export const useRevendedor = (codigoRevendedor) => {
                 setState(prev => ({ ...prev, success: true, mensagem: "Revendedor consultado com sucesso!", loading: false, revendedor: revendedorFormatado }));
             }
             else if (response.status === 2) {
-                setState(prev => ({ ...prev, error: true, mensagem: response.mensagem || "Ocorreu um erro ao consultar o revendedor.", loading: false, revendedor: revendedorFormatado }));
+                setState(prev => ({ ...prev, error: true, mensagem: response.mensagem || "Ocorreu um erro ao consultar o revendedor.", loading: false, revendedor: null }));
             }
-
-            return revendedorFormatado;
         } catch (err) {
             setState(prev => ({ ...prev, error: true, mensagem: err.message || "Erro na comunicação com o servidor", loading: false}));
             return null;

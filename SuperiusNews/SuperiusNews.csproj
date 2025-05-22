@@ -8,6 +8,11 @@
 		<DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
 	</PropertyGroup>
 
+	<Target Name="PublishReactApp" AfterTargets="Publish">
+		<Exec Command="npm install" WorkingDirectory="ClientApp" />
+		<Exec Command="npm run build" WorkingDirectory="ClientApp" />
+	</Target>
+	
 	<ItemGroup>
 		<None Remove="$(SpaRoot)node_modules\**" />
 	</ItemGroup>

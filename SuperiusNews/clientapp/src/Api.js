@@ -1,7 +1,6 @@
 ﻿import axios from 'axios';
 
-//const baseApiUrl = `${window.location.origin}/api`;
-const baseApiUrl = `http://20.0.114.230:3000/api`;
+const baseApiUrl = `${window.location.origin}/api`;
 const getAuthToken = () => localStorage.getItem('authToken'); 
 const axiosWithToken = (baseURL) => {
     const instance = axios.create({ baseURL });

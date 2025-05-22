@@ -1,6 +1,7 @@
-﻿const baseUrl = 'api/Produto'; 
-import apiConfig from '../Api';
+﻿import apiConfig from '../Api';
 import axios from 'axios';
+
+const baseUrl = 'api/Produto';
 
 export const getProducts = async () => {
     try {
@@ -18,7 +19,6 @@ export const getProducts = async () => {
         throw error;
     }
 };
-
 
 export const deletarProdutos = async (arrCodigoProdutos) => {
     try {

@@ -82,6 +82,53 @@ export default {
             inativarFuncionalidades: "/InativarFuncionalidade",
             editarFuncionalidade: "/Funcionalidade"
         }
+    },
+    permissao: {
+        baseURL: `${baseApiUrl}/Permissao`,
+        axios: axiosWithToken(`${baseApiUrl}/Permissao`),
+        endpoints: {
+            pesquisarPermissoes: "/Permissao",
+            cadastrarPermissao: "/Permissao",
+            ativarPermissoes: "/AtivarPermissoes",
+            inativarPermissoes: "/InativarPermissoes",
+            editarPermissao: "/Permissao",
+            associarFuncionalidades: "/AssociarFuncionalidades",
+            desassociarFuncionalidades: "/DesassociarFuncionalidades",
+            funcionalidadesAtreladas: "/FuncionalidadesAtreladas",
+            funcionalidadesAssociadasCompleto: "/FuncionalidadesAssociadasCompleto",
+            associarDesassociarFuncionalidades: "/AssociarDesassociarFuncionalidades"
+        }
+    },
+    perfil: {
+        baseURL: `${baseApiUrl}/Perfil`,
+        axios: axiosWithToken(`${baseApiUrl}/Perfil`),
+        endpoints: {
+            pesquisarPerfis: "/Perfil",
+            cadastrarPerfil: "/Perfil",
+            ativarPerfis: "/AtivarPerfis",
+            inativarPerfis: "/InativarPerfis",
+            editarPerfil: "/Perfil",
+            associarPermissoes: "/AssociarPermissoes",
+            desassociarPermissoes: "/DesassociarPermissoes",
+            permissoesAtreladas: "/PermissoesAtreladas",
+            permissoesAssociadasCompleto: "/PermissoesAssociadasCompleto",
+            associarDesassociarPermissoes: "/AssociarDesassociarPermissoes"
+        }
+    },
+    usuario: {
+        baseURL: `${baseApiUrl}/Usuario`,
+        axios: axiosWithToken(`${baseApiUrl}/Usuario`),
+        endpoints: {
+            pesquisarUsuarios: "/Usuario",
+            cadastrarUsuario: "/Usuario",
+            ativarUsuarios: "/AtivarUsuarios",
+            inativarUsuarios: "/InativarUsuarios",
+            editarUsuario: "/Usuario",
+            associarPerfis: "/AssociarPerfis",
+            desassociarPerfis: "/DesassociarPerfis",
+            perfisAtrelados: "/PerfisAtrelados",
+            perfisAssociadosCompleto: "/PerfisAssociadosCompleto",
+            associarDesassociarPerfis: "/AssociarDesassociarPerfis"
+        }
     }
-
 };

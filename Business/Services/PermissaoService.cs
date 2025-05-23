@@ -213,32 +213,36 @@ namespace Business.Services
         {
             try
             {
-                if(string.IsNullOrEmpty(associacaoRequest.CodigosAssociacao)) throw new ExceptionCustom($"Passe pelo menos um código de funcionalidade.");
+                if (string.IsNullOrEmpty(associacaoRequest.CodigosAssociacao)) throw new ExceptionCustom($"Passe pelo menos um código de funcionalidade.");
 
-                List<int> lstCodigosFuncionalidades = associacaoRequest.CodigosAssociacao.Split(",", StringSplitOptions.RemoveEmptyEntries)
-                .Select(valor =>
-                {
-                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
-                    else throw new ExceptionCustom("Passe somente números como parâmetro para associação.");
-                }).ToList();                   
-                
-                List<CWFuncionalidade> lstFuncionalidades = new List<CWFuncionalidade>();
-                List<CWFuncionalidade> lstFuncionalidadesExistentes =  await _entidadeLeituraRepository.PesquisarTodos<CWFuncionalidade>() ?? throw new ExceptionCustom($"Não foi possível localizar nenhuma Permissao.");
+                List<int> lstCodigosFuncionalidades = associacaoRequest.CodigosAssociacao.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(valor =>
+                    {
+                        if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                        else throw new ExceptionCustom("Passe somente números como parâmetro para associação.");
+                    }).ToList();
+
+                List<CWFuncionalidade> lstFuncionalidadesExistentes = await _entidadeLeituraRepository.PesquisarTodos<CWFuncionalidade>() ?? throw new ExceptionCustom($"Não foi possível localizar nenhuma funcionalidade.");
                 List<int> lstCodigosInvalidos = lstCodigosFuncionalidades.Except(lstFuncionalidadesExistentes.Select(x => x.nCdFuncionalidade)).ToList();
-
-                foreach (CWFuncionalidade funcionalidade in lstFuncionalidadesExistentes)
-                {
-                    if (lstCodigosFuncionalidades.Contains(funcionalidade.nCdFuncionalidade)) lstFuncionalidades.Add(funcionalidade);
-                }
+                List<CWFuncionalidadePermissao> funcionalidadesPermissao = await _entidadeLeituraRepository.Pesquisar<CWFuncionalidadePermissao>(x => x.nCdPermissao == associacaoRequest.Codigo) ?? new List<CWFuncionalidadePermissao>();
+                List<int> codigosJaAssociados = funcionalidadesPermissao.Select(fp => fp.nCdFuncionalidade).ToList();
+                List<CWFuncionalidade> lstFuncionalidades = lstFuncionalidadesExistentes.Where(f => lstCodigosFuncionalidades.Contains(f.nCdFuncionalidade) && !codigosJaAssociados.Contains(f.nCdFuncionalidade)).ToList();
 
                 await _permissaoRepository.AssociarFuncionalidades(associacaoRequest.Codigo, lstFuncionalidades);
 
                 if (lstCodigosInvalidos.Any())
                 {
-                    return new DTORetorno() { Mensagem = string.Format("Os seguintes códigos de funcionalidades não existem: '{0}'", string.Join(", ", lstCodigosInvalidos)), Status = enumSituacao.Aviso };
+                    return new DTORetorno()
+                    {
+                        Mensagem = $"Os seguintes códigos de funcionalidades não existem: '{string.Join(", ", lstCodigosInvalidos)}'",
+                        Status = enumSituacao.Aviso
+                    };
                 }
 
-                return new DTORetorno() { Mensagem = "Sucesso", Status = enumSituacao.Sucesso };
+                return new DTORetorno()
+                {
+                    Mensagem = "Sucesso",
+                    Status = enumSituacao.Sucesso
+                };
             }
             catch (ExceptionCustom ex)
             {
@@ -250,6 +254,77 @@ namespace Business.Services
                 return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
                 #endif
                 return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
+            }
+        }
+        public async Task<DTORetorno> AssociarDesassociarFuncionalidades(AssociacaoRequest associacaoRequest)
+        {
+            try
+            {
+                List<int> lstCodigosFuncionalidades = associacaoRequest.CodigosAssociacao.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(valor =>
+                {
+                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                    else throw new ExceptionCustom("Passe somente números como parâmetro para associação.");
+                }).ToList();
+
+                var lstFuncionalidadesExistentes = await _entidadeLeituraRepository.PesquisarTodos<CWFuncionalidade>() ?? throw new ExceptionCustom("Não foi possível localizar nenhuma funcionalidade.");
+                var lstCodigosInvalidos = lstCodigosFuncionalidades.Except(lstFuncionalidadesExistentes.Select(x => x.nCdFuncionalidade)).ToList();
+                var lstFuncionalidadesParaAssociar = lstFuncionalidadesExistentes.Where(f => lstCodigosFuncionalidades.Contains(f.nCdFuncionalidade)).ToList();
+
+                await _permissaoRepository.AssociarDesassociarFuncionalidades(associacaoRequest.Codigo, lstFuncionalidadesParaAssociar);
+
+                if (lstCodigosInvalidos.Any())
+                {
+                    return new DTORetorno
+                    {
+                        Mensagem = $"Os seguintes códigos de funcionalidades não existem: '{string.Join(", ", lstCodigosInvalidos)}'",
+                        Status = enumSituacao.Aviso
+                    };
+                }
+
+                return new DTORetorno
+                {
+                    Mensagem = "Sucesso",
+                    Status = enumSituacao.Sucesso
+                };
+            }
+            catch (ExceptionCustom ex)
+            {
+                return new DTORetorno { Mensagem = ex.Message, Status = enumSituacao.Erro };
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+                #endif
+                return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
+            }
+        }
+        public async Task<List<DTOFuncionalidade>> PesquisarFuncionalidadesAtivas()
+        {
+            try
+            {
+                List<DTOFuncionalidade> lstDTOFuncionalidades = new List<DTOFuncionalidade>();
+                List<CWFuncionalidade> lstFuncionalidades = await _entidadeLeituraRepository.PesquisarTodos<CWFuncionalidade>() ?? throw new ExceptionCustom($"Não foi possível localizar nenhuma funcionalidade.");
+
+                foreach (CWFuncionalidade cw in lstFuncionalidades.Where(x => x.bFlAtiva))
+                {
+                    lstDTOFuncionalidades.Add(new DTOFuncionalidade
+                    {
+                        CodigoFuncionalidade = cw.nCdFuncionalidade,
+                        NomeFuncionalidade = cw.sNmFuncionalidade,
+                        DescricaoFuncionalidade = cw.sDsFuncionalidade,
+                        Ativa = cw.bFlAtiva
+                    });
+                }
+
+                lstDTOFuncionalidades.OrderBy(x => x.CodigoFuncionalidade);
+
+                return lstDTOFuncionalidades;
+            }
+            catch
+            {
+                throw;
             }
         }
         public async Task<DTORetorno> DesassociarFuncionalidades(AssociacaoRequest associacaoRequest)

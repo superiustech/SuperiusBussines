@@ -31,6 +31,41 @@ public class UsuarioRepository : IUsuarioRepository
             return usuarioExistente;
         }
     }
+    public async Task AssociarDesassociarPerfis(string codigoUsuario, List<CWPerfil> lstPerfis)
+    {
+        using (var transaction = await _context.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                var associacoesExistentes = await _context.PerfilUsuario.Where(fp => fp.sCdUsuario == codigoUsuario).ToListAsync();
+
+                _context.PerfilUsuario.RemoveRange(associacoesExistentes);
+                await _context.SaveChangesAsync();
+                if (lstPerfis != null && lstPerfis.Any())
+                {
+                    var codigosPerfis = lstPerfis.Select(f => f.nCdPerfil).ToList();
+                    var PerfisValidas = await _context.Perfil.Where(f => codigosPerfis.Contains(f.nCdPerfil)).ToListAsync();
+
+                    var novasAssociacoes = PerfisValidas
+                    .Select(f => new CWPerfilUsuario
+                    {
+                        sCdUsuario = codigoUsuario,
+                        nCdPerfil = f.nCdPerfil
+                    }).ToList();
+
+                    await _context.PerfilUsuario.AddRangeAsync(novasAssociacoes);
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+    }
     public async Task AssociarPerfis(string codigoUsuario, List<CWPerfil> lstPerfis)
     {
         using (var transaction = await _context.Database.BeginTransactionAsync())

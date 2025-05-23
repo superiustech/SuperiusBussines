@@ -75,7 +75,29 @@ namespace Business.Uteis
 
             return principal;
         }
+        public IEnumerable<Claim>? GetTokenClaims(string token)
+        {
+            return DecodeToken(token)?.Claims;
+        }
 
+        public string? GetClaimValue(string token, string claimType)
+        {
+            return GetTokenClaims(token)?
+                .FirstOrDefault(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?
+                .Value;
+        }
+        private static JwtSecurityToken? DecodeToken(string token)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                return handler.CanReadToken(token) ? handler.ReadJwtToken(token) : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
         private List<Claim> GetUserClaims(CWClienteUsuario usuario)
         {
             return new List<Claim>

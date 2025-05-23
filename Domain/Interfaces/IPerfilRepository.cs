@@ -9,5 +9,6 @@ namespace Domain.Interfaces
         Task AtivarPerfis(List<CWPerfil> lstPerfis);
         Task AssociarPermissoes(int codigoPerfil, List<CWPermissao> lstPermissoes);
         Task DesassociarPermissoes(List<CWPermissaoPerfil> lstPermissoes);
+        Task AssociarDesassociarPermissoes(int codigoPermissao, List<CWPermissao> lstPermissoes);
     }
 }

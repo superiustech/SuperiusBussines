@@ -4,6 +4,8 @@ using Domain.Interfaces;
 using Domain.ViewModel;
 using Domain.Entities.Uteis;
 using Domain.Requests;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 namespace Business.Services
 {
     public class UsuarioService : IUsuario
@@ -11,12 +13,18 @@ namespace Business.Services
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IEntidadeLeituraRepository _entidadeLeituraRepository;
         private readonly IFuncionalidadeRepository _funcionalidadeRepository;
+        private readonly IJwtTokenService _jwtTokenService;
+        private readonly IAutenticacaoRepository _autenticacaoRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UsuarioService(IUsuarioRepository UsuarioRepository, IEntidadeLeituraRepository entidadeLeituraRepository, IFuncionalidadeRepository funcionalidadeRepository)
+        public UsuarioService(IUsuarioRepository UsuarioRepository, IEntidadeLeituraRepository entidadeLeituraRepository, IFuncionalidadeRepository funcionalidadeRepository, IJwtTokenService jwtTokenService, IAutenticacaoRepository autenticacaoRepository, IHttpContextAccessor httpContextAccessor)
         {
             _usuarioRepository = UsuarioRepository;
             _entidadeLeituraRepository = entidadeLeituraRepository;
             _funcionalidadeRepository = funcionalidadeRepository;
+            _jwtTokenService = jwtTokenService;
+            _autenticacaoRepository = autenticacaoRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<List<DTOUsuario>> PesquisarUsuarios()
         {
@@ -37,6 +45,33 @@ namespace Business.Services
                 }
 
                 return lstDTOUsuarios;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        public async Task<List<DTOPerfil>> PesquisarPerfisAtivos()
+        {
+            try
+            {
+                List<DTOPerfil> lstDTOPerfis = new List<DTOPerfil>();
+                List<CWPerfil> lstPerfis = await _entidadeLeituraRepository.PesquisarTodos<CWPerfil>() ?? throw new ExceptionCustom($"Não foi possível localizar nenhum Perfil.");
+
+                foreach (CWPerfil cw in lstPerfis.Where(x => x.bFlAtiva))
+                {
+                    lstDTOPerfis.Add(new DTOPerfil
+                    {
+                        CodigoPerfil = cw.nCdPerfil,
+                        NomePerfil = cw.sNmPerfil,
+                        DescricaoPerfil = cw.sDsPerfil,
+                        Ativa = cw.bFlAtiva
+                    });
+                }
+
+                lstDTOPerfis.OrderBy(x => x.CodigoPerfil);
+
+                return lstDTOPerfis;
             }
             catch
             {
@@ -96,7 +131,10 @@ namespace Business.Services
         public async Task<DTORetorno> CadastrarUsuario(DTOUsuario oDTOUsuario)
         {
             try
-            {           
+            {
+                var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+                var tenantId = claimsIdentity?.FindFirst("TenantId")?.Value;
+
                 CWUsuario cwUsuario = new CWUsuario()
                 {
                    sCdUsuario = oDTOUsuario.Usuario, 
@@ -105,8 +143,17 @@ namespace Business.Services
                    sEmail = oDTOUsuario.Email
                 };
 
+                CWClienteUsuario cwClienteUsuario = await _autenticacaoRepository.ConsultarUsuarioEmpresa(cwUsuario.sCdUsuario);
+
+                if(cwClienteUsuario is CWClienteUsuario)
+                {
+                    throw new ExceptionCustom($"Nome de usuário já existente no sistema.");
+                }
+
+                await _autenticacaoRepository.CadastrarUsuarioEmpresa(oDTOUsuario.Usuario, tenantId);
                 CWUsuario cwUsuarioRetorno = await _usuarioRepository.CadastrarUsuario(cwUsuario);
-                return new DTORetorno { Status = enumSituacao.Sucesso, Mensagem = "Usuario cadastrada com sucesso", Id = cwUsuarioRetorno.sCdUsuario };
+
+                return new DTORetorno { Status = enumSituacao.Sucesso, Mensagem = "Usuario cadastrado com sucesso", Id = cwUsuarioRetorno.sCdUsuario };
             }
             catch (ExceptionCustom ex)
             {
@@ -141,6 +188,50 @@ namespace Business.Services
             catch (ExceptionCustom ex)
             {
                 return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+                #endif
+                return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
+            }
+        }
+        public async Task<DTORetorno> AssociarDesassociarPerfis(AssociacaoUsuarioRequest associacaoRequest)
+        {
+            try
+            {
+                List<int> lstCodigosPerfis = associacaoRequest.CodigosAssociacao.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(valor =>
+                {
+                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                    else throw new ExceptionCustom("Passe somente números como parâmetro para associação.");
+                }).ToList();
+
+                var lstPerfisExistentes = await _entidadeLeituraRepository.PesquisarTodos<CWPerfil>() ?? throw new ExceptionCustom("Não foi possível localizar nenhuma Perfil.");
+                var lstCodigosInvalidos = lstCodigosPerfis.Except(lstPerfisExistentes.Select(x => x.nCdPerfil)).ToList();
+                var lstPerfisParaAssociar = lstPerfisExistentes.Where(f => lstCodigosPerfis.Contains(f.nCdPerfil)).ToList();
+
+                await _usuarioRepository.AssociarDesassociarPerfis(associacaoRequest.Codigo, lstPerfisParaAssociar);
+
+                if (lstCodigosInvalidos.Any())
+                {
+                    return new DTORetorno
+                    {
+                        Mensagem = $"Os seguintes códigos de Perfis não existem: '{string.Join(", ", lstCodigosInvalidos)}'",
+                        Status = enumSituacao.Aviso
+                    };
+                }
+
+                return new DTORetorno
+                {
+                    Mensagem = "Sucesso",
+                    Status = enumSituacao.Sucesso
+                };
+            }
+            catch (ExceptionCustom ex)
+            {
+                return new DTORetorno { Mensagem = ex.Message, Status = enumSituacao.Erro };
             }
             catch (Exception ex)
             {

@@ -38,6 +38,25 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
+        [HttpGet("PermissoesAssociadasCompleto/{codigoPermissao}")]
+        public async Task<IActionResult> PermissoesAssociadasCompleto(int codigoPermissao)
+        {
+            try
+            {
+                return Ok(  new { permissoesAtreladas = await _perfil.PermissoesAssociadas(codigoPermissao) , permissoes = await _perfil.PesquisarPermissoesAtivas() });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
         [HttpGet("PermissoesAssociadas/{codigoPerfil}")]
         public async Task<IActionResult> PermissoesAssociadas(int codigoPerfil)
         {
@@ -76,7 +95,26 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
-        [HttpPost("AtivarPerfil")]
+        [HttpPost("AssociarDesassociarPermissoes")]
+        public async Task<IActionResult> AssociarDesassociarPermissoes(AssociacaoRequest associacaoRequest)
+        {
+            try
+            {
+                return Ok( await _perfil.AssociarDesassociarPermissoes(associacaoRequest));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
+        [HttpPost("AtivarPerfis")]
         public async Task<IActionResult> AtivarPerfis([FromBody] string arrCodigoPerfis)
         {
             try
@@ -95,7 +133,7 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
-        [HttpPost("InativarPerfil")]
+        [HttpPost("InativarPerfis")]
         public async Task<IActionResult> InativarPerfis([FromBody] string arrCodigoPerfis)
         {
             try

@@ -56,6 +56,25 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
+        [HttpGet("PerfisAssociadosCompleto/{codigoUsuario}")]
+        public async Task<IActionResult> PerfisAssociadosCompleto(string codigoUsuario)
+        {
+            try
+            {
+                return Ok(  new { perfisAtrelados = await _usuario.PerfisAssociados(codigoUsuario) , perfis = await _usuario.PesquisarPerfisAtivos() });
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
         [HttpGet("PerfisAssociados/{codigoUsuario}")]
         public async Task<IActionResult> PerfisAssociados(string codigoUsuario)
         {
@@ -81,6 +100,25 @@ namespace WebApplication1.Controllers
             try
             {
                 return Ok( await _usuario.CadastrarUsuario(oDTOUsuario));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
+        [HttpPost("AssociarDesassociarPerfis")]
+        public async Task<IActionResult> AssociarDesassociarPerfis(AssociacaoUsuarioRequest associacaoRequest)
+        {
+            try
+            {
+                return Ok( await _usuario.AssociarDesassociarPerfis(associacaoRequest));
             }
             catch (ExceptionCustom ex)
             {

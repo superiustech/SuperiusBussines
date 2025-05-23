@@ -13,17 +13,17 @@ const Loading = ({ message = 'Carregando...', details, type = 'info', show = tru
 
     useEffect(() => {
         if (show) {
-            setStartTime(Date.now());
+            //setStartTime(Date.now());
             setInternalShow(true);
         } else {
-            const elapsed = Date.now() - startTime;
-            const minDuration = 800;
+            //const elapsed = Date.now() - startTime;
+            //const minDuration = 800;
 
-            if (elapsed >= minDuration) {
+            //if (elapsed >= minDuration) {
                 setInternalShow(false);
-            } else {
-                setTimeout(() => setInternalShow(false), minDuration - elapsed);
-            }
+            //} else {
+            //    setTimeout(() => setInternalShow(false), minDuration - elapsed);
+            //}
         }
     }, [show]);
 

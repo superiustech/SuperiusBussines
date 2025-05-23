@@ -20,5 +20,16 @@ namespace Infra.Repositories
         {
             return await _dbContextMaster.ClienteUsuario.Include(u => u.Cliente).FirstOrDefaultAsync(u => u.sCdUsuario == sCdUsuario);
         }
-    }
+        public async Task CadastrarUsuarioEmpresa(string sCdUsuario, string tenantId)
+        {
+            CWClienteUsuario oCWClienteUsuario = new CWClienteUsuario()
+            {
+                sCdUsuario = sCdUsuario,
+                nCdCliente = Convert.ToInt32(tenantId)
+            };
+
+            await _dbContextMaster.ClienteUsuario.AddAsync(oCWClienteUsuario);
+            await _dbContextMaster.SaveChangesAsync();
+        }
+    } 
 }

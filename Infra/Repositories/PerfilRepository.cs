@@ -79,6 +79,42 @@ public class PerfilRepository : IPerfilRepository
             }
         }
     }
+    public async Task AssociarDesassociarPermissoes(int codigoPerfil, List<CWPermissao> lstPermissoes)
+    {
+        using (var transaction = await _context.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                var associacoesExistentes = await _context.PermissaoPerfil.Where(fp => fp.nCdPerfil == codigoPerfil).ToListAsync();
+
+                _context.PermissaoPerfil.RemoveRange(associacoesExistentes);
+                await _context.SaveChangesAsync();
+                                if (lstPermissoes != null && lstPermissoes.Any())
+                {
+                    var codigosPermissoes = lstPermissoes.Select(f => f.nCdPermissao).ToList();
+                    var permissoesValidas = await _context.Permissao.Where(f => codigosPermissoes.Contains(f.nCdPermissao)).ToListAsync();
+
+                    var novasAssociacoes = permissoesValidas
+                        .Select(f => new CWPermissaoPerfil
+                        {
+                            nCdPerfil = codigoPerfil,
+                            nCdPermissao = f.nCdPermissao
+                        })
+                        .ToList();
+
+                    await _context.PermissaoPerfil.AddRangeAsync(novasAssociacoes);
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+    }
     public async Task AssociarPermissoes(int codigoPerfil, List<CWPermissao> lstPermissoes)
     {
         using (var transaction = await _context.Database.BeginTransactionAsync())

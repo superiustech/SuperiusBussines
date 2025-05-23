@@ -41,6 +41,33 @@ namespace Business.Services
                 throw;
             }
         }
+        public async Task<List<DTOPermissao>> PesquisarPermissoesAtivas()
+        {
+            try
+            {
+                List<DTOPermissao> lstDTOPermissoes = new List<DTOPermissao>();
+                List<CWPermissao> lstPermissoes = await _entidadeLeituraRepository.PesquisarTodos<CWPermissao>() ?? throw new ExceptionCustom($"Não foi possível localizar nenhuma Permissao.");
+
+                foreach (CWPermissao cw in lstPermissoes.Where(x => x.bFlAtiva))
+                {
+                    lstDTOPermissoes.Add(new DTOPermissao
+                    {
+                        CodigoPermissao = cw.nCdPermissao,
+                        NomePermissao = cw.sNmPermissao,
+                        DescricaoPermissao = cw.sDsPermissao,
+                        Ativa = cw.bFlAtiva
+                    });
+                }
+
+                lstDTOPermissoes.OrderBy(x => x.CodigoPermissao);
+
+                return lstDTOPermissoes;
+            }
+            catch
+            {
+                throw;
+            }
+        }
         public async Task<List<DTOPermissao>> PermissoesAssociadas(int codigoPerfil)
         {
             try
@@ -64,6 +91,50 @@ namespace Business.Services
             catch
             {
                 throw;
+            }
+        }
+        public async Task<DTORetorno> AssociarDesassociarPermissoes(AssociacaoRequest associacaoRequest)
+        {
+            try
+            {
+                List<int> lstCodigosPermissoes = associacaoRequest.CodigosAssociacao.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(valor =>
+                {
+                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                    else throw new ExceptionCustom("Passe somente números como parâmetro para associação.");
+                }).ToList();
+
+                var lstPermissoesExistentes = await _entidadeLeituraRepository.PesquisarTodos<CWPermissao>() ?? throw new ExceptionCustom("Não foi possível localizar nenhuma Permissao.");
+                var lstCodigosInvalidos = lstCodigosPermissoes.Except(lstPermissoesExistentes.Select(x => x.nCdPermissao)).ToList();
+                var lstPermissoesParaAssociar = lstPermissoesExistentes.Where(f => lstCodigosPermissoes.Contains(f.nCdPermissao)).ToList();
+
+                await _perfilRepository.AssociarDesassociarPermissoes(associacaoRequest.Codigo, lstPermissoesParaAssociar);
+
+                if (lstCodigosInvalidos.Any())
+                {
+                    return new DTORetorno
+                    {
+                        Mensagem = $"Os seguintes códigos de Permissoes não existem: '{string.Join(", ", lstCodigosInvalidos)}'",
+                        Status = enumSituacao.Aviso
+                    };
+                }
+
+                return new DTORetorno
+                {
+                    Mensagem = "Sucesso",
+                    Status = enumSituacao.Sucesso
+                };
+            }
+            catch (ExceptionCustom ex)
+            {
+                return new DTORetorno { Mensagem = ex.Message, Status = enumSituacao.Erro };
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+                #endif
+                return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
             }
         }
         public async Task<DTORetorno> CadastrarPerfil(DTOPerfil oDTOPerfil)

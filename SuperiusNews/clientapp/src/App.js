@@ -13,6 +13,9 @@ import EstoquePage from './pages/EstoquePage';
 import LoginPage from './pages/LoginPage';
 import ConfiguracaoPage from './pages/ConfiguracaoPage';
 import FuncionalidadesPage from './pages/FuncionalidadesPage';
+import PermissoesPage from './pages/PermissoesPage';
+import UsuariosPage from './pages/UsuariosPage';
+import PerfisPage from './pages/PerfisPage';
 import Layout from './components/layout/Layout';
 import { AuthProvider, useAuth } from './components/common/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -45,9 +48,9 @@ const AuthenticatedApp = memo(() => (
             {/* Configuração */}
             <Route path="/administrador/configuracoes" element={<ProtectedRoute><ConfiguracaoPage /></ProtectedRoute>} />
             <Route path="/administrador/funcionalidades" element={<ProtectedRoute><FuncionalidadesPage /></ProtectedRoute>} />
-            {/*<Route path="/administrador/permissoes" element={<ProtectedRoute><ConfiguracaoPage /></ProtectedRoute>} />*/}
-            {/*<Route path="/administrador/perfis" element={<ProtectedRoute><ConfiguracaoPage /></ProtectedRoute>} />*/}
-            {/*<Route path="/administrador/usuarios" element={<ProtectedRoute><ConfiguracaoPage /></ProtectedRoute>} />*/}
+            <Route path="/administrador/permissoes" element={<ProtectedRoute><PermissoesPage /></ProtectedRoute>} />
+            <Route path="/administrador/perfis" element={<ProtectedRoute><PerfisPage /></ProtectedRoute>} />
+            <Route path="/administrador/usuarios" element={<ProtectedRoute><UsuariosPage /></ProtectedRoute>} />
 
             {/* Redirecionamento para login se acessar qualquer rota sem estar logado */}
             <Route path="*" element={<Navigate to="/administrador/login" replace />} />

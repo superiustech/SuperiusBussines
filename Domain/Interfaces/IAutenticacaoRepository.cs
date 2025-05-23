@@ -11,5 +11,6 @@ namespace Domain.Interfaces
     public interface IAutenticacaoRepository
     {
         Task<CWClienteUsuario> ConsultarUsuarioEmpresa(string sCdUsuario);
+        Task CadastrarUsuarioEmpresa(string sCdUsuario, string tenantId);
     }
 }

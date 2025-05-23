@@ -112,6 +112,45 @@ public class PermissaoRepository : IPermissaoRepository
             }
         }
     }
+    public async Task AssociarDesassociarFuncionalidades(int codigoPermissao, List<CWFuncionalidade> lstFuncionalidades)
+    {
+        using (var transaction = await _context.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                var associacoesExistentes = await _context.FuncionalidadePermissao.Where(fp => fp.nCdPermissao == codigoPermissao).ToListAsync();
+
+                _context.FuncionalidadePermissao.RemoveRange(associacoesExistentes);
+                await _context.SaveChangesAsync();
+
+                if (lstFuncionalidades != null && lstFuncionalidades.Any())
+                {
+                    var codigosFuncionalidades = lstFuncionalidades.Select(f => f.nCdFuncionalidade).ToList();
+                    var funcionalidadesValidas = await _context.Funcionalidade.Where(f => codigosFuncionalidades.Contains(f.nCdFuncionalidade)).ToListAsync();
+
+                    var novasAssociacoes = funcionalidadesValidas
+                        .Select(f => new CWFuncionalidadePermissao
+                        {
+                            nCdPermissao = codigoPermissao,
+                            nCdFuncionalidade = f.nCdFuncionalidade
+                        })
+                        .ToList();
+
+                    await _context.FuncionalidadePermissao.AddRangeAsync(novasAssociacoes);
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+    }
+
+
     public async Task DesassociarFuncionalidades(List<CWFuncionalidadePermissao> lstFuncionalidadePermissao)
     {
         using (var transaction = await _context.Database.BeginTransactionAsync())

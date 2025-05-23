@@ -8,5 +8,6 @@ namespace Domain.Interfaces
         Task<CWUsuario> CadastrarUsuario(CWUsuario cwUsuario);
         Task AssociarPerfis(string codigoUsuario, List<CWPerfil> lstPerfis);
         Task DesassociarPerfis(List<CWPerfilUsuario> lstPerfis);
+        Task AssociarDesassociarPerfis(string codigoUsuario, List<CWPerfil> lstPerfis);
     }
 }

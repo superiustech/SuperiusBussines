@@ -14,10 +14,12 @@ namespace WebApplication1.Controllers
     {
         private readonly ILogger<PermissaoController> _logger;
         private readonly IPermissao _permissao;
-        public PermissaoController(ILogger<PermissaoController> logger, IPermissao permissao)
+        private readonly IFuncionalidade _funcionalidade;
+        public PermissaoController(ILogger<PermissaoController> logger, IPermissao permissao, IFuncionalidade funcionalidade)
         {
             _logger = logger;
             _permissao = permissao;
+            _funcionalidade = funcionalidade;
         }
         [HttpGet("Permissao")]
         public async Task<IActionResult> PesquisarPermissao()
@@ -44,6 +46,25 @@ namespace WebApplication1.Controllers
             try
             {
                 return Ok( await _permissao.FuncionalidadesAssociadas(codigoPermissao));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
+        [HttpGet("FuncionalidadesAssociadasCompleto/{codigoPermissao}")]
+        public async Task<IActionResult> FuncionalidadesAssociadasCompleto(int codigoPermissao)
+        {
+            try
+            {
+                return Ok(  new { funcionalidadesAtreladas = await _permissao.FuncionalidadesAssociadas(codigoPermissao) , funcionalidades = await _permissao.PesquisarFuncionalidadesAtivas() });
             }
             catch (ExceptionCustom ex)
             {
@@ -95,6 +116,25 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
+        [HttpPost("AssociarDesassociarFuncionalidades")]
+        public async Task<IActionResult> AssociarDesassociarFuncionalidades(AssociacaoRequest associacaoRequest)
+        {
+            try
+            {
+                return Ok( await _permissao.AssociarDesassociarFuncionalidades(associacaoRequest));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
         [HttpPost("DesassociarFuncionalidades")]
         public async Task<IActionResult> DesassociarFuncionalidades(AssociacaoRequest associacaoRequest)
         {
@@ -114,7 +154,7 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
-        [HttpPost("AtivarPermissao")]
+        [HttpPost("AtivarPermissoes")]
         public async Task<IActionResult> AtivarPermissoes([FromBody] string arrCodigoPermissoes)
         {
             try
@@ -133,7 +173,7 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
-        [HttpPost("InativarPermissao")]
+        [HttpPost("InativarPermissoes")]
         public async Task<IActionResult> InativarPermissoes([FromBody] string arrCodigoPermissoes)
         {
             try

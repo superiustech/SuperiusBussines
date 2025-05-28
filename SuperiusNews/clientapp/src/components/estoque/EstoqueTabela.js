@@ -3,10 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import funcionalidades from '../common/Funcionalidades';
+import { useAuth } from '../common/AuthContext';
 
 const EstoqueTabela = ({ estoques, loading , onEstoqueClick, onDeleteClick, onRefresh, onAbrirEstoque}) => {
     const [gridApi, setGridApi] = useState(null);
     const [selected, setSelected] = useState([]);
+    const { validarFuncionalidade } = useAuth();
+
     const navigate = useNavigate();
 
     const columnDefs = useMemo(() => [
@@ -35,10 +39,10 @@ const EstoqueTabela = ({ estoques, loading , onEstoqueClick, onDeleteClick, onRe
             <>
                 <div className="mt-8 mb-3 d-flex justify-content-between align-items-center">
                     <div className="d-flex align-items-center">
-                        <button className="btn btn-primary me-2" onClick={() => navigate(`/administrador/cadastrar-estoque`)}> Incluir </button>
-                        <button className="btn btn-dark me-2" disabled={selected.length !== 1} onClick={() => onAbrirEstoque(selected[0].codigo)}> Abrir estoque </button>
-                        <button className="btn btn-secondary me-2" disabled={selected.length !== 1} onClick={() => onEstoqueClick(selected[0].codigo)}> Editar </button>
-                        <button className="btn btn-danger" disabled={selected.length === 0} onClick={() => onDeleteClick(selected.map(item => item.codigo).join(","))}> Excluir </button>
+                        {validarFuncionalidade(funcionalidades.EDITAR_ESTOQUES) && (<button className="btn btn-primary me-2" onClick={() => navigate(`/administrador/cadastrar-estoque`)}> Incluir </button>)}
+                        {validarFuncionalidade(funcionalidades.VISUALIZAR_MOVIMENTACOES) && (<button className="btn btn-dark me-2" disabled={selected.length !== 1} onClick={() => onAbrirEstoque(selected[0].codigo)}> Abrir estoque </button>)}
+                        {validarFuncionalidade(funcionalidades.EDITAR_ESTOQUES) && (<button className="btn btn-secondary me-2" disabled={selected.length !== 1} onClick={() => onEstoqueClick(selected[0].codigo)}> Editar </button>)}
+                        {validarFuncionalidade(funcionalidades.EXCLUIR_ESTOQUES) && (<button className="btn btn-danger" disabled={selected.length === 0} onClick={() => onDeleteClick(selected.map(item => item.codigo).join(","))}> Excluir </button>)}
                     </div>
                     <div>
                         <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>

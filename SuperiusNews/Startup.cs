@@ -171,6 +171,7 @@ public class Startup
         app.UseAuthentication();
         app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
+        app.UseMiddleware<FuncionalidadeMiddleware>();
 
         app.UseSession();
 

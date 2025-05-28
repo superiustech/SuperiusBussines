@@ -3,7 +3,12 @@ import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router-dom';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import funcionalidades from '../common/Funcionalidades';
+import { useAuth } from '../common/AuthContext';
+
 const ProductTable = ({ products, loading, onProductClick, onDeleteClick, onRefresh }) => {
+
+    const { validarFuncionalidade } = useAuth();
     const [gridApi, setGridApi] = useState(null);
     const [selected, setSelected] = useState([]);
     const navigate = useNavigate();
@@ -36,9 +41,9 @@ const ProductTable = ({ products, loading, onProductClick, onDeleteClick, onRefr
             <>
                 <div className="mt-8 mb-3 d-flex justify-content-between align-items-center">
                     <div className="d-flex align-items-center">
-                        <button className="btn btn-primary me-2" onClick={() => navigate(`/administrador/cadastrar-produto`)}> Incluir </button>
-                        <button className="btn btn-secondary me-2" disabled={selected.length !== 1} onClick={() => onProductClick(selected[0].codigo)}> Editar </button>
-                        <button className="btn btn-danger" disabled={selected.length === 0} onClick={() => onDeleteClick(selected.map(item => item.codigo).join(","))}> Excluir </button>
+                        {validarFuncionalidade(funcionalidades.EDITAR_PRODUTOS) && (<button className="btn btn-primary me-2" onClick={() => navigate(`/administrador/cadastrar-produto`)}> Incluir </button>)}
+                        {validarFuncionalidade(funcionalidades.EDITAR_PRODUTOS) && (<button className="btn btn-secondary me-2" disabled={selected.length !== 1} onClick={() => onProductClick(selected[0].codigo)}> Editar </button>)}
+                        {validarFuncionalidade(funcionalidades.EXCLUIR_PRODUTOS) && (<button className="btn btn-danger" disabled={selected.length === 0} onClick={() => onDeleteClick(selected.map(item => item.codigo).join(","))}> Excluir </button>)}
                     </div>
                     <div>
                         <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>

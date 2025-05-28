@@ -18,7 +18,7 @@ namespace WebApplication1.Controllers
             _logger = logger;
             _usuario = usuario;
         }
-        [HttpGet("Usuario")]
+        [HttpGet("Usuarios")]
         public async Task<IActionResult> PesquisarUsuarios()
         {
             try

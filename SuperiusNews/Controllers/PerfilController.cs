@@ -19,7 +19,7 @@ namespace WebApplication1.Controllers
             _logger = logger;
             _perfil = Perfil;
         }
-        [HttpGet("Perfil")]
+        [HttpGet("Perfis")]
         public async Task<IActionResult> PesquisarPerfil()
         {
             try

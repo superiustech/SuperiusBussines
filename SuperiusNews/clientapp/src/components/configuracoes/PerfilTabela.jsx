@@ -3,10 +3,14 @@ import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router-dom';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import funcionalidadesArray from '../common/Funcionalidades';
+import { useAuth } from '../common/AuthContext';
 
 const PerfilTabela = ({ perfis, loading, onEditarPerfil, onAtivarPerfis, onInativarPerfis, onPerfis, onRefresh }) => {
     const [gridApi, setGridApi] = useState(null);
     const [selected, setSelected] = useState([]);
+    const { validarFuncionalidade } = useAuth();
+
     const navigate = useNavigate();
 
     const columnDefs = useMemo(() => [
@@ -35,10 +39,10 @@ const PerfilTabela = ({ perfis, loading, onEditarPerfil, onAtivarPerfis, onInati
             <>
             <div className="mt-4 mb-3 d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
-                    <button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onEditarPerfil(selected[0].codigoPerfil)}> Editar </button>
-                    <button className="btn btn-secondary me-2 btn-warning" disabled={selected.length !== 1} onClick={() => onPerfis(selected[0].codigoPerfil)}> Permissões </button>
-                    <button className="btn btn-dark me-2" disabled={selected.length === 0} onClick={() => onAtivarPerfis(selected.map(item => item.codigoPerfil).join(","))}> Ativar </button>
-                    <button className="btn btn-secondary me-2 btn-danger" disabled={selected.length === 0} onClick={() => onInativarPerfis(selected.map(item => item.codigoPerfil).join(","))}> Inativar </button>
+                    {validarFuncionalidade(funcionalidadesArray.VISUALIZAR_PERFIS) && (<button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onEditarPerfil(selected[0].codigoPerfil)}> Editar </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.ASSOCIAR_PERMISSAO_PERFIL) && (<button className="btn btn-secondary me-2 btn-warning" disabled={selected.length !== 1} onClick={() => onPerfis(selected[0].codigoPerfil)}> Permissões </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.ATIVAR_PERFIS) && (<button className="btn btn-dark me-2" disabled={selected.length === 0} onClick={() => onAtivarPerfis(selected.map(item => item.codigoPerfil).join(","))}> Ativar </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.INATIVAR_PERFIS) && (<button className="btn btn-secondary me-2 btn-danger" disabled={selected.length === 0} onClick={() => onInativarPerfis(selected.map(item => item.codigoPerfil).join(","))}> Inativar </button>)}
                 </div>
                 <div>
                     <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>

@@ -21,7 +21,7 @@ namespace WebApplication1.Controllers
             _permissao = permissao;
             _funcionalidade = funcionalidade;
         }
-        [HttpGet("Permissao")]
+        [HttpGet("Permissoes")]
         public async Task<IActionResult> PesquisarPermissao()
         {
             try

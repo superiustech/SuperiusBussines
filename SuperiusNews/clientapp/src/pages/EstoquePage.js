@@ -4,7 +4,7 @@ import EstoqueTabela from '../components/estoque/EstoqueTabela';
 import apiConfig from '../Api';
 import axios from 'axios';
 import Loading from '../components/ui/Loading';
-import FlashMessage from '../components//ui/FlashMessage';
+import FlashMessage from '../components/ui/FlashMessage';
 
 const EstoquePage = () => {
     const navigate = useNavigate();

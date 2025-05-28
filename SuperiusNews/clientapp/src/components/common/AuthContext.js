@@ -1,50 +1,74 @@
-﻿import { createContext, useContext, useState, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+﻿import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    const jsonPayload = decodeURIComponent(
+        atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+    );
     return JSON.parse(jsonPayload);
 };
-
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+
     const [user, setUser] = useState(null);
 
     const navigate = useNavigate();
 
-    const isAuthenticated = useCallback(() => {
+    const validateTokenAndSetUser = useCallback(() => {
         const token = localStorage.getItem('authToken');
-        if (!token) return false;
-
-        const decodedToken = decodeToken(token);
-        const currentTime = Date.now() / 1000; 
-        if (decodedToken.exp < currentTime) {
-            logout(); 
+        if (!token) {
+            setUser(null);
             return false;
         }
 
-        return true;
+        try {
+            const decodedToken = decodeToken(token);
+            const currentTime = Date.now() / 1000;
+            if (decodedToken.exp < currentTime) {
+                logout();
+                return false;
+            }
+            setUser({
+                name: decodedToken.unique_name,
+                funcionalidades: decodedToken.Funcionalidades || []
+            });
+            return true;
+        } catch {
+            setUser(null);
+            return false;
+        }
     }, []);
 
+    const isAuthenticated = useCallback(() => {
+        return user !== null;
+    }, [user]);
+
+    const validarFuncionalidade = useCallback((funcionalidade) => {
+        const funcionalidadesArray = user?.funcionalidades?.split(',') || [];
+        return funcionalidadesArray.includes(String(funcionalidade));
+    }, [user]);
+
     const login = useCallback((token) => {
-        const decodedToken = decodeToken(token);
         localStorage.setItem('authToken', token);
-        setUser(decodedToken.unique_name);
-    }, []);
+        validateTokenAndSetUser();
+        navigate('/administrador/produtos'); 
+    }, [navigate, validateTokenAndSetUser]);
 
     const logout = useCallback(() => {
         localStorage.removeItem('authToken');
         setUser(null);
-        window.location.replace('/administrador/login');
-    }, []);
+        navigate('/administrador/login');
+    }, [navigate]);
+
+    useEffect(() => {
+        validateTokenAndSetUser();
+    }, [validateTokenAndSetUser]);
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, login, logout, validarFuncionalidade }}>
             {children}
         </AuthContext.Provider>
     );

@@ -17,7 +17,7 @@ namespace WebApplication1.Controllers
             _logger = logger;
             _funcionalidade = funcionalidade;
         }
-        [HttpGet("Funcionalidade")]
+        [HttpGet("Funcionalidades")]
         public async Task<IActionResult> PesquisarFuncionalidade()
         {
             try

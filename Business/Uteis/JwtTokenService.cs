@@ -6,6 +6,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Domain.Interfaces;
 using Domain.Uteis;
+using System.Net;
+using Domain.ViewModel;
 
 namespace Business.Uteis
 {
@@ -21,9 +23,9 @@ namespace Business.Uteis
             _signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
         }
 
-        public string GerarTokenJWT(CWClienteUsuario usuario)
+        public string GerarTokenJWT(CWClienteUsuario usuario, List<CWFuncionalidade> funcionalidades)
         {
-            var claims = GetUserClaims(usuario);
+            var claims = GetUserClaims(usuario, funcionalidades);
             var tokenOptions = GenerateTokenOptions(claims);
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenOptions);
@@ -98,13 +100,14 @@ namespace Business.Uteis
                 return null;
             }
         }
-        private List<Claim> GetUserClaims(CWClienteUsuario usuario)
+        private List<Claim> GetUserClaims(CWClienteUsuario usuario, List<CWFuncionalidade> lstFuncionalidades)
         {
             return new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.sCdUsuario),
                 new Claim("TenantId", usuario.nCdCliente.ToString()),
                 new Claim("TenantBase", usuario.Cliente?.sNmCliente?.ToString() ?? string.Empty),
+                new Claim("Funcionalidades", string.Join(",", lstFuncionalidades.Select(x => x.nCdFuncionalidade))),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                 new Claim(ClaimTypes.Version, "1.0")

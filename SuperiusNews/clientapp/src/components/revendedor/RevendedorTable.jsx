@@ -3,10 +3,14 @@ import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router-dom';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import funcionalidades from '../common/Funcionalidades';
+import { useAuth } from '../common/AuthContext';
 
 const RevendedorTable = ({ revendedores, loading, onEditarRevendedor, onExcluirRevendedor, onRefresh }) => {
     const [gridApi, setGridApi] = useState(null);
     const [selected, setSelected] = useState([]);
+    const { validarFuncionalidade } = useAuth();
+
     const navigate = useNavigate();
 
     const columnDefs = useMemo(() => [
@@ -35,9 +39,9 @@ const RevendedorTable = ({ revendedores, loading, onEditarRevendedor, onExcluirR
             <>
             <div className="mt-4 mb-3 d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
-                    <button className="btn btn-primary me-2" onClick={() => navigate(`/administrador/cadastrar-revendedor`)}> Incluir </button>
-                    <button className="btn btn-secondary me-2" disabled={selected.length !== 1} onClick={() => onEditarRevendedor(selected[0].codigo)}> Editar </button>
-                    <button className="btn btn-danger" disabled={selected.length === 0} onClick={() => onExcluirRevendedor(selected.map(item => item.codigo).join(","))}> Excluir </button>
+                    {validarFuncionalidade(funcionalidades.EDITAR_REVENDEDORES) && (<button className="btn btn-primary me-2" onClick={() => navigate(`/administrador/cadastrar-revendedor`)}> Incluir </button>)}
+                    {validarFuncionalidade(funcionalidades.EDITAR_REVENDEDORES) && (<button className="btn btn-secondary me-2" disabled={selected.length !== 1} onClick={() => onEditarRevendedor(selected[0].codigo)}> Editar </button>)}
+                    {validarFuncionalidade(funcionalidades.EXCLUIR_REVENDEDORES) && (<button className="btn btn-danger" disabled={selected.length === 0} onClick={() => onExcluirRevendedor(selected.map(item => item.codigo).join(","))}> Excluir </button>)}
                 </div>
                 <div>
                     <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>

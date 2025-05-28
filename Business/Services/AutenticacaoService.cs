@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Business.Uteis;
 using Microsoft.EntityFrameworkCore;
+using Domain.ViewModel;
 
 namespace Business.Services
 {
@@ -18,15 +19,16 @@ namespace Business.Services
     {
         private readonly IAutenticacaoRepository _autenticacaoRepository;
         private readonly IEntidadeLeituraRepository _entidadeLeituraRepository;
-        private readonly IJwtTokenService _jwtTokenService;
         private readonly IRuntimeDbContextFactory<ApplicationDbContext> _runtimeDbContextFactory;
-
-        public AutenticacaoService( IAutenticacaoRepository autenticacaoRepository, IJwtTokenService jwtTokenService, IEntidadeLeituraRepository entidadeLeituraRepository, IRuntimeDbContextFactory<ApplicationDbContext> runtimeDbContextFactory)
+        private readonly IJwtTokenService _jwtTokenService;
+        private readonly IUsuario _usuario;
+        public AutenticacaoService( IAutenticacaoRepository autenticacaoRepository, IJwtTokenService jwtTokenService, IEntidadeLeituraRepository entidadeLeituraRepository, IRuntimeDbContextFactory<ApplicationDbContext> runtimeDbContextFactory, IUsuario usuario)
         {
             _autenticacaoRepository = autenticacaoRepository;
             _jwtTokenService = jwtTokenService;
             _entidadeLeituraRepository = entidadeLeituraRepository;
             _runtimeDbContextFactory = runtimeDbContextFactory;
+            _usuario = usuario;
         }
 
         public async Task<string> GerarTokenJWT(DTOToken oDTOToken)
@@ -48,7 +50,17 @@ namespace Business.Services
 
                 if (usuario.sSenha != oDTOToken.Senha) throw new ExceptionCustom("Credenciais inválidas.");
 
-                return _jwtTokenService.GerarTokenJWT(usuarioMaster);
+                var funcionalidades = await (
+                    from perfilUsuario in contextoCliente.PerfilUsuario
+                    where perfilUsuario.sCdUsuario == usuario.sCdUsuario
+                    join permissaoPerfil in contextoCliente.PermissaoPerfil on perfilUsuario.nCdPerfil equals permissaoPerfil.nCdPerfil
+                    join funcionalidadePermissao in contextoCliente.FuncionalidadePermissao on permissaoPerfil.nCdPermissao equals funcionalidadePermissao.nCdPermissao
+                    join funcionalidade in contextoCliente.Funcionalidade on funcionalidadePermissao.nCdFuncionalidade equals funcionalidade.nCdFuncionalidade
+                    where funcionalidade.bFlAtiva
+                    select funcionalidade
+                ).Distinct().ToListAsync();
+
+                return _jwtTokenService.GerarTokenJWT(usuarioMaster, funcionalidades);
             }
             catch
             {

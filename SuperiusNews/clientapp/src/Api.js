@@ -76,7 +76,7 @@ export default {
         baseURL: `${baseApiUrl}/Funcionalidade`,
         axios: axiosWithToken(`${baseApiUrl}/Funcionalidade`),
         endpoints: {
-            pesquisarFuncionalidades: "/Funcionalidade",
+            pesquisarFuncionalidades: "/Funcionalidades",
             cadastrarFuncionalidade: "/Funcionalidade",
             ativarFuncionalidades: "/AtivarFuncionalidade",
             inativarFuncionalidades: "/InativarFuncionalidade",
@@ -87,7 +87,7 @@ export default {
         baseURL: `${baseApiUrl}/Permissao`,
         axios: axiosWithToken(`${baseApiUrl}/Permissao`),
         endpoints: {
-            pesquisarPermissoes: "/Permissao",
+            pesquisarPermissoes: "/Permissoes",
             cadastrarPermissao: "/Permissao",
             ativarPermissoes: "/AtivarPermissoes",
             inativarPermissoes: "/InativarPermissoes",
@@ -103,7 +103,7 @@ export default {
         baseURL: `${baseApiUrl}/Perfil`,
         axios: axiosWithToken(`${baseApiUrl}/Perfil`),
         endpoints: {
-            pesquisarPerfis: "/Perfil",
+            pesquisarPerfis: "/Perfis",
             cadastrarPerfil: "/Perfil",
             ativarPerfis: "/AtivarPerfis",
             inativarPerfis: "/InativarPerfis",
@@ -119,7 +119,7 @@ export default {
         baseURL: `${baseApiUrl}/Usuario`,
         axios: axiosWithToken(`${baseApiUrl}/Usuario`),
         endpoints: {
-            pesquisarUsuarios: "/Usuario",
+            pesquisarUsuarios: "/Usuarios",
             cadastrarUsuario: "/Usuario",
             ativarUsuarios: "/AtivarUsuarios",
             inativarUsuarios: "/InativarUsuarios",

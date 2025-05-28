@@ -3,10 +3,14 @@ import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router-dom';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import funcionalidadesArray from '../common/Funcionalidades';
+import { useAuth } from '../common/AuthContext';
 
 const UsuarioTabela = ({ usuarios, loading, onEditarUsuario, onAtivarUsuarios, onInativarUsuarios, onPerfis, onCadastrarUsuario, onRefresh }) => {
     const [gridApi, setGridApi] = useState(null);
     const [selected, setSelected] = useState([]);
+    const { validarFuncionalidade } = useAuth();
+
     const navigate = useNavigate();
 
     const columnDefs = useMemo(() => [
@@ -34,12 +38,12 @@ const UsuarioTabela = ({ usuarios, loading, onEditarUsuario, onAtivarUsuarios, o
         <div>
             <>
             <div className="mt-4 mb-3 d-flex justify-content-between align-items-center">
-                    <div className="d-flex align-items-center">
-                    <button className="btn btn-primary me-2" onClick={() => onCadastrarUsuario()}> Incluir </button>
-                    <button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onEditarUsuario(selected[0].usuario)}> Editar </button>
-                    <button className="btn btn-secondary me-2 btn-warning" disabled={selected.length !== 1} onClick={() => onPerfis (selected[0].usuario)}> Perfis </button>
-                    <button className="btn btn-dark me-2" disabled onClick={() => onAtivarUsuarios(selected.map(item => item.usuario).join(","))}> Ativar </button>
-                    <button className="btn btn-secondary me-2 btn-danger" disabled onClick={() => onInativarUsuarios(selected.map(item => item.usuario).join(","))}> Inativar </button>
+                <div className="d-flex align-items-center">
+                    {validarFuncionalidade(funcionalidadesArray.EDITAR_USUARIOS) && (<button className="btn btn-primary me-2" onClick={() => onCadastrarUsuario()}> Incluir </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.EDITAR_USUARIOS) && (<button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onEditarUsuario(selected[0].usuario)}> Editar </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.ASSOCIAR_PERFIL_USUARIO) && (<button className="btn btn-secondary me-2 btn-warning" disabled={selected.length !== 1} onClick={() => onPerfis(selected[0].usuario)}> Perfis </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.ATIVAR_USUARIO) && (<button className="btn btn-dark me-2" disabled onClick={() => onAtivarUsuarios(selected.map(item => item.usuario).join(","))}> Ativar </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.INATIVAR_USUARIO) && (<button className="btn btn-secondary me-2 btn-danger" disabled onClick={() => onInativarUsuarios(selected.map(item => item.usuario).join(","))}> Inativar </button>)}
                 </div>
                 <div>
                     <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>

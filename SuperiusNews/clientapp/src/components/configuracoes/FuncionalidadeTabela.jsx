@@ -3,10 +3,14 @@ import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router-dom';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import funcionalidadesArray from '../common/Funcionalidades';
+import { useAuth } from '../common/AuthContext';
 
 const FuncionalidadeTabela = ({ funcionalidades, loading, onEditarFuncionalidade, onAtivarFuncionalidades, onInativarFuncionalidades, onRefresh }) => {
     const [gridApi, setGridApi] = useState(null);
     const [selected, setSelected] = useState([]);
+    const { validarFuncionalidade } = useAuth();
+
     const navigate = useNavigate();
 
     const columnDefs = useMemo(() => [
@@ -35,9 +39,9 @@ const FuncionalidadeTabela = ({ funcionalidades, loading, onEditarFuncionalidade
             <>
             <div className="mt-4 mb-3 d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
-                    <button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onEditarFuncionalidade(selected[0].codigoFuncionalidade)}> Editar </button>
-                    <button className="btn btn-dark me-2" disabled={selected.length === 0} onClick={() => onAtivarFuncionalidades(selected.map(item => item.codigoFuncionalidade).join(","))}> Ativar </button>
-                    <button className="btn btn-secondary me-2 btn-danger" disabled={selected.length === 0} onClick={() => onInativarFuncionalidades(selected.map(item => item.codigoFuncionalidade).join(","))}> Inativar </button>
+                    {validarFuncionalidade(funcionalidadesArray.EDITAR_FUNCIONALIDADES) && (<button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onEditarFuncionalidade(selected[0].codigoFuncionalidade)}> Editar </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.ATIVAR_FUNCIONALIDADES) && (<button className="btn btn-dark me-2" disabled={selected.length === 0} onClick={() => onAtivarFuncionalidades(selected.map(item => item.codigoFuncionalidade).join(","))}> Ativar </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.INATIVAR_FUNCIONALIDADES) && (<button className="btn btn-secondary me-2 btn-danger" disabled={selected.length === 0} onClick={() => onInativarFuncionalidades(selected.map(item => item.codigoFuncionalidade).join(","))}> Inativar </button>)}
                 </div>
                 <div>
                     <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>

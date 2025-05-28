@@ -47,9 +47,14 @@ export const AuthProvider = ({ children }) => {
     }, [user]);
 
     const validarFuncionalidade = useCallback((funcionalidade) => {
-        const funcionalidadesArray = user?.funcionalidades?.split(',') || [];
+        const funcionalidadesString = user?.funcionalidades;
+        if (typeof funcionalidadesString !== 'string' || funcionalidadesString.trim() === '') {
+            return false;
+        }
+        const funcionalidadesArray = funcionalidadesString.split(',');
         return funcionalidadesArray.includes(String(funcionalidade));
     }, [user]);
+
 
     const login = useCallback((token) => {
         localStorage.setItem('authToken', token);

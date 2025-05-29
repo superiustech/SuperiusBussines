@@ -14,5 +14,7 @@ namespace Domain.Interfaces
         Task<List<DTORevendedor>> PesquisarRevendedores();
         Task<List<DTOTipoRevendedor>> PesquisarTipos();
         Task<DTORetorno> ExcluirRevendedores(string arrCodigosRevendedores);
+        Task<DTORetorno> AssociarDesassociarUsuarios(AssociacaoRevendedorUsuarioRequest associacaoRequest);
+        Task<List<DTOUsuario>> UsuariosAssociados(int codigoRevendedor);
     }
 }

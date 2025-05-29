@@ -62,6 +62,11 @@ namespace Domain.Requests
         public string Codigo { get; set; }
         public string CodigosAssociacao { get; set; }
     }
+    public class AssociacaoRevendedorUsuarioRequest
+    {
+        public string CodigosRevendedores { get; set; }
+        public string CodigosUsuarios { get; set; }
+    }
     public class EstoqueProdutoDTO
     {
         public int nCdEstoque { get; set; }

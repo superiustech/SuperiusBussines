@@ -55,7 +55,6 @@ export const AuthProvider = ({ children }) => {
         return funcionalidadesArray.includes(String(funcionalidade));
     }, [user]);
 
-
     const login = useCallback((token) => {
         localStorage.setItem('authToken', token);
         validateTokenAndSetUser();

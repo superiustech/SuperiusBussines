@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Entities.Enum;
 using Domain.Requests;
 using Domain.ViewModel;
 using System.Collections.Generic;
@@ -16,5 +17,7 @@ namespace Domain.Interfaces
         Task<DTORetorno> AssociarPerfis(AssociacaoUsuarioRequest associacaoRequest);
         Task<DTORetorno> DesassociarPerfis(AssociacaoUsuarioRequest associacaoRequest);
         Task<List<DTOPerfil>> PerfisAssociados(string codigoUsuario);
+        bool ValidarFuncionalidades(params enumFuncionalidades[] funcionalidades);
+        string RetornarCodigoUsuario();
     }
 }

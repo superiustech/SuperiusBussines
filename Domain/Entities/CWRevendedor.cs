@@ -24,6 +24,7 @@ namespace Domain.Entities
 
         [ForeignKey("nCdTipoRevendedor")]
         public CWRevendedorTipo? Tipo { get; set; }
+        public ICollection<CWRevendedorUsuario> Usuarios { get; set; } = new List<CWRevendedorUsuario>();
     }
 
     public class CWRevendedorTipo

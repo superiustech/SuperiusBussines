@@ -41,9 +41,9 @@ const UsuarioTabela = ({ usuarios, loading, onEditarUsuario, onAtivarUsuarios, o
                 <div className="d-flex align-items-center">
                     {validarFuncionalidade(funcionalidadesArray.EDITAR_USUARIOS) && (<button className="btn btn-primary me-2" onClick={() => onCadastrarUsuario()}> Incluir </button>)}
                     {validarFuncionalidade(funcionalidadesArray.EDITAR_USUARIOS) && (<button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onEditarUsuario(selected[0].usuario)}> Editar </button>)}
-                    {validarFuncionalidade(funcionalidadesArray.ASSOCIAR_PERFIL_USUARIO) && (<button className="btn btn-secondary me-2 btn-warning" disabled={selected.length !== 1} onClick={() => onPerfis(selected[0].usuario)}> Perfis </button>)}
-                    {validarFuncionalidade(funcionalidadesArray.ATIVAR_USUARIO) && (<button className="btn btn-dark me-2" disabled onClick={() => onAtivarUsuarios(selected.map(item => item.usuario).join(","))}> Ativar </button>)}
-                    {validarFuncionalidade(funcionalidadesArray.INATIVAR_USUARIO) && (<button className="btn btn-secondary me-2 btn-danger" disabled onClick={() => onInativarUsuarios(selected.map(item => item.usuario).join(","))}> Inativar </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.ASSOCIAR_PERFIL_USUARIO) && (<button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onPerfis(selected[0].usuario)}> Perfis </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.ATIVAR_USUARIO) && (<button className="btn btn-primary me-2" disabled onClick={() => onAtivarUsuarios(selected.map(item => item.usuario).join(","))}> Ativar </button>)}
+                    {validarFuncionalidade(funcionalidadesArray.INATIVAR_USUARIO) && (<button className="btn btn-primary me-2 btn-danger" disabled onClick={() => onInativarUsuarios(selected.map(item => item.usuario).join(","))}> Inativar </button>)}
                 </div>
                 <div>
                     <button onClick={onRefresh} className="btn btn-outline-secondary" disabled={loading}> {loading ? 'Atualizando...' : 'Atualizar Lista'}</button>

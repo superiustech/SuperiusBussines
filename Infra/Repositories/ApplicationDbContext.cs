@@ -27,6 +27,7 @@ namespace Infra
         public DbSet<CWPermissaoPerfil> PermissaoPerfil { get; set; }
         public DbSet<CWPerfil> Perfil { get; set; }
         public DbSet<CWPerfilUsuario> PerfilUsuario { get; set; }
+        public DbSet<CWRevendedorUsuario> RevendedorUsuario { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -189,6 +190,13 @@ namespace Infra
                 entity.Property(e => e.sEmail).HasColumnName("sEmail");
                 entity.HasMany(e => e.Perfis).WithOne(e => e.Usuario).HasForeignKey(e => e.sCdUsuario);
             });
+            #endregion
+
+            #region REVENDEDOR (EMPRESA) - USUARIO
+
+            modelBuilder.Entity<CWRevendedorUsuario>().ToTable("REVENDEDOR_USUARIO").HasKey(p => new { p.nCdRevendedor, p.sCdUsuario });
+            modelBuilder.Entity<CWRevendedorUsuario>().HasOne(ep => ep.Revendedor).WithMany(e => e.Usuarios).HasForeignKey(ep => ep.nCdRevendedor);
+
             #endregion
         }
     }

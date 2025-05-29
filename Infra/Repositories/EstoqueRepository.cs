@@ -73,6 +73,21 @@ namespace Infra.Repositories
         {
             return await _context.Estoque.AsNoTracking().OrderBy(p => p.nCdEstoque).ToListAsync();
         }
+        public async Task<List<CWEstoque>> PesquisarEstoquesDoUsuario(string sCdUsuario)
+        {
+            var codRevendedores = await _context.RevendedorUsuario.AsNoTracking().Where(x => x.sCdUsuario == sCdUsuario).Select(x => x.nCdRevendedor).Distinct().ToListAsync();
+
+            if (!codRevendedores.Any()) return new List<CWEstoque>();
+
+            var codEstoques = await _context.Revendedor.AsNoTracking().Where(r => codRevendedores.Contains(r.nCdRevendedor) && r.nCdEstoque.HasValue).Select(r => r.nCdEstoque.Value).Distinct().ToListAsync();
+
+            if (!codEstoques.Any())return new List<CWEstoque>();
+
+            var estoques = await _context.Estoque.AsNoTracking().Include(e => e.Produtos.Where(x => x.bFlAtivo)).ThenInclude(ep => ep.Produto).Where(e => codEstoques.Contains(e.nCdEstoque)).OrderBy(e => e.nCdEstoque).ToListAsync();
+
+            return estoques;
+        }
+
         public IQueryable<CWEstoque> AplicarFiltros(IQueryable<CWEstoque> query, CWEstoque filtro)
         {
             query = !string.IsNullOrEmpty(filtro.sNmEstoque) ? query.Where(p => EF.Functions.Like(p.sNmEstoque, $"%{filtro.sNmEstoque}%")) : query;

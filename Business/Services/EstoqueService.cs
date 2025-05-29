@@ -16,16 +16,40 @@ namespace Business.Services
     {
         private readonly IEstoqueRepository _estoqueRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public EstoqueService(IEstoqueRepository estoqueRepository, IHttpContextAccessor httpContextAccessor)
+        private readonly IUsuario _usuario;
+        private readonly IEntidadeLeituraRepository _entidadeLeituraRepository;
+        public EstoqueService(IEstoqueRepository estoqueRepository, IHttpContextAccessor httpContextAccessor, IUsuario usuario, IEntidadeLeituraRepository entidadeLeituraRepository)
         {
             _estoqueRepository = estoqueRepository;
             _httpContextAccessor = httpContextAccessor;
+            _usuario = usuario;
+            _entidadeLeituraRepository = entidadeLeituraRepository;
         }
         public async Task<DTOEstoque> Consultar(int nCdEstoque)
         {
             try
             {
-                var estoque = await _estoqueRepository.Consultar(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
+                var estoque = new CWEstoque();
+                enumFuncionalidades[] funcionalidadesVisualizarTodosEstoques = { enumFuncionalidades.VisualizarTodosEstoques };
+
+                if (_usuario.ValidarFuncionalidades(funcionalidadesVisualizarTodosEstoques))
+                {
+                    estoque = await _estoqueRepository.Consultar(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
+                }
+                else
+                {
+                    string codigoUsuario = _usuario.RetornarCodigoUsuario();
+                    if (!string.IsNullOrEmpty(codigoUsuario))
+                    {
+                        List<CWEstoque> estoques = await _estoqueRepository.PesquisarEstoquesDoUsuario(codigoUsuario) ?? throw new ExceptionCustom($"Nenhum estoque associado ao usuário");
+                        estoque = estoques.Find(x => x.nCdEstoque == nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
+                    }
+                    else
+                    {
+                        return new DTOEstoque();
+                    }
+                }
+
                 DTOEstoque oDTOEstoque = new DTOEstoque()
                 {
                     Codigo = estoque.nCdEstoque,
@@ -74,8 +98,28 @@ namespace Business.Services
         }
         public async Task<List<DTOEstoque>> PesquisarTodosEstoques()
         {
-            try { 
-                var estoques = await _estoqueRepository.PesquisarTodosEstoques();
+            try {
+                var estoques = new List<CWEstoque>();
+
+                enumFuncionalidades[] funcionalidadesVisualizarTodosEstoques = { enumFuncionalidades.VisualizarTodosEstoques };
+
+                if (_usuario.ValidarFuncionalidades(funcionalidadesVisualizarTodosEstoques))
+                {
+                    estoques = await _estoqueRepository.PesquisarTodosEstoques();
+                }
+                else
+                {
+                    string codigoUsuario = _usuario.RetornarCodigoUsuario();
+                    if (!string.IsNullOrEmpty(codigoUsuario))
+                    {
+                        estoques = await _estoqueRepository.PesquisarEstoquesDoUsuario(codigoUsuario);
+                    }
+                    else
+                    {
+                        return new List<DTOEstoque>();
+                    }
+                }
+
                 List<DTOEstoque> lstEstoqueDTO = new List<DTOEstoque>();
 
                 lstEstoqueDTO.AddRange(estoques.Select(x => new DTOEstoque()
@@ -101,8 +145,24 @@ namespace Business.Services
         {
             try
             {
+                List<CWEstoqueProdutoHistorico> historico = new List<CWEstoqueProdutoHistorico>();
+                enumFuncionalidades[] funcionalidadesVisualizarTodosEstoques = { enumFuncionalidades.VisualizarTodosEstoques };
                 List<DTOEstoqueProdutoHistorico> lstHistoricoEstoque = new List<DTOEstoqueProdutoHistorico>();
-                var historico = await _estoqueRepository.ConsultarHistorico(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
+
+                if (_usuario.ValidarFuncionalidades(funcionalidadesVisualizarTodosEstoques))
+                {
+                    historico = await _estoqueRepository.ConsultarHistorico(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
+                }
+                else
+                {
+                    string codigoUsuario = _usuario.RetornarCodigoUsuario();
+                    if (!string.IsNullOrEmpty(codigoUsuario))
+                    {
+                        var bFlAssoaciadoEstoque = _estoqueRepository.PesquisarEstoquesDoUsuario(codigoUsuario).Result.Any(x => x.nCdEstoque == nCdEstoque);
+                        if(bFlAssoaciadoEstoque) historico = await _estoqueRepository.ConsultarHistorico(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
+                    }
+                }
+
                 lstHistoricoEstoque.AddRange(historico.Select(x => new DTOEstoqueProdutoHistorico()
                 {
                     Codigo = x.nCdEstoqueProdutoHistorico,
@@ -129,7 +189,26 @@ namespace Business.Services
             try
             {
                 List<DTOEstoqueProduto> lstEstoqueProdutoDTO = new List<DTOEstoqueProduto>();
-                var estoque = await _estoqueRepository.Consultar(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema1.");
+                var estoque = new CWEstoque();
+                enumFuncionalidades[] funcionalidadesVisualizarTodosEstoques = { enumFuncionalidades.VisualizarTodosEstoques };
+
+                if (_usuario.ValidarFuncionalidades(funcionalidadesVisualizarTodosEstoques))
+                {
+                    estoque = await _estoqueRepository.Consultar(nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema.");
+                }
+                else
+                {
+                    string codigoUsuario = _usuario.RetornarCodigoUsuario();
+                    if (!string.IsNullOrEmpty(codigoUsuario))
+                    {
+                        List<CWEstoque> estoques = await _estoqueRepository.PesquisarEstoquesDoUsuario(codigoUsuario) ?? throw new ExceptionCustom($"Nenhum estoque associado ao usuário");
+                        estoque = estoques.Find(x => x.nCdEstoque == nCdEstoque) ?? throw new ExceptionCustom($"Estoque cod. {nCdEstoque} não localizado no sistema ou não associado ao usuário.");
+                    }
+                    else
+                    {
+                        return new List<DTOEstoqueProduto>();
+                    }
+                }
 
                 lstEstoqueProdutoDTO.AddRange(estoque.Produtos.Select(x => new DTOEstoqueProduto()
                 {

@@ -6,6 +6,7 @@ using Domain.Entities.Uteis;
 using Domain.Requests;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Business.Uteis;
 namespace Business.Services
 {
     public class UsuarioService : IUsuario
@@ -327,6 +328,16 @@ namespace Business.Services
                 return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
             }
         }
-
+        public bool ValidarFuncionalidades(params enumFuncionalidades[] funcionalidades)
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user != null && user.ValidarFuncionalidades(funcionalidades);
+        }
+        public string RetornarCodigoUsuario()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user == null) return string.Empty;
+            return user.FindFirst(ClaimTypes.Name)?.Value;
+        }
     }
 }

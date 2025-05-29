@@ -15,10 +15,12 @@ namespace WebApplication1.Controllers
     {
         private readonly ILogger<RevendedorController> _logger;
         private readonly IRevendedor _revendedor;
-        public RevendedorController( ILogger<RevendedorController> logger, IRevendedor revendedor)
+        private readonly IUsuario _usuario;
+        public RevendedorController( ILogger<RevendedorController> logger, IRevendedor revendedor, IUsuario usuario)
         {
             _logger = logger;
             _revendedor = revendedor;
+            _usuario = usuario;
         }
 
         [HttpGet("TiposRevendedor")]
@@ -85,6 +87,44 @@ namespace WebApplication1.Controllers
             try
             {
                 return Ok(await _revendedor.CadastrarRevendedor(oDTORevendedor));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
+        [HttpPost("AssociarDesassociarUsuarios")]
+        public async Task<IActionResult> AssociarDesassociarUsuarios(AssociacaoRevendedorUsuarioRequest associacaoRequest)
+        {
+            try
+            {
+                return Ok( await _revendedor.AssociarDesassociarUsuarios(associacaoRequest));
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
+        [HttpGet("UsuariosAssociadosCompleto/{codigoRevendedor}")]
+        public async Task<IActionResult> UsuariosAssociadosCompleto(int codigoRevendedor)
+        {
+            try
+            {
+                return Ok(new { usuariosAtrelados = await _revendedor.UsuariosAssociados(codigoRevendedor) , usuarios = await _usuario.PesquisarUsuarios() });
             }
             catch (ExceptionCustom ex)
             {

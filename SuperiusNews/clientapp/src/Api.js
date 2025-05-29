@@ -62,7 +62,9 @@ export default {
             consultarRevendedor: "/Revendedor",
             cadastrarRevendedor: "/CadastrarRevendedor",
             pesquisarRevendedores: "/Revendedores",
-            excluirRevendedores: "/ExcluirRevendedores"
+            excluirRevendedores: "/ExcluirRevendedores",
+            associarDesassiarUsuarios: "/AssociarDesassociarUsuarios",
+            usuariosAssociadosCompleto: "/UsuariosAssociadosCompleto"
         }
     },
     autenticacao: {

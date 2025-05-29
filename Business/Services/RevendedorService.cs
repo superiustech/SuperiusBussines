@@ -2,6 +2,7 @@
 using Domain.Entities.Enum;
 using Domain.Entities.Uteis;
 using Domain.Interfaces;
+using Domain.Requests;
 using Domain.ViewModel;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
@@ -14,12 +15,13 @@ namespace Business.Services
     {
         private readonly IRevendedorRepository _revendedorRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public RevendedorService(IRevendedorRepository revendedorRepository, IHttpContextAccessor httpContextAccessor)
+        private readonly IEntidadeLeituraRepository _entidadeLeituraRepository;
+        public RevendedorService(IRevendedorRepository revendedorRepository, IHttpContextAccessor httpContextAccessor, IEntidadeLeituraRepository entidadeLeituraRepository )
         {
             _revendedorRepository = revendedorRepository;
             _httpContextAccessor = httpContextAccessor;
+            _entidadeLeituraRepository = entidadeLeituraRepository;
         }
-
         public async Task<List<DTORevendedor>> PesquisarRevendedores()
         {
             try
@@ -101,6 +103,110 @@ namespace Business.Services
                     Numero = revendedor.sNrNumero ?? string.Empty,
                     Cep = revendedor.sCdCep ?? string.Empty
                 };
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        public async Task<DTORetorno> AssociarDesassociarUsuarios(AssociacaoRevendedorUsuarioRequest associacaoRequest)
+        {
+            try
+            {
+                var lstCodigosRevendedores = associacaoRequest.CodigosRevendedores.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(valor =>
+                {
+                    if (int.TryParse(valor.Trim(), out int numero)) return numero;
+                    throw new ExceptionCustom("Passe somente números como parâmetro para associação de revendedores.");
+                }).ToList();
+
+                var lstCodigosUsuarios = associacaoRequest.CodigosUsuarios.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(valor => valor.Trim()).ToList();
+
+                var lstUsuariosExistentes = await _entidadeLeituraRepository.PesquisarTodos<CWUsuario>() ?? throw new ExceptionCustom("Não foi possível localizar nenhum usuário no sistema.");
+                var lstRevendedoresExistentes = await _entidadeLeituraRepository.PesquisarTodos<CWRevendedor>() ?? throw new ExceptionCustom("Não foi possível localizar nenhum revendedor no sistema.");
+
+                var lstCodigosInvalidos = lstCodigosRevendedores.Except(lstRevendedoresExistentes.Select(x => x.nCdRevendedor)).ToList();
+                var lstUsuariosInvalidos = lstCodigosUsuarios.Except(lstUsuariosExistentes.Select(x => x.sCdUsuario)).ToList();
+
+                var lstUsuariosParaAssociar = lstUsuariosExistentes.Where(f => lstCodigosUsuarios.Contains(f.sCdUsuario)).ToList();
+                var lstRevendedoresParaAssociar = lstRevendedoresExistentes.Where(f => lstCodigosRevendedores.Contains(f.nCdRevendedor)).ToList();
+
+                var lstRevendedorUsuario = new List<CWRevendedorUsuario>();
+                foreach (var revendedor in lstRevendedoresParaAssociar)
+                {
+                    if (lstUsuariosParaAssociar.Count == 0)
+                    {
+                        lstRevendedorUsuario.Add(new CWRevendedorUsuario
+                        {
+                            nCdRevendedor = revendedor.nCdRevendedor,
+                            sCdUsuario = string.Empty
+                        });
+                    }
+                    else
+                    {
+                        foreach (var usuario in lstUsuariosParaAssociar)
+                        {
+                            lstRevendedorUsuario.Add(new CWRevendedorUsuario
+                            {
+                                nCdRevendedor = revendedor.nCdRevendedor,
+                                sCdUsuario = usuario.sCdUsuario
+                            });
+                        }
+                    }   
+                }
+
+                await _revendedorRepository.AssociarDesassociarUsuarios(lstRevendedorUsuario);
+
+                if (lstCodigosInvalidos.Any())
+                {
+                    return new DTORetorno
+                    {
+                        Mensagem = $"Os seguintes códigos de revendedores não existem: '{string.Join(", ", lstCodigosInvalidos)}'",
+                        Status = enumSituacao.Aviso
+                    };
+                }
+
+                if (lstUsuariosInvalidos.Any())
+                {
+                    return new DTORetorno
+                    {
+                        Mensagem = $"Os seguintes códigos de usuários não existem: '{string.Join(", ", lstUsuariosInvalidos)}'",
+                        Status = enumSituacao.Aviso
+                    };
+                }
+
+                return new DTORetorno { Mensagem = "Associação realizada com sucesso.", Status = enumSituacao.Sucesso };
+            }
+            catch (ExceptionCustom ex)
+            {
+                return new DTORetorno { Mensagem = ex.Message, Status = enumSituacao.Erro };
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return new DTORetorno() { Mensagem = ex.Message, Status = enumSituacao.Erro };
+                #endif
+                return new DTORetorno() { Mensagem = "Houve um erro não previsto ao processar sua solicitação", Status = enumSituacao.Erro };
+            }
+        }
+        public async Task<List<DTOUsuario>> UsuariosAssociados(int codigoRevendedor)
+        {
+            try
+            {
+                List<CWRevendedorUsuario> revendedorUsuarios = await _entidadeLeituraRepository.Pesquisar<CWRevendedorUsuario>(x => x.nCdRevendedor == codigoRevendedor) ?? throw new ExceptionCustom("Não foi possível localizar as usuarios associados para esse revendedor.");
+                List<CWUsuario> todosUsuarios = await _entidadeLeituraRepository.PesquisarTodos<CWUsuario>() ?? throw new ExceptionCustom("Não foi possível localizar usuários no sistema.");
+                List<CWUsuario> usuariosAssociados = todosUsuarios.Where(f => revendedorUsuarios.Any(fp => fp.sCdUsuario == f.sCdUsuario)).ToList();
+
+                List<DTOUsuario> lstDTOPerfis = usuariosAssociados
+                .Select(f => new DTOUsuario
+                {
+                    Usuario = f.sCdUsuario,
+                    NomeUsuario = f.sNmUsuario,
+                    Email = f.sEmail
+                })
+                .ToList();
+
+                return lstDTOPerfis;
             }
             catch
             {

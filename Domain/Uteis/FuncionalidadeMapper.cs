@@ -5,9 +5,9 @@
         public static readonly Dictionary<string, HashSet<int>> EndpointParaFuncionalidade = new()
         {
             // Estoque
-            ["/api/Estoque/Estoques"] = new HashSet<int> { 1 },
+            ["/api/Estoque/Estoques"] = new HashSet<int> { 1, 34 },
             ["/api/Estoque/PesquisarEstoquesSemRevendedor"] = new HashSet<int> { 1 },
-            ["/api/Estoque/Estoque/{codigoEstoque}"] = new HashSet<int> { 1, 2, 4 },
+            ["/api/Estoque/Estoque/{codigoEstoque}"] = new HashSet<int> { 1, 2, 4, 34 },
             ["/api/Estoque/EstoqueProduto/{codigoEstoque}"] = new HashSet<int> { 1, 2, 4 },
             ["/api/Estoque/HistoricoMovimentacao/{codigoEstoque}"] = new HashSet<int> { 4 },
             ["/api/Estoque/CadastrarEstoque"] = new HashSet<int> { 2 },
@@ -65,6 +65,8 @@
             ["/api/Revendedor/Revendedores"] =  new HashSet<int> { 11 },
             ["/api/Revendedor/CadastrarRevendedor"] =  new HashSet<int> { 12 },
             ["/api/Revendedor/ExcluirRevendedores"] =  new HashSet<int> { 13 },
+            ["/api/Revendedor/AssociarDesassociarUsuarios"] = new HashSet<int> { 33 },
+            ["/api/Revendedor/UsuariosAssociadosCompleto"] = new HashSet<int> { 12 , 33 },
 
             // Usuario
             ["/api/Usuario/Usuarios"] =  new HashSet<int> { 28 }, 
@@ -76,7 +78,6 @@
             ["/api/Usuario/AssociarPerfis"] =  new HashSet<int> { 30 },
             ["/api/Usuario/DesassociarPerfis"] = new HashSet<int> { 30 }
         };
-
     }
 
 }

@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../common/AuthContext'; 
+import { useAuth } from '../common/AuthContext';
+import funcionalidades from '../common/Funcionalidades'; 
 
 const Sidebar = () => {
     const [collapsed, setCollapsed] = useState(false);
-    const { logout } = useAuth();
+    const { logout, validarFuncionalidade } = useAuth();
     const toggleSidebar = () => { setCollapsed(!collapsed); };
 
     const navItems = [
-        { path: "/administrador/produtos", icon: "fa-home", text: "Dashboard" },
-        { path: "/administrador/estoques", icon: "fa-chart-bar", text: "Estoque" },
-        { path: "/administrador/produtos", icon: "fa-box", text: "Produtos" },
-        { path: "/administrador/revendedores", icon: "fa-solid fa-truck-field", text: "Revendedores" },
-        { path: "/administrador/configuracoes", icon: "fa-solid fa-gear", text: "Configurações" },
-        { path: "#", icon: "fas fa-sign-out-alt", text: "Sair", onClick: logout },
+        { path: "/administrador/produtos", icon: "fa-home", text: "Dashboard", funcionalidade: funcionalidades.VISUALIZAR_PRODUTOS },
+        { path: "/administrador/estoques", icon: "fa-chart-bar", text: "Estoque", funcionalidade: funcionalidades.VISUALIZAR_ESTOQUES },
+        { path: "/administrador/produtos", icon: "fa-box", text: "Produtos", funcionalidade: funcionalidades.VISUALIZAR_PRODUTOS },
+        { path: "/administrador/revendedores", icon: "fa-solid fa-truck-field", text: "Revendedores", funcionalidade: funcionalidades.VISUALIZAR_REVENDEDORES },
+        { path: "/administrador/configuracoes", icon: "fa-solid fa-gear", text: "Configurações", funcionalidade: funcionalidades.VISUALIZAR_CONFIGURACOES },
+        //{ path: "#", icon: "fas fa-sign-out-alt", text: "Sair", onClick: logout },
     ];
 
     return (
@@ -32,11 +33,18 @@ const Sidebar = () => {
             <div className="nav flex-column">
 
                 {navItems.map((item, index) => (
-                    <NavLink key={index} to={item.path} onClick={item.onClick} className={({ isActive }) => `sidebar-link text-decoration-none text-light p-3 ${isActive && item.path !== "#" ? 'active' : ''}`}>
-                        <i className={`fas ${item.icon} me-3`}></i>
-                        {!collapsed && <span>{item.text}</span>}
-                    </NavLink>
+                    validarFuncionalidade(item.funcionalidade) && (
+                        <NavLink key={index} to={item.path} onClick={item.onClick} className={({ isActive }) => `sidebar-link text-decoration-none text-light p-3 ${isActive && item.path !== "#" ? 'active' : ''}`}>
+                            <i className={`fas ${item.icon} me-3`}></i>
+                            {!collapsed && <span>{item.text}</span>}
+                        </NavLink>
+                    )
                 ))}
+
+                <NavLink key={100} to={"#"} onClick={logout} className={({ isActive }) => `sidebar-link text-decoration-none text-light p-3 ${isActive &&  ''}`}>
+                    <i className={`fas fas fa-sign-out-alt me-3`}></i>
+                    {!collapsed && <span>{"Sair"}</span>}
+                </NavLink>
             </div>
 
             {!collapsed && (

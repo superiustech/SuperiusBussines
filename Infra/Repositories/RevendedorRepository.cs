@@ -90,5 +90,51 @@ namespace Infra.Repositories
                 throw;
             }
         }
+        public async Task AssociarDesassociarUsuarios(List<CWRevendedorUsuario> lsRevendedorUsuarios)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                if (lsRevendedorUsuarios != null && lsRevendedorUsuarios.Any())
+                {
+                    var codUsuarios = lsRevendedorUsuarios.Select(x => x.sCdUsuario).Distinct().ToList();
+                    var codRevendedores = lsRevendedorUsuarios.Select(x => x.nCdRevendedor).Distinct().ToList();
+
+                    var associacoesExistentes = await _context.RevendedorUsuario
+                        .Where(x => codRevendedores.Contains(x.nCdRevendedor))
+                        .ToListAsync();
+
+                    var associacoesParaRemover = associacoesExistentes
+                        .Where(e => !lsRevendedorUsuarios
+                            .Any(n => n.nCdRevendedor == e.nCdRevendedor && n.sCdUsuario == e.sCdUsuario))
+                        .ToList();
+
+                    if (associacoesParaRemover.Any())
+                    {
+                        _context.RevendedorUsuario.RemoveRange(associacoesParaRemover);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    var novasAssociacoes = lsRevendedorUsuarios.Where(x => !associacoesExistentes.Any(e => e.sCdUsuario == x.sCdUsuario && e.nCdRevendedor == x.nCdRevendedor) && !string.IsNullOrEmpty(x.sCdUsuario)).ToList();
+
+                    if (novasAssociacoes.Any())
+                    {
+                        await _context.RevendedorUsuario.AddRangeAsync(novasAssociacoes);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+
+
     }
 }

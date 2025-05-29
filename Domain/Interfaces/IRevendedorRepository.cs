@@ -12,5 +12,6 @@ namespace Domain.Interfaces
         Task<List<CWRevendedor>> PesquisarRevendedoresSimples();
         Task<List<CWRevendedorTipo>> PesquisarTipos();
         Task ExcluirRevendedores(List<CWRevendedor> lstRevendedores);
+        Task AssociarDesassociarUsuarios(List<CWRevendedorUsuario> lstRevendedorUsuario);
     }
 }

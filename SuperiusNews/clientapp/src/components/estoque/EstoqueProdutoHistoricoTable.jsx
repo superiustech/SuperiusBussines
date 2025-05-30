@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router-dom';
-import { colorSchemeDark } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import '../../styles/ag-custom.css';
@@ -55,8 +54,7 @@ const EstoqueProdutoHistoricoTable = ({ historico }) => {
                     suppressReactUi={true}
                     animateRows={true}
                     rowHeight={48}
-                    headerHeight={56}
-                    theme={colorSchemeDark}/>
+                    headerHeight={56}/>
             </div>
             </>
         </div>

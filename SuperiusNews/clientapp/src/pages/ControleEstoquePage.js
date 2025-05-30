@@ -23,7 +23,7 @@ const ControleEstoquePage = () => {
                     <h1 className="fw-bold display-5 text-primary m-0 mb-5"> <i className="bi bi-people-fill me-2"></i> Estoque </h1>
 
                     <EstoqueProdutoTabela estoqueProdutos={estoqueProdutos} loading={loading} onDeletarProduto={deletarProduto} onEntradaEstoque={() => abrirModal("entrada")} onSaidaEstoque={() => abrirModal("saida")} onRefresh={carregarEstoque} />
-                    <EstoqueProdutoHistoricoTable historico={historico} loading={loading} onEntradaEstoque={() => abrirModal("entrada")} onSaidaEstoque={() => abrirModal("saida")} onRefresh={carregarEstoque} />
+                    <EstoqueProdutoHistoricoTable historico={historico} />
 
                     <Modal show={modal.open} onHide={fecharModal} centered size="md" animation={true}>
                         <Modal.Header closeButton>

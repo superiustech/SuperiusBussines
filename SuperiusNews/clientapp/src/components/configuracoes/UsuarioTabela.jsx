@@ -5,6 +5,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import funcionalidadesArray from '../common/Funcionalidades';
 import { useAuth } from '../common/AuthContext';
+import '../../styles/ag-custom.css';
 
 const UsuarioTabela = ({ usuarios, loading, onEditarUsuario, onAtivarUsuarios, onInativarUsuarios, onPerfis, onCadastrarUsuario, onRefresh }) => {
     const [gridApi, setGridApi] = useState(null);
@@ -50,7 +51,7 @@ const UsuarioTabela = ({ usuarios, loading, onEditarUsuario, onAtivarUsuarios, o
                 </div>
             </div>
 
-            <div className="ag-theme-alpine" style={{ height: 450, width: '100%' }}>
+            <div className="ag-theme-alpine custom" style={{ height: 450, width: '100%' }}>
                 <AgGridReact
                     key={usuarios.length}
                     rowData={usuarios || []}

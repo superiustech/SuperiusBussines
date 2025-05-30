@@ -15,6 +15,7 @@
             ["/api/Estoque/EditarProdutoEstoque"] = new HashSet<int> { 2 },
             ["/api/Estoque/RemoverEstoqueProduto"] = new HashSet<int> { 7 },
             ["/api/Estoque/ExcluirEstoques"] = new HashSet<int> { 3 },
+            ["/api/Estoque/MovimentacoesRecentesHistorico"] = new HashSet<int> { 4 },
 
             // Funcionalidade
             ["/api/Funcionalidade/Funcionalidades"] = new HashSet<int> { 15 },
@@ -76,7 +77,11 @@
             ["/api/Usuario/PerfisAssociados/{codigoUsuario}"] =  new HashSet<int> { 28 },
             ["/api/Usuario/AssociarDesassociarPerfis"] =  new HashSet<int> { 30 },
             ["/api/Usuario/AssociarPerfis"] =  new HashSet<int> { 30 },
-            ["/api/Usuario/DesassociarPerfis"] = new HashSet<int> { 30 }
+            ["/api/Usuario/DesassociarPerfis"] = new HashSet<int> { 30 },
+
+            //Dashboard 
+            ["/api/Dashboard/ResumoDashboard"] = new HashSet<int> { 35 },
+            ["/api/Dashboard/ProdutosPorEstoques"] = new HashSet<int> { 35, 4},
         };
     }
 

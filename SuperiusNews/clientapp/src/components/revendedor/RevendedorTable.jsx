@@ -3,6 +3,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router-dom';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import '../../styles/ag-custom.css';
 import funcionalidades from '../common/Funcionalidades';
 import { useAuth } from '../common/AuthContext';
 
@@ -49,7 +50,7 @@ const RevendedorTable = ({ revendedores, loading, onEditarRevendedor, onExcluirR
                 </div>
             </div>
 
-            <div className="ag-theme-alpine" style={{ height: 450, width: '100%' }}>
+            <div className="ag-theme-alpine custom" style={{ height: 450, width: '100%' }}>
                 <AgGridReact
                     key={revendedores.length}
                     rowData={revendedores || []}

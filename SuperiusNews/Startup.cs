@@ -127,6 +127,7 @@ public class Startup
         services.AddScoped<IFuncionalidade, FuncionalidadeService>();
         services.AddScoped<IPermissao, PermissaoService>();
         services.AddScoped<IPerfil, PerfilService>();
+        services.AddScoped<IDashboard, DashboardService>();
 
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
         services.AddScoped<IProdutoRepositorySQL, ProdutoRepositorySQL>();
@@ -138,6 +139,7 @@ public class Startup
         services.AddScoped<IPermissaoRepository, PermissaoRepository>();
         services.AddScoped<IPerfilRepository, PerfilRepository>();
         services.AddScoped<IEntidadeLeituraRepository, EntidadeLeituraRepository>();
+        services.AddScoped<IDashboardRepository, DashboardRepository>();
 
         #endregion
     }

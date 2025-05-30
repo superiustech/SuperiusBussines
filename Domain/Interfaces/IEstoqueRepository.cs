@@ -23,6 +23,6 @@ namespace Domain.Interfaces
         Task<CWEstoqueProduto> ObterEstoqueExistente(CWEstoqueProduto cwEstoqueProduto);
         void DefinirValorVenda(CWEstoqueProduto cwEstoqueProduto, decimal percentualRevenda);
         Task<CWEstoqueProduto> CarregarDadosProdutoEEstoque(CWEstoqueProduto cwEstoqueProduto);
-
+        Task<List<CWEstoqueProdutoHistorico>> ConsultarHistoricoEstoques(List<int> codEstoques);
     }
 }

@@ -1,11 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using System.Threading.Tasks;
 using System.Data;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infra.Repositories
 {
@@ -35,7 +31,19 @@ namespace Infra.Repositories
                 .Include(h => h.EstoqueDestino)
                 .ToListAsync();
         }
-        
+
+        public async Task<List<CWEstoqueProdutoHistorico>> ConsultarHistoricoEstoques(List<int> codEstoques)
+        {
+            return await _context.EstoqueProdutoHistorico
+                .Where(h => codEstoques.Contains(h.nCdEstoque))
+                .OrderByDescending(h => h.nCdEstoqueProdutoHistorico)
+                .Include(h => h.Produto)
+                .Include(h => h.EstoqueOrigem)
+                .Include(h => h.EstoqueDestino)
+                .Take(1000) 
+                .AsNoTracking()
+                .ToListAsync();
+        }
         public async Task<List<CWEstoque>> PesquisarTodos(int page = 0, int pageSize = 0, CWEstoque? oCWEstoqueFiltro = null)
         {
             if (page == 0 || pageSize == 0)
@@ -71,7 +79,7 @@ namespace Infra.Repositories
         }
         public async Task<List<CWEstoque>> PesquisarTodosEstoques()
         {
-            return await _context.Estoque.AsNoTracking().OrderBy(p => p.nCdEstoque).ToListAsync();
+            return await _context.Estoque.AsNoTracking().Include(e => e.Produtos.Where(x => x.bFlAtivo)).ThenInclude(ep => ep.Produto).OrderBy(p => p.nCdEstoque).ToListAsync();
         }
         public async Task<List<CWEstoque>> PesquisarEstoquesDoUsuario(string sCdUsuario)
         {

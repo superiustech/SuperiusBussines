@@ -51,7 +51,8 @@ export default {
             removerEstoqueProduto: "/RemoverEstoqueProduto",
             editarProdutoEstoque: "/EditarProdutoEstoque",
             excluirEstoques: "/ExcluirEstoques",
-            movimentarEntradaSaida: "/MovimentarEntradaSaida"
+            movimentarEntradaSaida: "/MovimentarEntradaSaida",
+            movimentacoesRecentes: "/MovimentacoesRecentesHistorico"
         }
     },
     revendedor: {
@@ -131,6 +132,14 @@ export default {
             perfisAtrelados: "/PerfisAtrelados",
             perfisAssociadosCompleto: "/PerfisAssociadosCompleto",
             associarDesassociarPerfis: "/AssociarDesassociarPerfis"
+        }
+    },
+    dashboard: {
+        baseURL: `${baseApiUrl}/Dashboard`,
+        axios: axiosWithToken(`${baseApiUrl}/Dashboard`),
+        endpoints: {
+            dashboardResumo: "/ResumoDashboard",
+            produtosPorEstoques: "/ProdutosPorEstoques"
         }
     }
 };

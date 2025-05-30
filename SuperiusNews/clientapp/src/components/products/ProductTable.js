@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import funcionalidades from '../common/Funcionalidades';
+import '../../styles/ag-custom.css';
 import { useAuth } from '../common/AuthContext';
 
 const ProductTable = ({ products, loading, onProductClick, onDeleteClick, onRefresh }) => {
@@ -50,7 +51,7 @@ const ProductTable = ({ products, loading, onProductClick, onDeleteClick, onRefr
                     </div>
                 </div>
 
-                <div className="ag-theme-alpine" style={{ height: 450, width: '100%' }}>
+                <div className="ag-theme-alpine custom" style={{ height: 450, width: '100%' }}>
                     <AgGridReact
                         key={products.length}
                         rowData={products || []}

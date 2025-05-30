@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Uteis;
+using System.Text.Json.Serialization;
 namespace Domain.Entities.ViewModel
 {
     public class DTOEstoque
@@ -15,5 +16,7 @@ namespace Domain.Entities.ViewModel
         public string Complemento { get; set; }
         public string Numero { get; set; }
         public string Cep { get; set; }
+        [JsonIgnore]
+        public string ProdutosCadastrados { get; set; }
     }
 }

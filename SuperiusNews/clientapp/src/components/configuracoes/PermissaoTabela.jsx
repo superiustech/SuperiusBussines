@@ -5,6 +5,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import funcionalidadesArray from '../common/Funcionalidades';
 import { useAuth } from '../common/AuthContext';
+import '../../styles/ag-custom.css';
 
 const PermissaoTabela = ({ permissoes, loading, onEditarPermissao, onAtivarPermissoes, onInativarPermissoes, onFuncionalidades, onRefresh }) => {
     const [gridApi, setGridApi] = useState(null);
@@ -48,7 +49,7 @@ const PermissaoTabela = ({ permissoes, loading, onEditarPermissao, onAtivarPermi
                 </div>
             </div>
 
-            <div className="ag-theme-alpine" style={{ height: 450, width: '100%' }}>
+            <div className="ag-theme-alpine custom" style={{ height: 450, width: '100%' }}>
                 <AgGridReact
                     key={permissoes.length}
                     rowData={permissoes || []}

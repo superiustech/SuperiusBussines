@@ -97,7 +97,8 @@ public class RuntimeDbContextFactory : IRuntimeDbContextFactory<ApplicationDbCon
                     new() { nCdFuncionalidade = 31, sNmFuncionalidade = "Ativar usuários", sDsFuncionalidade = "Ativar contas de usuários", bFlAtiva = true },
                     new() { nCdFuncionalidade = 32, sNmFuncionalidade = "Inativar usuários", sDsFuncionalidade = "Desativar contas de usuários", bFlAtiva = true },
                     new() { nCdFuncionalidade = 33, sNmFuncionalidade = "Edição de usuarios revendedores", sDsFuncionalidade = "Associar ou desassociar usuarios revendedores", bFlAtiva = true },
-                    new() { nCdFuncionalidade = 34, sNmFuncionalidade = "Visualizar todos os estoques", sDsFuncionalidade = "Visualizar todos os estoques do sistema.", bFlAtiva = true }
+                    new() { nCdFuncionalidade = 34, sNmFuncionalidade = "Visualizar todos os estoques", sDsFuncionalidade = "Visualizar todos os estoques do sistema.", bFlAtiva = true },
+                    new() { nCdFuncionalidade = 35, sNmFuncionalidade = "Visualizar dashboard", sDsFuncionalidade = "Acessar a tela de dashboard padrão do sistema.", bFlAtiva = true }
                 };
 
                 foreach (var func in funcionalidades)

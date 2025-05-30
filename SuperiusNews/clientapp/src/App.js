@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo, memo } from 'react';
+ï»¿import React, { useEffect, useCallback, useMemo, memo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ProductsPage from './pages/ProductsPage';
 import CadastrarProduto from './pages/CadastrarProduto';
@@ -12,6 +12,7 @@ import RevendedorPage from './pages/RevendedorPage';
 import EstoquePage from './pages/EstoquePage';
 import LoginPage from './pages/LoginPage';
 import ConfiguracaoPage from './pages/ConfiguracaoPage';
+import DashboardPage from './pages/DashboardPage';
 import FuncionalidadesPage from './pages/FuncionalidadesPage';
 import PermissoesPage from './pages/PermissoesPage';
 import UsuariosPage from './pages/UsuariosPage';
@@ -28,7 +29,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const AuthenticatedApp = memo(() => (
     <Layout>
         <Routes>
-            {/* Rotas protegidas - só aparecem com layout quando logado */}
+            {/* Rotas protegidas - sÃ³ aparecem com layout quando logado */}
+            {/*Dashboard*/}
+            <Route path="/administrador/dashboard" element={<ProtectedRoute funcionalidade={funcionalidades.VISUALIZAR_DASHBOARD}> <DashboardPage /> </ProtectedRoute>} />
+
+            {/*Produtos*/}
             <Route path="/administrador/produtos" element={<ProtectedRoute funcionalidade={funcionalidades.VISUALIZAR_PRODUTOS}> <ProductsPage /> </ProtectedRoute>} />
             <Route path="/administrador/cadastrar-produto" element={<ProtectedRoute funcionalidade={funcionalidades.EDITAR_PRODUTOS}><CadastrarProduto /></ProtectedRoute>} />
             <Route path="/administrador/editar-produto/:codigoProduto" element={<ProtectedRoute funcionalidade={funcionalidades.EDITAR_PRODUTOS}><CadastrarProduto /></ProtectedRoute>} />
@@ -47,7 +52,7 @@ const AuthenticatedApp = memo(() => (
             <Route path="/administrador/cadastrar-revendedor" element={<ProtectedRoute funcionalidade={funcionalidades.EDITAR_REVENDEDORES}><CadastrarRevendedorPage /></ProtectedRoute>} />
             <Route path="/administrador/editar-revendedor/:codigoRevendedor" element={<ProtectedRoute funcionalidade={funcionalidades.EDITAR_REVENDEDORES}><CadastrarRevendedorPage /></ProtectedRoute>} />
 
-            {/* Configuração */}
+            {/* ConfiguraÃ§Ã£o */}
             <Route path="/administrador/configuracoes" element={<ProtectedRoute funcionalidade={funcionalidades.VISUALIZAR_CONFIGURACOES}><ConfiguracaoPage /></ProtectedRoute>} />
             <Route path="/administrador/funcionalidades" element={<ProtectedRoute funcionalidade={funcionalidades.VISUALIZAR_FUNCIONALIDADES}><FuncionalidadesPage /></ProtectedRoute>} />
             <Route path="/administrador/permissoes" element={<ProtectedRoute funcionalidade={funcionalidades.VISUALIZAR_PERMISSOES}><PermissoesPage /></ProtectedRoute>} />

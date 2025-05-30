@@ -20,6 +20,7 @@ namespace Domain.Interfaces
         Task<List<DTOEstoque>> PesquisarTodosEstoques();
         Task<DTORetorno> ExcluirEstoques(string arrCodigosEstoques);
         Task<List<DTOEstoqueProdutoHistorico>> ConsultarHistorico(int nCdEstoque);
+        Task<List<DTOEstoqueProdutoHistorico>> MovimentacoesRecentesHistorico();
         string ObterStringTipoMovimentacao(nTipoMovimentacao nTipo);
     }
 }

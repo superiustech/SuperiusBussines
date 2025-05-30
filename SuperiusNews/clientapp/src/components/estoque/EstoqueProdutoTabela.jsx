@@ -5,6 +5,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import funcionalidades from '../common/Funcionalidades';
 import { useAuth } from '../common/AuthContext';
+import '../../styles/ag-custom.css';
 
 const EstoqueProdutoTabela = ({ estoqueProdutos, loading, onDeletarProduto, onEntradaEstoque, onSaidaEstoque, onRefresh }) => {
 
@@ -49,7 +50,7 @@ const EstoqueProdutoTabela = ({ estoqueProdutos, loading, onDeletarProduto, onEn
                     </div>
                 </div>
 
-                <div className="ag-theme-alpine" style={{ height: 250, width: '100%' }}>
+                <div className="ag-theme-alpine custom" style={{ height: 250, width: '100%' }}>
                     <AgGridReact
                         key={estoqueProdutos.length}
                         rowData={estoqueProdutos || []}

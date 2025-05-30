@@ -129,6 +129,25 @@ namespace WebApplication1.Controllers
                 return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
             }
         }
+        [HttpGet("MovimentacoesRecentesHistorico")]
+        public async Task<IActionResult> MovimentacoesRecentesHistorico(int codigoEstoque)
+        {
+            try
+            {
+                return Ok(await _estoque.MovimentacoesRecentesHistorico());
+            }
+            catch (ExceptionCustom ex)
+            {
+                return NotFound(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                #if DEBUG
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = ex.Message });
+                #endif
+                return BadRequest(new DTORetorno { Status = enumSituacao.Erro, Mensagem = "Houve um erro não previsto ao processar sua solicitação" });
+            }
+        }
         [HttpPost("CadastrarEstoque")]
         public async Task<IActionResult> CadastrarEstoque([FromBody] DTOEstoque estoque)
         {

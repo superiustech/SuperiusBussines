@@ -12,7 +12,7 @@ html {
 
 body {
     overflow-x: hidden;
-    margin: 0; /* Remover margens padrão do body */
+    margin: 0; /* Remover margens padrï¿½o do body */
     background-color: #f8f9fa; /* Cor de fundo do body */
 }
 
@@ -21,7 +21,7 @@ body {
     height: 100vh;
     background: linear-gradient(135deg, #1a1c2e 0%, #16181f 100%);
     transition: all 0.3s ease;
-    position: fixed; /* Fixar o sidebar à esquerda */
+    position: fixed; /* Fixar o sidebar ï¿½ esquerda */
     left: 0;
     top: 0;
     z-index: 1000;
@@ -67,11 +67,11 @@ body {
 
 .main-content {
     width: 100%;
-    margin-left: var(--sidebar-width); /* Margem à esquerda igual à largura do sidebar */
+    margin-left: var(--sidebar-width); /* Margem ï¿½ esquerda igual ï¿½ largura do sidebar */
     padding: 20px;
     transition: margin-left 0.3s ease;
     min-height: 100vh;
-    background-color: #ffffff; /* Cor de fundo do conteúdo principal */
+    background-color: #ffffff; /* Cor de fundo do conteï¿½do principal */
     align-content: center !important;
 }
 

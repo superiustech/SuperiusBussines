@@ -26,6 +26,8 @@ namespace Business.Services
         {
             try
             {
+                // TODO - VISUALIZAR TODOS REVENDEDORES OU SÓ OS DO USUÁRIO?
+
                 var revendedores = await _revendedorRepository.PesquisarRevendedores();
                 return revendedores.Select(r => new DTORevendedor
                 {

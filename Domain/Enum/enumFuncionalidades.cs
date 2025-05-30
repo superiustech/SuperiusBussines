@@ -43,5 +43,6 @@
         InativarUsuario = 32,
         AssociarRevendedorUsuario = 33,
         VisualizarTodosEstoques = 34,
+        VisualizarDashboard = 35
     }
 }

@@ -131,7 +131,8 @@ namespace Business.Services
                     Rua = x.sDsRua,
                     Complemento = x.sDsComplemento,
                     Numero = x.sNrNumero,
-                    Cep = x.sCdCep
+                    Cep = x.sCdCep,
+                    ProdutosCadastrados = x.Produtos.Count.ToString()
                 }).ToList());
 
                 return lstEstoqueDTO;
@@ -164,6 +165,56 @@ namespace Business.Services
                 }
 
                 lstHistoricoEstoque.AddRange(historico.Select(x => new DTOEstoqueProdutoHistorico()
+                {
+                    Codigo = x.nCdEstoqueProdutoHistorico,
+                    CodigoProduto = x.nCdProduto,
+                    CodigoEstoqueOrigem = x.nCdEstoque,
+                    CodigoEstoqueDestino = x.nCdEstoqueDestino,
+                    TipoMovimentacao = ObterStringTipoMovimentacao(x.nTipoMovimentacao),
+                    DataMovimentacao = x.tDtMovimentacao?.ToString("yyyy-MM-dd HH:mm:ss") ?? string.Empty,
+                    QuantidadeMovimentada = x.dQtMovimentada,
+                    Observacao = x.sDsObservacao ?? string.Empty,
+                    EstoqueOrigem = x.EstoqueOrigem?.sNmEstoque ?? string.Empty,
+                    EstoqueDestino = x.EstoqueDestino?.sNmEstoque ?? string.Empty,
+                    Produto = x.Produto?.sNmProduto ?? string.Empty
+                }));
+                return lstHistoricoEstoque;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        public async Task<List<DTOEstoqueProdutoHistorico>> MovimentacoesRecentesHistorico()
+        {
+            try
+            {
+                List<CWEstoque> estoques = new List<CWEstoque>();
+                List<CWEstoqueProdutoHistorico> historicos = new List<CWEstoqueProdutoHistorico>();
+                List<DTOEstoqueProdutoHistorico> lstHistoricoEstoque = new List<DTOEstoqueProdutoHistorico>();
+
+                enumFuncionalidades[] funcionalidadesVisualizarTodosEstoques = { enumFuncionalidades.VisualizarTodosEstoques };
+
+                if (_usuario.ValidarFuncionalidades(funcionalidadesVisualizarTodosEstoques))
+                {
+                    estoques = await _estoqueRepository.PesquisarTodosEstoques();
+                }
+                else
+                {
+                    string codigoUsuario = _usuario.RetornarCodigoUsuario();
+                    if (!string.IsNullOrEmpty(codigoUsuario))
+                    {
+                        estoques = await _estoqueRepository.PesquisarEstoquesDoUsuario(codigoUsuario);
+                    }
+                    else
+                    {
+                        return new List<DTOEstoqueProdutoHistorico>();
+                    }
+                }
+
+                historicos = (await _estoqueRepository.ConsultarHistoricoEstoques(estoques.Select(x => x.nCdEstoque).ToList())).OrderByDescending(x => x.nCdEstoqueProdutoHistorico).Take(10).ToList();
+
+                lstHistoricoEstoque.AddRange(historicos.Select(x => new DTOEstoqueProdutoHistorico()
                 {
                     Codigo = x.nCdEstoqueProdutoHistorico,
                     CodigoProduto = x.nCdProduto,

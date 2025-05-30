@@ -1,0 +1,14 @@
+﻿/* src/styles/ag-custom.css */
+.ag-theme-alpine.custom {
+	/* fundo geral */
+	--ag-background-color: #ffffff;
+	/* linhas alternadas */
+	--ag-odd-row-background-color: #ffffff;
+	/* header */
+	--ag-header-background-color: #ffffff;
+	/* bordas */
+	--ag-border-color: #e0e0e0;
+	/* seleção (linha/ célula) */
+	--ag-row-hover-color: #e6f0ff;
+	--ag-selection-background-color: #cce0ff;
+}

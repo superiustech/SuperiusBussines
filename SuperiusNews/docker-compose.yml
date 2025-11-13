@@ -1,18 +1,35 @@
 version: "3.9"
 
 services:
+  db:
+    image: postgres:16
+    container_name: superius_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: superius
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - superius_net
+
   api:
     build:
-      context: ./api
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: SuperiusNews/Dockerfile
     container_name: superius_api
     ports:
-      - "5000:8080"         
+      - "5000:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=db;Database=superius;Username=postgres;Password=1234
+      - ConnectionStrings__ConnectionMaster=Host=db;Database=SUPERIUS_MASTER;Username=postgres;Password=1234
     depends_on:
       - db
+    networks:
+      - superius_net
 
   client:
     build:
@@ -20,23 +37,17 @@ services:
       dockerfile: Dockerfile
     container_name: superius_client
     ports:
-      - "3000:80"            
+      - "3000:80"
     environment:
-      - REACT_APP_API_URL=http://localhost:5000/api
+      - REACT_APP_API_URL=http://api:5000/api
     depends_on:
       - api
-
-  db:
-    image: postgres:16
-    container_name: superius_db
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=1234
-      - POSTGRES_DB=superius
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    networks:
+      - superius_net
 
 volumes:
   postgres_data:
+
+networks:
+  superius_net:
+    driver: bridge

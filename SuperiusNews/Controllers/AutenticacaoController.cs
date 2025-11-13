@@ -1,21 +1,10 @@
 using Domain.Entities;
 using Domain.Entities.Enum;
 using Domain.Interfaces;
-using Domain.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Entities.ViewModel;
 using Domain.Entities.Uteis;
-using Domain.ViewModel;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Web.Helpers;
-using Infra;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Org.BouncyCastle.Crypto.Generators;
 namespace WebApplication1.Controllers
 {
     [ApiController]

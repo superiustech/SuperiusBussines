@@ -1,16 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
+﻿using Infra;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Infra
+public class RuntimeDbContextMasterFactory
 {
-    public class ApplicationDbContextMasterFactory : IDesignTimeDbContextFactory<ApplicationDbContextMaster>
+    private readonly IConfiguration _configuration;
+
+    public RuntimeDbContextMasterFactory(IConfiguration configuration)
     {
-        public ApplicationDbContextMaster CreateDbContext(string[] args)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContextMaster>();
-            optionsBuilder.UseNpgsql("Host=localhost;Database=SUPERIUS_MASTER;Username=postgres;Password=1234");
-            return new ApplicationDbContextMaster(optionsBuilder.Options);
-        }
+        _configuration = configuration;
+    }
+
+    public ApplicationDbContextMaster CreateDbContext()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContextMaster>();
+        var connectionString = _configuration.GetConnectionString("ConnectionMaster")
+                               ?? throw new InvalidOperationException("ConnectionMaster não encontrada no appsettings.");
+
+        optionsBuilder.UseNpgsql(connectionString);
+        return new ApplicationDbContextMaster(optionsBuilder.Options);
     }
 }

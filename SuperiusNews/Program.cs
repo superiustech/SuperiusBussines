@@ -168,6 +168,22 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        var contextMaster = services.GetRequiredService<ApplicationDbContext>();
+        contextMaster.Database.Migrate();
+        Console.WriteLine("Migrações DEFAULT aplicadas com sucesso!");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Erro ao aplicar migrações do banco de dados DEFAULT.");
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
         var contextMaster = services.GetRequiredService<ApplicationDbContextMaster>();
         contextMaster.Database.Migrate();
         Console.WriteLine("Migrações MASTER aplicadas com sucesso!");

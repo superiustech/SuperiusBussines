@@ -1,4 +1,4 @@
-import Loading from '../ui/Loading';
+﻿import Loading from '../ui/Loading';
 import { useNavigate, useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -49,7 +49,7 @@ const FormularioProduto = () => {
                     peso: produto.peso || ''
                 });
             } else {
-                alert('Produto n�o encontrado.');
+                alert('Produto não encontrado.');
             }
         } catch (error) {
             console.error('Erro ao carregar produto:', error);
@@ -105,7 +105,7 @@ const FormularioProduto = () => {
         } catch (error) {
             if (error.response?.status === 400) {
                 const errors = error.response.data.errors;
-                alert("Erros de valida��o: " + errors.join(", "));
+                alert("Erros de validação: " + errors.join(", "));
             } else {
                 alert('Ocorreu um erro ao salvar os dados: ' + error.message);
             }
@@ -127,43 +127,43 @@ const FormularioProduto = () => {
                     <div className="col-md-10">
                         <label htmlFor="nomeProduto" className="form-label">Nome do Produto</label>
                         <input type="text" className="form-control" id="nomeProduto" name="nomeProduto" value={formData.nomeProduto} onChange={handleChange} required />
-                        <div className="valid-feedback"> Nome v�lido! </div>
+                        <div className="valid-feedback"> Nome válido! </div>
                         <div className="invalid-feedback"> Por favor, insira o nome do produto. </div>
                     </div>
 
                     <div className="col-md-2">
-                        <label htmlFor="codigoProduto" className="form-label">C�digo</label>
+                        <label htmlFor="codigoProduto" className="form-label">Código</label>
                         <div className="input-group has-validation">
                             <span className="input-group-text" id="inputGroupPrepend">#</span>
                             <input type="text" className="form-control" id="codigoProduto" name="codigoProduto" value={formData.codigoProduto} onChange={handleChange} aria-describedby="inputGroupPrepend" required />
-                            <div className="invalid-feedback"> Por favor, insira o c�digo do produto. </div>
+                            <div className="invalid-feedback"> Por favor, insira o código do produto. </div>
                         </div>
                     </div>
 
                     <div className="col-md-6">
-                        <label htmlFor="preco" className="form-label">Pre�o de Venda</label>
+                        <label htmlFor="preco" className="form-label">Preço de Venda</label>
                         <div className="input-group has-validation">
                             <span className="input-group-text" id="inputGroupPrepend">R$</span>
                             <IMaskInput mask={Number} radix="," scale={2} thousandsSeparator="." padFractionalZeros={true} normalizeZeros={true} mapToRadix={["."]} className="form-control" id="preco"
                             name="preco" value={formData.preco} onAccept={(value) => handleChange({ target: { name: 'preco', value } })} aria-describedby="inputGroupPrepend" required />
-                            <div className="invalid-feedback"> Por favor, insira um valor monet�rio v�lido. </div>
+                            <div className="invalid-feedback"> Por favor, insira um valor monetário válido. </div>
                         </div>
                     </div>
 
                     <div className="col-md-6">
-                        <label htmlFor="precoUnitario" className="form-label">Pre�o unit�rio</label>
+                        <label htmlFor="precoUnitario" className="form-label">Preço unitário</label>
                         <div className="input-group has-validation">
                             <span className="input-group-text" id="inputGroupPrepend">R$</span>
                             <IMaskInput mask={Number} radix="," scale={2} thousandsSeparator="." padFractionalZeros={true} normalizeZeros={true} mapToRadix={["."]} className="form-control" id="precoUnitario"
                             name="precoUnitario" value={formData.precoUnitario} onAccept={(value) => handleChange({ target: { name: 'precoUnitario', value } })} aria-describedby="inputGroupPrepend" required />
-                            <div className="invalid-feedback"> Por favor, insira um valor monet�rio v�lido. </div>
+                            <div className="invalid-feedback"> Por favor, insira um valor monetário válido. </div>
                         </div>
                     </div>
 
                     <div className="col-md-12">
-                        <label htmlFor="descricaoProduto" className="form-label">Descri��o do produto</label>
+                        <label htmlFor="descricaoProduto" className="form-label">Descrição do produto</label>
                         <textarea className="form-control" style={{ maxHeight: '150px' }} id="descricaoProduto" name="descricaoProduto" value={formData.descricaoProduto} onChange={handleChange} required/>
-                        <div className="invalid-feedback"> Por favor, insira a descri��o do produto. </div>
+                        <div className="invalid-feedback"> Por favor, insira a descrição do produto. </div>
                     </div>
 
                     <div className="col-md-4">
@@ -176,13 +176,13 @@ const FormularioProduto = () => {
                     </div>
 
                     <div className="col-md-8">
-                        <label htmlFor="videoYoutube" className="form-label">V�deo do youtube</label>
+                        <label htmlFor="videoYoutube" className="form-label">Vídeo do youtube</label>
                         <input type="text" className="form-control" id="videoYoutube" name="videoYoutube" value={formData.videoYoutube} onChange={handleChange} />
-                        <div className="invalid-feedback">Por favor, insira o link do v�deo do YouTube.</div>
+                        <div className="invalid-feedback">Por favor, insira o link do vídeo do YouTube.</div>
                     </div>
 
                     <br />
-                    <h6 className="mt-12">Dimens�es da embalagem <span className="badge bg-secondary"><i className="fas fa-gear"></i></span></h6>
+                    <h6 className="mt-12">Dimensões da embalagem <span className="badge bg-secondary"><i className="fas fa-gear"></i></span></h6>
 
                     <div className="col-md-6">
                         <label htmlFor="largura" className="form-label">Largura (cm)</label>
@@ -209,7 +209,7 @@ const FormularioProduto = () => {
 
                     <br />
                     <div className="col-md-6">
-                        <button type="submit" className="btn btn-primary" disabled={loading}>Salvar e avan�ar</button>
+                        <button type="submit" className="btn btn-primary" disabled={loading}>Salvar e avançar</button>
                     </div>
                 </form>
                 )}    

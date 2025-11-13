@@ -1,14 +1,119 @@
-﻿/* src/styles/ag-custom.css */
-.ag-theme-alpine.custom {
-	/* fundo geral */
-	--ag-background-color: #ffffff;
-	/* linhas alternadas */
-	--ag-odd-row-background-color: #ffffff;
-	/* header */
+﻿/* ===== Tema ERP Clean + Azul Lumen ===== */
+.ag-theme-alpine {
+	/* Cores base (claro) */
+	--ag-background-color: #f7f9fc;
+	--ag-foreground-color: #1f2937;
+	--ag-secondary-foreground-color: #6b7280;
+	--ag-border-color: #e5e7eb;
+	--ag-row-border-color: #eef2f7;
+	/* Azul Lumen */
+	--lumen-blue: #158CBA;
+	/* Tipografia */
+	--ag-font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+	--ag-font-size: 14px;
+	/* Espaçamento */
+	--ag-grid-size: 6px;
+	--ag-row-height: 44px;
+	--ag-header-height: 48px;
+	/* Header */
 	--ag-header-background-color: #ffffff;
-	/* bordas */
-	--ag-border-color: #e0e0e0;
-	/* seleção (linha/ célula) */
-	--ag-row-hover-color: #e6f0ff;
-	--ag-selection-background-color: #cce0ff;
+	--ag-header-foreground-color: #0f172a;
+	--ag-header-column-resize-handle-color: #cbd5e1;
+	/* Linhas / estados (suave + azul) */
+	--ag-odd-row-background-color: #ffffff;
+	--ag-even-row-background-color: #fbfdff;
+	/* HOVER sutil com Lumen */
+	--ag-row-hover-color: rgba(21, 140, 186, 0.08);
+	/* Seleção */
+	--ag-selected-row-background-color: rgba(21, 140, 186, 0.15);
+	/* Hover da coluna */
+	--ag-column-hover-color: rgba(21, 140, 186, 0.05);
+	/* Inputs / foco */
+	--ag-input-border-color: #d0d7e0;
+	--ag-input-focus-border-color: #158CBA;
+	--ag-range-selection-border-color: #158CBA;
+	--ag-range-selection-background-color: rgba(21, 140, 186, 0.12);
+	/* Checkbox */
+	--ag-checkbox-background-color: #ffffff;
+	--ag-checkbox-checked-color: #158CBA;
+	/* Ícones */
+	--ag-icon-color: #64748b;
+	/* Bordas */
+	--ag-border-radius: 12px;
+	--ag-cell-horizontal-border: 1px solid #eef2f7;
+}
+
+	/* Wrapper com sombra */
+	.ag-theme-alpine.custom .ag-root-wrapper {
+		border-radius: 16px;
+		border: 1px solid #e5e7eb;
+		box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+		overflow: hidden;
+		background: #ffffff;
+	}
+
+	/* Header */
+	.ag-theme-alpine .ag-header-cell-label {
+		font-weight: 600;
+		letter-spacing: 0.2px;
+	}
+
+	/* Células alinhadas */
+	.ag-theme-alpine .ag-cell {
+		display: flex;
+		align-items: center;
+	}
+
+	/* Linha selecionada mais definida */
+	.ag-theme-alpine .ag-row.ag-row-selected .ag-cell {
+		font-weight: 500;
+		color: #0f1f2f;
+	}
+
+	/* Inputs */
+	.ag-theme-alpine .ag-input-field-input,
+	.ag-theme-alpine input[type="text"],
+	.ag-theme-alpine input[type="search"] {
+		border: 1px solid var(--ag-input-border-color);
+		border-radius: 10px;
+		box-shadow: none;
+	}
+
+		/* Focus */
+		.ag-theme-alpine .ag-input-field-input:focus,
+		.ag-theme-alpine input[type="text"]:focus,
+		.ag-theme-alpine input[type="search"]:focus {
+			outline: none;
+			border-color: #158CBA;
+			box-shadow: 0 0 0 2px rgba(21, 140, 186, 0.25);
+		}
+
+	/* Ícones de menu */
+	.ag-theme-alpine .ag-icon-menu,
+	.ag-theme-alpine .ag-icon-filter {
+		opacity: 0.75;
+		transition: 0.2s;
+	}
+
+	.ag-theme-alpine .ag-header-cell:hover .ag-icon-menu,
+	.ag-theme-alpine .ag-header-cell:hover .ag-icon-filter {
+		opacity: 1;
+		color: #158CBA;
+	}
+
+	/* Ajuste de foco (azul suave) */
+	.ag-theme-alpine .ag-cell-focus {
+		box-shadow: inset 0 0 0 2px rgba(21, 140, 186, 0.25);
+		border-radius: 6px;
+	}
+
+	/* Detalhe bonito no subgrid (borda azul lateral) */
+	.ag-theme-alpine .ag-details-row {
+		border-left: 3px solid #158CBA;
+		background: #f5fafe;
+	}
+
+/* Remover interferência de tema antigo */
+.btn-outline-light:hover {
+	color: inherit;
 }

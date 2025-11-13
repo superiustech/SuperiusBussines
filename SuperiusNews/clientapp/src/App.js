@@ -25,6 +25,7 @@ import funcionalidades from './components/common/Funcionalidades';
 import './styles/css/site.css';
 import './styles/App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootswatch/dist/lux/bootstrap.min.css';
 
 const AuthenticatedApp = memo(() => (
     <Layout>

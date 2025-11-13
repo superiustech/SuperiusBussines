@@ -41,8 +41,8 @@ const RevendedorTable = ({ revendedores, loading, onEditarRevendedor, onExcluirR
             <div className="mt-4 mb-3 d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
                     {validarFuncionalidade(funcionalidades.EDITAR_REVENDEDORES) && (<button className="btn btn-primary me-2" onClick={() => navigate(`/administrador/cadastrar-revendedor`)}> Incluir </button>)}
-                    {validarFuncionalidade(funcionalidades.EDITAR_REVENDEDORES) && (<button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onEditarRevendedor(selected[0].codigo)}> Editar </button>)}
-                    {validarFuncionalidade(funcionalidades.ASSOCIAR_REVENDEDOR_USUARIO) && (<button className="btn btn-primary me-2" disabled={selected.length !== 1} onClick={() => onGerenciarUsuarios(selected[0].codigo)}> Usuarios </button>)}
+                    {validarFuncionalidade(funcionalidades.EDITAR_REVENDEDORES) && (<button className="btn btn-secondary me-2" disabled={selected.length !== 1} onClick={() => onEditarRevendedor(selected[0].codigo)}> Editar </button>)}
+                    {validarFuncionalidade(funcionalidades.ASSOCIAR_REVENDEDOR_USUARIO) && (<button className="btn btn-info me-2" disabled={selected.length !== 1} onClick={() => onGerenciarUsuarios(selected[0].codigo)}> Usuarios </button>)}
                     {validarFuncionalidade(funcionalidades.EXCLUIR_REVENDEDORES) && (<button className="btn btn-danger" disabled={selected.length === 0} onClick={() => onExcluirRevendedor(selected.map(item => item.codigo).join(","))}> Excluir </button>)}
                 </div>
                 <div>

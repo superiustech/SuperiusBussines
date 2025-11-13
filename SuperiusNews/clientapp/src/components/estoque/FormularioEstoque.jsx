@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+ï»¿import { useNavigate, useParams } from 'react-router-dom';
 import { IMaskInput } from 'react-imask';
 import React, { useState, useEffect } from 'react';
 import apiConfig from '../../Api';
@@ -50,7 +50,7 @@ const FormularioEstoque = () => {
         } catch (error) {
             if (error.response?.status === 400) {
                 const errors = error.response.data.errors;
-                alert("Erros de validação: " + errors.join(", "));
+                alert("Erros de validaÃ§Ã£o: " + errors.join(", "));
             } else {
                 alert('Ocorreu um erro ao salvar os dados: ' + error.message);
             }
@@ -76,7 +76,7 @@ const FormularioEstoque = () => {
                     cep: estoque.cep?.toString() || ''       
                 });
             } else {
-                alert('Estoque não encontrado.');
+                alert('Estoque nÃ£o encontrado.');
             }
         } catch (error) {
             console.error('Erro ao carregar Estoque:', error);
@@ -96,23 +96,23 @@ const FormularioEstoque = () => {
                         <div className="col-md-10">
                             <label htmlFor="nomeEstoque" className="form-label">Nome do Estoque</label>
                             <input type="text" className="form-control" id="nomeEstoque" name="nomeEstoque" value={formData.nomeEstoque} onChange={handleChange} required />
-                            <div className="valid-feedback"> Nome válido! </div>
+                            <div className="valid-feedback"> Nome vÃ¡lido! </div>
                             <div className="invalid-feedback"> Por favor, insira o nome do estoque. </div>
                         </div>
 
                         <div className="col-md-2">
-                            <label htmlFor="codigoEstoque" className="form-label">Código</label>
+                            <label htmlFor="codigoEstoque" className="form-label">CÃ³digo</label>
                             <div className="input-group has-validation">
                                 <span className="input-group-text" id="inputGroupPrepend">#</span>
                                 <input type="text" className="form-control" id="codigoEstoque" name="codigoEstoque" value={formData.codigoEstoque} onChange={handleChange} aria-describedby="inputGroupPrepend" required />
-                                <div className="invalid-feedback"> Por favor, insira o código do estoque. </div>
+                                <div className="invalid-feedback"> Por favor, insira o cÃ³digo do estoque. </div>
                             </div>
                         </div>
 
                         <div className="col-md-12">
-                            <label htmlFor="descricaoEstoque" className="form-label">Descrição do estoque</label>
+                            <label htmlFor="descricaoEstoque" className="form-label">DescriÃ§Ã£o do estoque</label>
                             <textarea className="form-control" style={{ maxHeight: '150px' }} id="descricaoEstoque" name="descricaoEstoque" value={formData.descricaoEstoque} onChange={handleChange} required />
-                            <div className="invalid-feedback"> Por favor, insira a descrição do estoque. </div>
+                            <div className="invalid-feedback"> Por favor, insira a descriÃ§Ã£o do estoque. </div>
                         </div>
 
                         <br />
@@ -128,9 +128,9 @@ const FormularioEstoque = () => {
                         </div>
 
                         <div className="col-md-6">
-                            <label htmlFor="numero" className="form-label">Número</label>
+                            <label htmlFor="numero" className="form-label">NÃºmero</label>
                             <input type="text" className="form-control" id="numero" name="numero" value={formData.numero} onChange={handleChange} required />
-                            <div className="invalid-feedback"> Por favor, insira o número. </div>
+                            <div className="invalid-feedback"> Por favor, insira o nÃºmero. </div>
                         </div>
 
                         <div className="col-md-6">
@@ -148,7 +148,7 @@ const FormularioEstoque = () => {
                         <br />
                         <div className="col-md-6">
                             <button type="submit" className="btn btn-primary" disabled={loading}>
-                                {loading ? 'Salvando...' : 'Salvar e avançar'}
+                                {loading ? 'Salvando...' : 'Salvar e avanÃ§ar'}
                             </button>
                         </div>
                     </form>

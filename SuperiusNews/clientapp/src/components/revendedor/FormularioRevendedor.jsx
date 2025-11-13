@@ -1,4 +1,4 @@
-import Loading from '../ui/Loading';
+ï»¿import Loading from '../ui/Loading';
 import React, { useState, useEffect } from 'react';
 import FlashMessage from '../ui/FlashMessage';
 import { IMaskInput } from 'react-imask';
@@ -41,10 +41,10 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                 {loading  ? (<Loading show={true} />) : (
                     <form id="formEstoque" className={`row g-3 needs-validation ${validated ? 'was-validated' : ''}`} noValidate onSubmit={handleSubmit}>
                         <div className="col-md-12">
-                            <label htmlFor="nomeRevendedor" className="form-label">Nome/Razão Social</label>
+                            <label htmlFor="nomeRevendedor" className="form-label">Nome/RazÃ£o Social</label>
                             <input type="text" className="form-control" id="nomeRevendedor" name="nomeRevendedor" value={formData.nomeRevendedor} onChange={handleChange} required />
-                            <div className="valid-feedback"> Nome válido! </div>
-                            <div className="invalid-feedback"> Por favor, insira o nome ou razão social do revendedor. </div>
+                            <div className="valid-feedback"> Nome vÃ¡lido! </div>
+                            <div className="invalid-feedback"> Por favor, insira o nome ou razÃ£o social do revendedor. </div>
                         </div>
 
                         <div className="col-md-8">
@@ -101,7 +101,7 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                         </div>
 
                         <br />
-                        <h6 className="mt-12"> Endereço
+                        <h6 className="mt-12"> EndereÃ§o
                             <span className="badge bg-secondary"><i className="fas fa-gear"></i></span>
                         </h6>
 
@@ -112,9 +112,9 @@ const FormularioRevendedor = ({ loading, error, success, mensagem, estoques, tip
                         </div>
 
                         <div className="col-md-6">
-                            <label htmlFor="numero" className="form-label">Número</label>
+                            <label htmlFor="numero" className="form-label">NÃºmero</label>
                             <input type="text" className="form-control" id="numero" name="numero" value={formData.numero} onChange={handleChange} required />
-                            <div className="invalid-feedback"> Por favor, insira o número. </div>
+                            <div className="invalid-feedback"> Por favor, insira o nÃºmero. </div>
                         </div>
 
                         <div className="col-md-6">

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+ï»¿import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router-dom';
 import 'ag-grid-community/styles/ag-grid.css';
@@ -12,8 +12,8 @@ const EstoqueProdutoHistoricoTable = ({ historico }) => {
 
     const columnDefs = useMemo(() => [
         { headerName: "#", field: "codigo", sortable: true, filter: true, resizable: true, width: 80 },
-        { headerName: "Tipo movimentação", field: "tipoMovimentacao", sortable: true, filter: true, resizable: true, width: 100 },
-        { headerName: "Dt. Movimentação", field: "dataMovimentacao", sortable: true, filter: 'agDateColumnFilter', resizable: true, width: 120,
+        { headerName: "Tipo movimentaÃ§Ã£o", field: "tipoMovimentacao", sortable: true, filter: true, resizable: true, width: 100 },
+        { headerName: "Dt. MovimentaÃ§Ã£o", field: "dataMovimentacao", sortable: true, filter: 'agDateColumnFilter', resizable: true, width: 120,
             valueFormatter: params => {
                 if (!params.value) return '';
                 const date = new Date(params.value);
@@ -24,7 +24,7 @@ const EstoqueProdutoHistoricoTable = ({ historico }) => {
         { headerName: "Qt.", field: "quantidadeMovimentada", sortable: true, filter: true, resizable: true, flex: 1, minWidth: 70 },
         { headerName: "E. Origem", field: "estoqueOrigem", sortable: true, filter: true, resizable: true, flex: 1, minWidth: 150 },
         { headerName: "E. Destino", field: "estoqueDestino", sortable: true, filter: true, resizable: true, flex: 1, minWidth: 150 },
-        { headerName: "Observação", field: "observacao", sortable: true, filter: true, resizable: true, flex: 1, minWidth: 150 }
+        { headerName: "ObservaÃ§Ã£o", field: "observacao", sortable: true, filter: true, resizable: true, flex: 1, minWidth: 150 }
     ], []);
 
     const gridOptions = useMemo(() => ({

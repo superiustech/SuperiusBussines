@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 
 const FormularioUsuario = ({ usuario, tipo, onSubmit, onCancel }) => {
@@ -15,7 +15,7 @@ const FormularioUsuario = ({ usuario, tipo, onSubmit, onCancel }) => {
     return (
         <Form onSubmit={handleSubmit}>
             <Form.Group>
-                <Form.Label>C�digo</Form.Label>
+                <Form.Label>Código</Form.Label>
                 <Form.Control type="text" value={formData.usuario} onChange={e => setFormData({ ...formData, usuario: e.target.value })} disabled={tipo === 'edicao'} />
             </Form.Group>
 

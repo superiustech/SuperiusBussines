@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: superius_api
+    ports:
+      - "5000:8080"         
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Database=superius;Username=postgres;Password=1234
+    depends_on:
+      - db
+
+  client:
+    build:
+      context: ./clientapp
+      dockerfile: Dockerfile
+    container_name: superius_client
+    ports:
+      - "3000:80"            
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000/api
+    depends_on:
+      - api
+
+  db:
+    image: postgres:16
+    container_name: superius_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=superius
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

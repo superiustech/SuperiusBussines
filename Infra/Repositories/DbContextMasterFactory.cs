@@ -9,7 +9,7 @@ namespace Infra
         public ApplicationDbContextMaster CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContextMaster>();
-            optionsBuilder.UseNpgsql("User ID=postgres;Password=postgres;Host=20.0.114.230;Port=5432;Database=SUPERIUS_MASTER;");
+            optionsBuilder.UseNpgsql("Host=localhost;Database=SUPERIUS_MASTER;Username=postgres;Password=1234");
             return new ApplicationDbContextMaster(optionsBuilder.Options);
         }
     }

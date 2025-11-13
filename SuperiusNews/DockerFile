@@ -1,0 +1,36 @@
+# ===== 1. Build stage =====
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copia o arquivo de solução e os projetos
+COPY ["api/api.csproj", "./api/"]
+COPY ["Domain/Domain.csproj", "./Domain/"]
+COPY ["Infra/Infra.csproj", "./Infra/"]
+COPY ["Business/Business.csproj", "./Business/"]
+
+# Restaura dependências
+RUN dotnet restore "./api/api.csproj"
+
+# Copia o restante do código
+COPY . .
+
+# Compila o projeto em modo Release
+WORKDIR "/src/api"
+RUN dotnet publish "api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# ===== 2. Runtime stage =====
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+
+# Copia os arquivos publicados da build
+COPY --from=build /app/publish .
+
+# Define variáveis de ambiente
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Expõe a porta (vai casar com a do docker-compose)
+EXPOSE 8080
+
+# Inicia a aplicação
+ENTRYPOINT ["dotnet", "api.dll"]

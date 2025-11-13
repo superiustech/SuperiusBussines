@@ -1,6 +1,8 @@
 ﻿import axios from 'axios';
 
-const baseApiUrl = `${window.location.origin}/api`;
+//const baseApiUrl = `${window.location.origin}/api`;
+const baseApiUrl = process.env.REACT_APP_API_URL || `${window.location.origin}/api`;
+
 const getAuthToken = () => localStorage.getItem('authToken'); 
 const axiosWithToken = (baseURL) => {
     const instance = axios.create({ baseURL });

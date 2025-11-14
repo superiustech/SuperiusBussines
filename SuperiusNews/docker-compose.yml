@@ -26,6 +26,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=db;Database=superius;Username=postgres;Password=1234
       - ConnectionStrings__ConnectionMaster=Host=db;Database=SUPERIUS_MASTER;Username=postgres;Password=1234
+      - ConnectionStrings__TenantBaseConnectionTemplate=Host=db;Database={tenant};Username=postgres;Password=1234
     depends_on:
       - db
     networks:
